@@ -1,22 +1,102 @@
-<?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom">
-    <id>https://luminqiang.github.io/</id>
-    <title>卢敏强的博客</title>
-    <updated>2019-12-26T14:11:28.874Z</updated>
-    <generator>https://github.com/jpmonette/feed</generator>
-    <link rel="alternate" href="https://luminqiang.github.io/"/>
-    <link rel="self" href="https://luminqiang.github.io//atom.xml"/>
-    <subtitle>温故而知新</subtitle>
-    <logo>https://luminqiang.github.io//images/avatar.png</logo>
-    <icon>https://luminqiang.github.io//favicon.ico</icon>
-    <rights>All rights reserved 2019, 卢敏强的博客</rights>
-    <entry>
-        <title type="html"><![CDATA[HTTP学习笔记之连接管理]]></title>
-        <id>https://luminqiang.github.io//post/http-xue-xi-bi-ji-zhi-lian-jie-guan-li</id>
-        <link href="https://luminqiang.github.io//post/http-xue-xi-bi-ji-zhi-lian-jie-guan-li">
-        </link>
-        <updated>2019-12-26T13:41:58.000Z</updated>
-        <content type="html"><![CDATA[<p>HTTP的性能中规中矩，不算差，并不够好，比不上RPC这种协议，但是胜在简单方便，关于http的连接，则分为短连接与长连接。</p>
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>HTTP学习笔记之连接管理 | 卢敏强的博客</title>
+<meta name="description" content="温故而知新">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://luminqiang.github.io//favicon.ico?v=1577369485515">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+<link rel="stylesheet" href="https://luminqiang.github.io//styles/main.css">
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+
+
+
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://luminqiang.github.io/">
+        <img src="https://luminqiang.github.io//images/avatar.png?v=1577369485515" class="site-logo">
+        <h1 class="site-title">卢敏强的博客</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="/archives" class="site-nav">
+            归档
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            标签
+          </a>
+        
+      
+        
+          <a href="/post/about" class="site-nav">
+            关于
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      温故而知新
+    </div>
+    <div class="site-footer">
+      Powered by <a href="https://github.com/luminqiang" target="_blank">LuMinQiang</a> | <a class="rss" href="https://luminqiang.github.io//atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">HTTP学习笔记之连接管理</h2>
+            <div class="post-date">2019-12-26</div>
+            
+            <div class="post-content">
+              <p>HTTP的性能中规中矩，不算差，并不够好，比不上RPC这种协议，但是胜在简单方便，关于http的连接，则分为短连接与长连接。</p>
 <p>短连接<br>
 HTTP 协议的最初版本0.9/1.0，是个非常简单的协议，通信过程也采用了简单的“请求 - 应答”方式。</p>
 <p>它底层的数据传输基于 TCP/IP，每次发送请求前需要先与服务器建立连接，收到响应报文后会立即关闭连接。</p>
@@ -59,32 +139,47 @@ RTT=传播时延（往返）+排队时延（路由器和交换机的）+数据�
 <p>2.采用“<strong>域名分片</strong>”（domain sharding）技术，还是用数量来解决质量的思路。<br>
 多个域名都指向同一台服务器 www.chrono.com，这样实际长连接的数量就又上去了。</p>
 <figure data-type="image" tabindex="1"><img src="https://static001.geekbang.org/resource/image/f9/72/f93afe4b663d681b8ce63c947f478072.png" alt=""></figure>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[HTTP的实体数据]]></title>
-        <id>https://luminqiang.github.io//post/http-de-shi-ti-shu-ju</id>
-        <link href="https://luminqiang.github.io//post/http-de-shi-ti-shu-ju">
-        </link>
-        <updated>2019-12-25T15:02:52.000Z</updated>
-        <content type="html"><![CDATA[<p><strong>数据类型与编码</strong><br>
-在 TCP/IP 协议栈里，传输数据基本上都是“header+body”的格式。但 TCP、UDP 因为是传输层的协议，它们不会关心 body 数据是什么，只要把数据发送到对方就算是完成了任务。</p>
-<p>而 HTTP 协议则不同，它是应用层的协议，数据到达之后工作只能说是完成了一半，还必须要告诉上层应用这是什么数据才行，否则上层应用就会“不知所措”。</p>
-<p>你可以设想一下，假如 HTTP 没有告知数据类型的功能，服务器把“一大坨”数据发给了浏览器，浏览器看到的是一个“黑盒子”，这时候该怎么办呢？</p>
-<p>当然，它可以“猜”。因为很多数据都是有固定格式的，所以通过检查数据的前几个字节也许就能知道这是个 GIF 图片、或者是个 MP3 音乐文件，但这种方式无疑十分低效，而且有很大几率会检查不出来文件类型。</p>
-<p>幸运的是，早在 HTTP 协议诞生之前就已经有了针对这种问题的解决方案，不过它是用在电子邮件系统里的，让电子邮件可以发送 ASCII 码以外的任意数据，方案的名字叫做“多用途互联网邮件扩展”（Multipurpose Internet Mail Extensions），简称为 MIME。</p>
-<p>MIME 是一个很大的标准规范，但 HTTP 只“顺手牵羊”取了其中的一部分，用来标记 body 的数据类型，这就是我们平常总能听到的“MIME type”。</p>
-<p>MIME 把数据分成了八大类，每个大类下再细分出多个子类，形式是“type/subtype”的字符串，巧得很，刚好也符合了 HTTP 明文的特点，所以能够很容易地纳入 HTTP 头字段里。</p>
-<p>这里简单列举一下在 HTTP 里经常遇到的几个类别：</p>
-<p>text：即文本格式的可读数据，我们最熟悉的应该就是 text/html 了，表示超文本文档，此外还有纯文本 text/plain、样式表 text/css 等。<br>
-image：即图像文件，有 image/gif、image/jpeg、image/png 等。<br>
-audio/video：音频和视频数据，例如 audio/mpeg、video/mp4 等。<br>
-application：数据格式不固定，可能是文本也可能是二进制，必须由上层应用程序来解释。常见的有 application/json，application/javascript、application/pdf 等，另外，如果实在是不知道数据是什么类型，像刚才说的“黑盒”，就会是 application/octet-stream，即不透明的二进制数据。<br>
-但仅有 MIME type 还不够，因为 HTTP 在传输时为了节约带宽，有时候还会压缩数据，为了不要让浏览器继续“猜”，还需要有一个“Encoding type”，告诉数据是用的什么编码格式，这样对方才能正确解压缩，还原出原始的数据。</p>
-<p>比起 MIME type 来说，Encoding type 就少了很多，常用的只有下面三种：</p>
-<p>gzip：GNU zip 压缩格式，也是互联网上最流行的压缩格式；<br>
-deflate：zlib（deflate）压缩格式，流行程度仅次于 gzip；<br>
-br：一种专门为 HTTP 优化的新压缩算法（Brotli）。</p>
-]]></content>
-    </entry>
-</feed>
+
+            </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://luminqiang.github.io//post/http-de-shi-ti-shu-ju">
+                  <h3 class="post-title">
+                    HTTP的实体数据
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+
+<script type="application/javascript">
+
+AOS.init();
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+  </body>
+</html>
