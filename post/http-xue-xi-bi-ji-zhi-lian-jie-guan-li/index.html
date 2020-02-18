@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>HTTP学习笔记之连接管理 | 卢敏强的博客</title>
 <meta name="description" content="温故而知新" />
-<link rel="shortcut icon" href="https://luminqiang.github.io//favicon.ico?v=1577502071886">
+<link rel="shortcut icon" href="https://luminqiang.github.io//favicon.ico?v=1581986840283">
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
 <link rel="stylesheet" href="https://luminqiang.github.io//styles/main.css">
@@ -20,7 +20,7 @@
       <div class="main-content">
         <div class="site-header">
   <a href="https://luminqiang.github.io/">
-  <img class="avatar" src="https://luminqiang.github.io//images/avatar.png?v=1577502071886" alt="">
+  <img class="avatar" src="https://luminqiang.github.io//images/avatar.png?v=1581986840283" alt="">
   </a>
   <h1 class="site-title">
     卢敏强的博客
@@ -83,7 +83,7 @@
                 6 min read
               </span>
               
-                <a href="https://luminqiang.github.io//tag/QNxdV4hlI" class="post-tag">
+                <a href="https://luminqiang.github.io/tag/QNxdV4hlI/" class="post-tag">
                   # HTTP
                 </a>
               
@@ -104,15 +104,15 @@ TCP 建立连接要有“三次握手”，发送 3 个数据包，需要 1 个 
 关闭连接是“四次挥手”，4 个数据包需要 2 个 RTT。</p>
 <p><strong>什么是RTT？</strong><br>
 RTT=传播时延（往返）+排队时延（路由器和交换机的）+数据处理时延（应用程序的）<br>
-<img src="https://pic2.zhimg.com/v2-99e600bf39d58d7732b159325ca0caf7_r.jpg" alt=""></p>
+<img src="https://pic2.zhimg.com/v2-99e600bf39d58d7732b159325ca0caf7_r.jpg" alt="" loading="lazy"></p>
 <p>而即使 HTTP最简单的一次“请求 - 响应”通常需要 4 个包，如果不算服务器内部的处理时间，最多是 2 个 RTT。这么算下来，浪费的时间就是“3÷5=60%”，有三分之二的时间被浪费掉了，传输效率低得惊人。<br>
-<img src="https://static001.geekbang.org/resource/image/54/0c/54315ed9ac37fbc6547258040f00a80c.png" alt=""></p>
+<img src="https://static001.geekbang.org/resource/image/54/0c/54315ed9ac37fbc6547258040f00a80c.png" alt="" loading="lazy"></p>
 <p><strong>长连接</strong><br>
 针对短连接暴露出的缺点，HTTP 协议就提出了“长连接”的通信方式，也叫“持久连接”（persistent connections）、“连接保活”（keep alive）、“连接复用”（connection reuse）。</p>
 <p>其解决思路为“成本均摊”，既然 TCP 的连接和关闭非常耗时间，那么就把这个时间成本由原来的一个“请求 - 应答”均摊到多个“请求 - 应答”上。</p>
 <p>虽然不能改善 TCP 的连接效率，但基于“分母效应”，每个“请求 - 应答”的无效时间就会降低不少，整体传输效率也就提高了。</p>
 <p><strong>短连接与长连接的对比示意图</strong><br>
-<img src="https://static001.geekbang.org/resource/image/57/b4/57b3d80234a1f1b8c538a376aa01d3b4.png" alt=""></p>
+<img src="https://static001.geekbang.org/resource/image/57/b4/57b3d80234a1f1b8c538a376aa01d3b4.png" alt="" loading="lazy"></p>
 <p>在短连接里发送了三次 HTTP“请求 - 应答”，每次都会浪费 60% 的 RTT 时间。而在长连接的情况下，同样发送三次请求，因为只在第一次时建立连接，在最后一次时关闭连接，所以浪费率就是“3÷9≈33%”，降低了差不多一半的时间损耗。显然，如果在这个长连接上发送的请求越多，分母就越大，利用率也就越高。</p>
 <p><strong>连接相关的头字段</strong><br>
 由于长连接对性能的改善效果非常显著，所以在 HTTP/1.1 中的连接都会默认启用长连接。不需要用什么特殊的头字段指定，只要向服务器发送了第一次请求，后续的请求都会重复利用第一次打开的 TCP 连接，也就是长连接，在这个连接上收发数据。</p>
@@ -128,14 +128,14 @@ RTT=传播时延（往返）+排队时延（路由器和交换机的）+数据�
 <p><strong>队头阻塞：</strong></p>
 <p>什么是队头阻塞？<br>
 因为 HTTP 规定报文必须是“一发一收”，这就形成了一个先进先出的“串行”队列。队列里的请求没有轻重缓急的优先级，只有入队的先后顺序，排在最前面的请求被最优先处理。如果队首的请求耽误时间，队列里后的所有请求阻塞起等待。<br>
-<img src="https://static001.geekbang.org/resource/image/6a/72/6a6d30a89fb085d5f1773a887aaf5572.png" alt=""></p>
+<img src="https://static001.geekbang.org/resource/image/6a/72/6a6d30a89fb085d5f1773a887aaf5572.png" alt="" loading="lazy"></p>
 <p><strong>优化队头阻塞问题</strong><br>
 “请求 - 应答”模型不能变，所以“队头阻塞”问题在 HTTP/1.1 里无法解决，只能缓解：</p>
 <p>1.采用就是“<strong>并发连接</strong>”（concurrent connections），也就是同时对一个域名发起多个长连接，用数量来解决质量的问题。</p>
 <p>缺陷：如果客户端随意建立多个连接，用户数 x 并发数，将会形成巨大的连接数，服务器资源很快耗尽，最后拒绝响应。浏览器一般并发连接数为6-8。</p>
 <p>2.采用“<strong>域名分片</strong>”（domain sharding）技术，还是用数量来解决质量的思路。<br>
 多个域名都指向同一台服务器 www.chrono.com，这样实际长连接的数量就又上去了。</p>
-<figure data-type="image" tabindex="1"><img src="https://static001.geekbang.org/resource/image/f9/72/f93afe4b663d681b8ce63c947f478072.png" alt=""></figure>
+<figure data-type="image" tabindex="1"><img src="https://static001.geekbang.org/resource/image/f9/72/f93afe4b663d681b8ce63c947f478072.png" alt="" loading="lazy"></figure>
 
               </div>
               <div class="toc-container">

@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>HTTP学习之缓存机制 | 卢敏强的博客</title>
 <meta name="description" content="温故而知新" />
-<link rel="shortcut icon" href="https://luminqiang.github.io//favicon.ico?v=1577502071886">
+<link rel="shortcut icon" href="https://luminqiang.github.io//favicon.ico?v=1581986840283">
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
 <link rel="stylesheet" href="https://luminqiang.github.io//styles/main.css">
@@ -20,7 +20,7 @@
       <div class="main-content">
         <div class="site-header">
   <a href="https://luminqiang.github.io/">
-  <img class="avatar" src="https://luminqiang.github.io//images/avatar.png?v=1577502071886" alt="">
+  <img class="avatar" src="https://luminqiang.github.io//images/avatar.png?v=1581986840283" alt="">
   </a>
   <h1 class="site-title">
     卢敏强的博客
@@ -95,7 +95,7 @@
 1.浏览器发现缓存无数据，则从浏览器获取相应的资源<br>
 2.服务器响应请求，返回资源，标记资源有效期<br>
 3.浏览器对资源进行缓存，再次请求在有效期内则使用缓存</p>
-<figure data-type="image" tabindex="1"><img src="https://static001.geekbang.org/resource/image/a1/5b/a1968821f214df4a3ae16c9b30f99a5b.png" alt=""></figure>
+<figure data-type="image" tabindex="1"><img src="https://static001.geekbang.org/resource/image/a1/5b/a1968821f214df4a3ae16c9b30f99a5b.png" alt="" loading="lazy"></figure>
 <p><strong>服务端控制缓存？</strong></p>
 <p>控制缓存通过请求/响应头中添加对应的缓存控制字段</p>
 <p>响应头中添加 Cache-Control:max-age=30，意思为该资源的有效时间为30秒，max-age代表资源的生存期，时间是从浏览器响应时间开始计算，并不是指浏览器拿到响应数据的时间，因为这是服务端进行设置的，自然是站在服务端的角度。</p>
@@ -103,16 +103,16 @@
 <p>1.no_store 不允许浏览器缓存，资源变化比较频繁的数据一般使用这个选项<br>
 2.no_cache 并不是是指不使用缓存，而是可以使用缓存，但每次使用都必须去服务端验证缓存是否失效<br>
 3.must_revaldate 缓存不过期则可以继续使用，过期后再去服务端验证，不需要每次进行验证</p>
-<figure data-type="image" tabindex="2"><img src="https://static001.geekbang.org/resource/image/8a/b2/8a67535620ab9c7764560363f83982b2.png" alt=""></figure>
+<figure data-type="image" tabindex="2"><img src="https://static001.geekbang.org/resource/image/8a/b2/8a67535620ab9c7764560363f83982b2.png" alt="" loading="lazy"></figure>
 <p><strong>客户端控制缓存？</strong></p>
 <p>客户端控制缓存也是使用Cache-Control请求头字段，请求方和响应方都可以使用这个字段进行缓存控制，互相协商。</p>
 <p>常见场景：<br>
 1.F5刷新页面</p>
 <p>浏览器在请求头中添加Cache-Control:max=age=0 ，希望服务端返回最新的数据</p>
-<figure data-type="image" tabindex="3"><img src="https://luminqiang.github.io//post-images/1577501221957.png" alt=""></figure>
+<figure data-type="image" tabindex="3"><img src="https://luminqiang.github.io//post-images/1577501221957.png" alt="" loading="lazy"></figure>
 <p>2.Ctrl + F5 强制刷新页面</p>
 <p>浏览器在请求头中添加Cache-Control:no_cache，检查是否有最新的数据，有则返回</p>
-<figure data-type="image" tabindex="4"><img src="https://luminqiang.github.io//post-images/1577501283189.png" alt=""></figure>
+<figure data-type="image" tabindex="4"><img src="https://luminqiang.github.io//post-images/1577501283189.png" alt="" loading="lazy"></figure>
 <p>二者的效果通常是一致的</p>
 <p><strong>条件请求</strong></p>
 <p>浏览器用“Cache-Control”做缓存控制只能是刷新数据，但是如何去验证数据是否过期是否有效却做不到，需要通过其他方式实现。</p>
@@ -122,7 +122,7 @@
 <p>但是因为需要使用两个请求才能完成验证，所以HTTP协议定义了一系列If开头的条件请求字段，专门用于检测资源是否过期，将验证工作整合在一次请求中，由服务端进行验证工作。</p>
 <p>条件请求一共有 5 个头字段，我们最常用的是“if-Modified-Since”和“If-None-Match”这两个。需要第一次的响应报文预先提供“Last-modified”和“ETag”，然后第二次请求时就可以带上缓存里的原值，验证资源是否是最新的。</p>
 <p>如果资源没有变，服务器就回应一个“304 Not Modified”，表示缓存依然有效，浏览器就可以更新一下有效期，然后放心大胆地使用缓存了。</p>
-<figure data-type="image" tabindex="5"><img src="https://static001.geekbang.org/resource/image/b2/37/b239d0804be630ce182e24ea9e4ab237.png" alt=""></figure>
+<figure data-type="image" tabindex="5"><img src="https://static001.geekbang.org/resource/image/b2/37/b239d0804be630ce182e24ea9e4ab237.png" alt="" loading="lazy"></figure>
 <p>Last-modified : 文件的最后修改时间</p>
 <p>ETag : “实体标签”（Entity Tag）的缩写，是资源的一个唯一标识，主要是用来解决修改时间无法准确区分文件变化的问题。</p>
 <p>ETag 还有“强”“弱”之分。强 ETag 要求资源在字节级别必须完全相符，弱 ETag 在值前有个“W/”标记，只要求资源在语义上没有变化，但内部可能会有部分发生了改变（例如 HTML 里的标签顺序调整，或者多了几个空格）。</p>
@@ -138,7 +138,7 @@
         
           <div class="next-post">
             <div class="next">下一篇</div>
-            <a href="https://luminqiang.github.io//post/http-xue-xi-bi-ji-zhi-lian-jie-guan-li">
+            <a href="https://luminqiang.github.io/post/http-xue-xi-bi-ji-zhi-lian-jie-guan-li/">
               <h3 class="post-title">
                 HTTP学习笔记之连接管理
               </h3>
