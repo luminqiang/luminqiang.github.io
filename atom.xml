@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://luminqiang.github.io/</id>
     <title>卢敏强的博客</title>
-    <updated>2020-02-21T00:55:52.658Z</updated>
+    <updated>2020-02-21T01:14:33.534Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://luminqiang.github.io/"/>
     <link rel="self" href="https://luminqiang.github.io/atom.xml"/>
@@ -10,6 +10,118 @@
     <logo>https://luminqiang.github.io/images/avatar.png</logo>
     <icon>https://luminqiang.github.io/favicon.ico</icon>
     <rights>All rights reserved 2020, 卢敏强的博客</rights>
+    <entry>
+        <title type="html"><![CDATA[浏览器的同源策略]]></title>
+        <id>https://luminqiang.github.io/liu-lan-qi-de-tong-yuan-ce-lue/</id>
+        <link href="https://luminqiang.github.io/liu-lan-qi-de-tong-yuan-ce-lue/">
+        </link>
+        <updated>2020-02-21T01:14:14.000Z</updated>
+        <content type="html"><![CDATA[<h3 id="什么是同源策略">什么是同源策略？</h3>
+<p>浏览器最基本的安全规范——同源策略(Same-Origin Policy)。所谓同源是指<strong>域名</strong>、<strong>协议</strong>、<strong>端口</strong>相同。不同源的<strong>浏览器脚本</strong>(javascript、ActionScript、canvas)在没明确授权的情况下，不能读写对方的资源。</p>
+<h3 id="为什么需要同源策略">为什么需要同源策略？</h3>
+<p>同源策略规定了浏览器脚本互操作web数据的基本原则，若没有这一基本原则，那么：</p>
+<ol>
+<li>某域下DOM元素被另一方任意操作、篡改，导致页面显示失控</li>
+<li>某域下的cookie等与该域相关的数据片段可以随意读取，导致与该域密切相关的浏览器cookie片段可能失真</li>
+<li>恶意网站能随意执行Ajax脚本偷取隐私数据，导致该域下核心业务数据被抓取。</li>
+</ol>
+<h3 id="怎么应对同源策略">怎么应对同源策略？</h3>
+<p>默认的同源策略 限制了脚本互操作其他域的能力，大棒一挥， 关闭了A站脚本正常访问B站数据的需求，有以下变通方法：</p>
+<ol>
+<li>实现CORS (Cross-Origin Resource Sharing)</li>
+<li>使用JSONP (JSON Padding)</li>
+<li>建立一个本地代理服务器，这样先同源访问，由代理服务器转发请求</li>
+</ol>
+<p><strong>方案1:CORS是w3C对于跨域请求推出的明确方案；方案2、3均是Hack行为。</strong></p>
+<h3 id="关于cors跨域请求方案">关于CORS跨域请求方案</h3>
+<p>W3C推出的跨域请求方案：<strong>让web服务器明确授权非同源页面脚本来访问自身，以Response特定标头Access-Control-*******-体现</strong>；目前现代浏览器均认可并支持这些标头。<br>
+<strong>CORS特定HTTP标头，为浏览器提供了授权脚本跨域访问其他域名页面数据的通道</strong>。</p>
+<p>所以CORS是处理跨域请求的常见方案，在Net Core中通常在Startup中配置跨域请求。</p>
+<p>常规的带Cookie Ajax跨域请求：</p>
+<pre><code>const invocation = new XMLHttpRequest();
+const url = 'http://bar.other/resources/credentialed-content/';
+function callOtherDomain(){
+  if(invocation) {
+    invocation.open('GET', url, true);
+    invocation.withCredentials = true;   // Ajax请求默认不会发送凭据， 这里设定在Ajax跨域请求中发送凭据
+    invocation.onreadystatechange = handler;
+    invocation.send(); 
+  }
+}
+</code></pre>
+<figure data-type="image" tabindex="1"><img src="https://mmbiz.qpic.cn/mmbiz_png/Nf8EFKZQ5kO2TLsQ3NM1NLAZ5oHGKxvEKQgfL1WyPo11b6hIdeg4yUqP4LWRJNMSK7XFyyXB3jJce7lZ2eNXLg/640?wx_fmt=png&amp;tp=webp&amp;wxfrom=5&amp;wx_lazy=1&amp;wx_co=1" alt="image" loading="lazy"></figure>
+<h3 id="cors规范">CORS规范：</h3>
+<ol>
+<li>浏览器发起CORS或POST请求，浏览器会自动携带Origin标头（指示请求来自于哪个站点）</li>
+<li>Web服务器实现跨域访问授权逻辑。 授权结果在Response中以Access-Control--******* 标头体现。</li>
+<li>浏览器会遵守Access-Control--*******-- 标头值所施加的跨域限制。</li>
+</ol>
+<p>最常见的Access-Control-Allow-Origin标头包含  * / Origin /null三种响应值；当请求是携带凭据的跨域请求，不可囫囵吞枣地指定为*通配符，而必须指定特定Origin</p>
+<pre><code>GET /resources/access-control-with-credentials/ HTTP/1.1
+Host: bar.other
+User-Agent: Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10.5; en-US; rv:1.9.1b3pre) Gecko/20081130 Minefield/3.1b3pre
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+Accept-Language: en-us,en;q=0.5
+Accept-Encoding: gzip,deflate
+Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7
+Connection: keep-alive
+Referer: http://foo.example/examples/credential.html
+Origin: http://foo.example
+Cookie: pageAccess=2
+
+
+HTTP/1.1 200 OK
+Date: Mon, 01 Dec 2008 01:34:52 GMT
+Server: Apache/2.0.61 (Unix) PHP/4.4.7 mod_ssl/2.0.61 OpenSSL/0.9.7e mod_fastcgi/2.4.2 DAV/2 SVN/1.4.2
+X-Powered-By: PHP/5.2.6
+Access-Control-Allow-Origin: http://foo.example
+Access-Control-Allow-Credentials: true
+Cache-Control: no-cache
+Pragma: no-cache
+Set-Cookie: pageAccess=3; expires=Wed, 31-Dec-2008 01:34:53 GMT
+Vary: Accept-Encoding, Origin
+Content-Encoding: gzip
+Content-Length: 106
+Keep-Alive: timeout=2, max=100
+Connection: Keep-Alive
+Content-Type: text/plain
+
+
+[text/plain payload]
+</code></pre>
+<p>以上表示了一个常见的携带cookie跨域Ajax Get请求，其中Access-Control-Allow-Credentials: true指示浏览器可以将跨域请求的Response结果暴露给页面。</p>
+<h3 id="cors中的请求预检preflight">CORS中的请求预检Preflight</h3>
+<p>对于非简单Ajax请求（通常是GET以外的HTTP方法，或者某些MIME类型的POST用法），CORS规范要求发起&quot;预检&quot;请求。</p>
+<p>注：不过，预检请求不需要你手动发起，浏览器会自动使用OPTIONS请求方法从服务器请求支持的方法，然后在服务器“批准”时，使用实际的HTTP请求方法发送实际请求。</p>
+<figure data-type="image" tabindex="2"><img src="https://mmbiz.qpic.cn/mmbiz_png/Nf8EFKZQ5kO2TLsQ3NM1NLAZ5oHGKxvEFCgLeQjvFNhoRmYrnF61OKHHwsMDJDnlicx5vQ9WY6xfVUM6BWZtOHA/640?wx_fmt=png&amp;tp=webp&amp;wxfrom=5&amp;wx_lazy=1&amp;wx_co=1" alt="image" loading="lazy"></figure>
+<p>下面使用POST动作发起Ajax跨域请求，同时自定义request header：X-PINGOTHER，该请求触发浏览器预检行为</p>
+<pre><code>
+const invocation = new XMLHttpRequest();
+const url = 'http://bar.other/resources/post-here/';
+const body = '&lt;?xml version=&quot;1.0&quot;?&gt;&lt;person&gt;&lt;name&gt;Arun&lt;/name&gt;&lt;/person&gt;';
+    
+function callOtherDomain(){
+  if(invocation)
+    {
+      invocation.open('POST', url, true);
+      invocation.setRequestHeader('X-PINGOTHER', 'pingpong');
+      invocation.setRequestHeader('Content-Type', 'application/xml');
+      invocation.onreadystatechange = handler;
+      invocation.send(body); 
+    }
+}
+</code></pre>
+<figure data-type="image" tabindex="3"><img src="https://mmbiz.qpic.cn/mmbiz_png/Nf8EFKZQ5kO2TLsQ3NM1NLAZ5oHGKxvEiac7pdBDgRp336gAQ096hfTpnvicH2zjlEyibhG1S0Kmmy4zGGfTmcRVA/640?wx_fmt=png&amp;tp=webp&amp;wxfrom=5&amp;wx_lazy=1&amp;wx_co=1" alt="image" loading="lazy"></figure>
+<h3 id="总结">总结</h3>
+<ol>
+<li>浏览器同源策略限制对象是浏览器脚本；</li>
+<li>存在跨域请求的场景，某些方案是Hack行为；</li>
+<li>W3C推出的CORS 是标准的跨域请求方案，思路是在服务端Response标头体现 授权, 浏览器遵守该授权标头。</li>
+<li>对于非简单的脚本跨域请求，浏览器会自动发起 Option请求预检， 大部分时候无需关注</li>
+<li>提供curl 工具帮助高效、优雅调试CORS。</li>
+</ol>
+]]></content>
+    </entry>
     <entry>
         <title type="html"><![CDATA[计算机组成原理学习笔记（程序的编译、链接、装载）]]></title>
         <id>https://luminqiang.github.io/ji-suan-ji-zu-cheng-yuan-li-xue-xi-bi-ji-cheng-xu-de-bian-yi-lian-jie-zhuang-zai/</id>

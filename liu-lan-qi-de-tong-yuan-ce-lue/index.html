@@ -1,0 +1,247 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+<meta name="description" content=""/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>浏览器的同源策略 | 卢敏强的博客</title>
+<link rel="shortcut icon" href="https://luminqiang.github.io//favicon.ico?v=1582247670017">
+<link href="https://cdn.bootcss.com/font-awesome/5.11.2/css/all.css" rel="stylesheet">
+<link rel="stylesheet" href="https://luminqiang.github.io//styles/main.css">
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+      integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dart.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/go.min.js"></script>
+<script src="https://cdn.bootcss.com/moment.js/2.23.0/moment.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
+        integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n"
+        crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+        integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+        crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
+        integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
+        crossorigin="anonymous"></script>
+
+<!-- DEMO JS -->
+<script src="media/scripts/index.js"></script>
+
+
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <div class="navbar-brand">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            卢敏强的博客
+        </div>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+                <div class="nav-item">
+                    
+                        <a href="/" class="menu gt-a-link">
+                            首页
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/archives" class="menu gt-a-link">
+                            归档
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/tags" class="menu gt-a-link">
+                            标签
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/about" class="menu gt-a-link">
+                            关于
+                        </a>
+                    
+                </div>
+            
+        </div>
+    </div>
+</nav>
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    浏览器的同源策略
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2020-02-21 ·
+                    </time>
+                    
+                </div>
+                <div class="post-content">
+                    <h3 id="什么是同源策略">什么是同源策略？</h3>
+<p>浏览器最基本的安全规范——同源策略(Same-Origin Policy)。所谓同源是指<strong>域名</strong>、<strong>协议</strong>、<strong>端口</strong>相同。不同源的<strong>浏览器脚本</strong>(javascript、ActionScript、canvas)在没明确授权的情况下，不能读写对方的资源。</p>
+<h3 id="为什么需要同源策略">为什么需要同源策略？</h3>
+<p>同源策略规定了浏览器脚本互操作web数据的基本原则，若没有这一基本原则，那么：</p>
+<ol>
+<li>某域下DOM元素被另一方任意操作、篡改，导致页面显示失控</li>
+<li>某域下的cookie等与该域相关的数据片段可以随意读取，导致与该域密切相关的浏览器cookie片段可能失真</li>
+<li>恶意网站能随意执行Ajax脚本偷取隐私数据，导致该域下核心业务数据被抓取。</li>
+</ol>
+<h3 id="怎么应对同源策略">怎么应对同源策略？</h3>
+<p>默认的同源策略 限制了脚本互操作其他域的能力，大棒一挥， 关闭了A站脚本正常访问B站数据的需求，有以下变通方法：</p>
+<ol>
+<li>实现CORS (Cross-Origin Resource Sharing)</li>
+<li>使用JSONP (JSON Padding)</li>
+<li>建立一个本地代理服务器，这样先同源访问，由代理服务器转发请求</li>
+</ol>
+<p><strong>方案1:CORS是w3C对于跨域请求推出的明确方案；方案2、3均是Hack行为。</strong></p>
+<h3 id="关于cors跨域请求方案">关于CORS跨域请求方案</h3>
+<p>W3C推出的跨域请求方案：<strong>让web服务器明确授权非同源页面脚本来访问自身，以Response特定标头Access-Control-*******-体现</strong>；目前现代浏览器均认可并支持这些标头。<br>
+<strong>CORS特定HTTP标头，为浏览器提供了授权脚本跨域访问其他域名页面数据的通道</strong>。</p>
+<p>所以CORS是处理跨域请求的常见方案，在Net Core中通常在Startup中配置跨域请求。</p>
+<p>常规的带Cookie Ajax跨域请求：</p>
+<pre><code>const invocation = new XMLHttpRequest();
+const url = 'http://bar.other/resources/credentialed-content/';
+function callOtherDomain(){
+  if(invocation) {
+    invocation.open('GET', url, true);
+    invocation.withCredentials = true;   // Ajax请求默认不会发送凭据， 这里设定在Ajax跨域请求中发送凭据
+    invocation.onreadystatechange = handler;
+    invocation.send(); 
+  }
+}
+</code></pre>
+<figure data-type="image" tabindex="1"><img src="https://mmbiz.qpic.cn/mmbiz_png/Nf8EFKZQ5kO2TLsQ3NM1NLAZ5oHGKxvEKQgfL1WyPo11b6hIdeg4yUqP4LWRJNMSK7XFyyXB3jJce7lZ2eNXLg/640?wx_fmt=png&amp;tp=webp&amp;wxfrom=5&amp;wx_lazy=1&amp;wx_co=1" alt="image" loading="lazy"></figure>
+<h3 id="cors规范">CORS规范：</h3>
+<ol>
+<li>浏览器发起CORS或POST请求，浏览器会自动携带Origin标头（指示请求来自于哪个站点）</li>
+<li>Web服务器实现跨域访问授权逻辑。 授权结果在Response中以Access-Control--******* 标头体现。</li>
+<li>浏览器会遵守Access-Control--*******-- 标头值所施加的跨域限制。</li>
+</ol>
+<p>最常见的Access-Control-Allow-Origin标头包含  * / Origin /null三种响应值；当请求是携带凭据的跨域请求，不可囫囵吞枣地指定为*通配符，而必须指定特定Origin</p>
+<pre><code>GET /resources/access-control-with-credentials/ HTTP/1.1
+Host: bar.other
+User-Agent: Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10.5; en-US; rv:1.9.1b3pre) Gecko/20081130 Minefield/3.1b3pre
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+Accept-Language: en-us,en;q=0.5
+Accept-Encoding: gzip,deflate
+Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7
+Connection: keep-alive
+Referer: http://foo.example/examples/credential.html
+Origin: http://foo.example
+Cookie: pageAccess=2
+
+
+HTTP/1.1 200 OK
+Date: Mon, 01 Dec 2008 01:34:52 GMT
+Server: Apache/2.0.61 (Unix) PHP/4.4.7 mod_ssl/2.0.61 OpenSSL/0.9.7e mod_fastcgi/2.4.2 DAV/2 SVN/1.4.2
+X-Powered-By: PHP/5.2.6
+Access-Control-Allow-Origin: http://foo.example
+Access-Control-Allow-Credentials: true
+Cache-Control: no-cache
+Pragma: no-cache
+Set-Cookie: pageAccess=3; expires=Wed, 31-Dec-2008 01:34:53 GMT
+Vary: Accept-Encoding, Origin
+Content-Encoding: gzip
+Content-Length: 106
+Keep-Alive: timeout=2, max=100
+Connection: Keep-Alive
+Content-Type: text/plain
+
+
+[text/plain payload]
+</code></pre>
+<p>以上表示了一个常见的携带cookie跨域Ajax Get请求，其中Access-Control-Allow-Credentials: true指示浏览器可以将跨域请求的Response结果暴露给页面。</p>
+<h3 id="cors中的请求预检preflight">CORS中的请求预检Preflight</h3>
+<p>对于非简单Ajax请求（通常是GET以外的HTTP方法，或者某些MIME类型的POST用法），CORS规范要求发起&quot;预检&quot;请求。</p>
+<p>注：不过，预检请求不需要你手动发起，浏览器会自动使用OPTIONS请求方法从服务器请求支持的方法，然后在服务器“批准”时，使用实际的HTTP请求方法发送实际请求。</p>
+<figure data-type="image" tabindex="2"><img src="https://mmbiz.qpic.cn/mmbiz_png/Nf8EFKZQ5kO2TLsQ3NM1NLAZ5oHGKxvEFCgLeQjvFNhoRmYrnF61OKHHwsMDJDnlicx5vQ9WY6xfVUM6BWZtOHA/640?wx_fmt=png&amp;tp=webp&amp;wxfrom=5&amp;wx_lazy=1&amp;wx_co=1" alt="image" loading="lazy"></figure>
+<p>下面使用POST动作发起Ajax跨域请求，同时自定义request header：X-PINGOTHER，该请求触发浏览器预检行为</p>
+<pre><code>
+const invocation = new XMLHttpRequest();
+const url = 'http://bar.other/resources/post-here/';
+const body = '&lt;?xml version=&quot;1.0&quot;?&gt;&lt;person&gt;&lt;name&gt;Arun&lt;/name&gt;&lt;/person&gt;';
+    
+function callOtherDomain(){
+  if(invocation)
+    {
+      invocation.open('POST', url, true);
+      invocation.setRequestHeader('X-PINGOTHER', 'pingpong');
+      invocation.setRequestHeader('Content-Type', 'application/xml');
+      invocation.onreadystatechange = handler;
+      invocation.send(body); 
+    }
+}
+</code></pre>
+<figure data-type="image" tabindex="3"><img src="https://mmbiz.qpic.cn/mmbiz_png/Nf8EFKZQ5kO2TLsQ3NM1NLAZ5oHGKxvEiac7pdBDgRp336gAQ096hfTpnvicH2zjlEyibhG1S0Kmmy4zGGfTmcRVA/640?wx_fmt=png&amp;tp=webp&amp;wxfrom=5&amp;wx_lazy=1&amp;wx_co=1" alt="image" loading="lazy"></figure>
+<h3 id="总结">总结</h3>
+<ol>
+<li>浏览器同源策略限制对象是浏览器脚本；</li>
+<li>存在跨域请求的场景，某些方案是Hack行为；</li>
+<li>W3C推出的CORS 是标准的跨域请求方案，思路是在服务端Response标头体现 授权, 浏览器遵守该授权标头。</li>
+<li>对于非简单的脚本跨域请求，浏览器会自动发起 Option请求预检， 大部分时候无需关注</li>
+<li>提供curl 工具帮助高效、优雅调试CORS。</li>
+</ol>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://luminqiang.github.io/ji-suan-ji-zu-cheng-yuan-li-xue-xi-bi-ji-cheng-xu-de-bian-yi-lian-jie-zhuang-zai/" class="post-title gt-a-link">
+                    计算机组成原理学习笔记（程序的编译、链接、装载）
+                </a>
+            </div>
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">Start With Why</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    Powered by <a href="https://github.com/luminqiang" target="_blank">LuMinQiang</a> | <a href="https://luminqiang.github.io//atom.xml" target="_blank">RSS</a>
+</div>
+
+<script>
+    hljs.initHighlightingOnLoad()
+</script>
+
+
+    </div>
+</div>
+</body>
+</html>
