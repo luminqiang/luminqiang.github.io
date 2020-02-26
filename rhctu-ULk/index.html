@@ -1,106 +1,99 @@
 <html>
-<head>
-    <meta charset="utf-8"/>
-<meta name="description" content=""/>
-<meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <head>
+    <meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>计算机组成原理17（数据通路） | 卢敏强的博客</title>
-<link rel="shortcut icon" href="https://luminqiang.github.io//favicon.ico?v=1582680351195">
-<link href="https://cdn.bootcss.com/font-awesome/5.11.2/css/all.css" rel="stylesheet">
+<meta name="description" content="Start With Why" />
+<link rel="shortcut icon" href="https://luminqiang.github.io//favicon.ico?v=1582680491731">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
 <link rel="stylesheet" href="https://luminqiang.github.io//styles/main.css">
-<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
-      integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
 
-<script src="https://cdn.bootcss.com/highlight.js/9.15.10/highlight.min.js"></script>
-<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dockerfile.min.js"></script>
-<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dart.min.js"></script>
-<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/go.min.js"></script>
-<script src="https://cdn.bootcss.com/moment.js/2.23.0/moment.min.js"></script>
-<script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
-        integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n"
-        crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
-        integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
-        crossorigin="anonymous"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
-        integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
-        crossorigin="anonymous"></script>
-
-<!-- DEMO JS -->
-<script src="media/scripts/index.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Droid+Serif:400,700">
 
 
 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
-</head>
-<body>
-<div class="main gt-bg-theme-color-first">
-    <nav class="navbar navbar-expand-lg">
-    <div class="navbar-brand">
-        <img class="user-avatar" src="/images/avatar.png" alt="头像">
-        <div class="site-name gt-c-content-color-first">
-            卢敏强的博客
-        </div>
-    </div>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
-            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <div class="navbar-nav mr-auto" style="text-align: center">
+  </head>
+  <body>
+    <div class="main">
+      <div class="main-content">
+        <div class="site-header">
+  <a href="https://luminqiang.github.io/">
+  <img class="avatar" src="https://luminqiang.github.io//images/avatar.png?v=1582680491731" alt="">
+  </a>
+  <h1 class="site-title">
+    卢敏强的博客
+  </h1>
+  <p class="site-description">
+    Start With Why
+  </p>
+  <div class="menu-container">
+    
+      
+        <a href="/" class="menu">
+          首页
+        </a>
+      
+    
+      
+        <a href="/archives" class="menu">
+          归档
+        </a>
+      
+    
+      
+        <a href="/tags" class="menu">
+          标签
+        </a>
+      
+    
+      
+        <a href="/post/about" class="menu">
+          关于
+        </a>
+      
+    
+  </div>
+  <div class="social-container">
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  </div>
+</div>
+
+        <div class="post-detail">
+          <article class="post">
+            <h2 class="post-title">
+              计算机组成原理17（数据通路）
+            </h2>
+            <div class="post-info">
+              <span>
+                2020-02-24
+              </span>
+              <span>
+                8 min read
+              </span>
+              
+                <a href="https://luminqiang.github.io/Z2ExtimoZ/" class="post-tag">
+                  # 计算机组成原理
+                </a>
+              
+            </div>
             
-                <div class="nav-item">
-                    
-                        <a href="/" class="menu gt-a-link">
-                            首页
-                        </a>
-                    
-                </div>
+              <img class="post-feature-image" src="https://luminqiang.github.io//post-images/rhctu-ULk.png" alt="">
             
-                <div class="nav-item">
-                    
-                        <a href="/archives" class="menu gt-a-link">
-                            归档
-                        </a>
-                    
-                </div>
-            
-                <div class="nav-item">
-                    
-                        <a href="/tags" class="menu gt-a-link">
-                            标签
-                        </a>
-                    
-                </div>
-            
-                <div class="nav-item">
-                    
-                        <a href="/post/about" class="menu gt-a-link">
-                            关于
-                        </a>
-                    
-                </div>
-            
-        </div>
-    </div>
-</nav>
-    <div class="post-container">
-        <div class="post-detail gt-bg-theme-color-second">
-            <article class="gt-post-content">
-                <h2 class="post-title">
-                    计算机组成原理17（数据通路）
-                </h2>
-                <div class="post-info">
-                    <time class="post-time gt-c-content-color-first">
-                        · 2020-02-24 ·
-                    </time>
-                    
-                        <a href="https://luminqiang.github.io/Z2ExtimoZ/" class="post-tags">
-                            # 计算机组成原理
-                        </a>
-                    
-                </div>
-                <div class="post-content">
-                    <p>CPU由指令加计算两部分组成，</p>
+            <div class="post-content-wrapper">
+              <div class="post-content">
+                <p>CPU由指令加计算两部分组成，</p>
 <p>指令：我们写的代码是怎么变成一条条机器能够理解的指令；</p>
 <p>计算：也就是数据的二进制表现（定点数、浮点数），加法和乘法的实现，通过什么电路（半加器、全加器）。</p>
 <p>只有把“指令”和“计算”这两部分功能连通起来，也就是建立数据通路，我们才能构成一个真正完整的 CPU。</p>
@@ -173,47 +166,74 @@
 <p>CPU在空闲状态就会停止执行，具体来说就是切断时钟信号，CPU的主频就会瞬间降低为0，功耗也会瞬间降低为0。由于这个空闲状态是十分短暂的，所以在任务管理器里面也只会看到CPU频率下降，不会看到降低为0。当CPU从空闲状态中恢复时，就会接通时钟信号，这样CPU频率就会上升。所以会在任务管理器里面看到CPU的频率起伏变化。</p>
 <p>同时，程序计数器一直在变化，意味着满载，如果持续不变就是idle。CPU密集型任务需要CPU大量计算的任务，这个时候CPU负载就很高，IO密集型任务，CPU一直在等待IO，就会有idle。</p>
 
-                </div>
-            </article>
+              </div>
+              <div class="toc-container">
+                
+              </div>
+            </div>
+          </article>
         </div>
 
         
-            <div class="next-post">
-                <div class="next gt-c-content-color-first">下一篇</div>
-                <a href="https://luminqiang.github.io/liu-lan-qi-de-tong-yuan-ce-lue/" class="post-title gt-a-link">
-                    浏览器的同源策略
-                </a>
-            </div>
+          <div class="next-post">
+            <div class="next">下一篇</div>
+            <a href="https://luminqiang.github.io/liu-lan-qi-de-tong-yuan-ce-lue/">
+              <h3 class="post-title">
+                浏览器的同源策略
+              </h3>
+            </a>
+          </div>
         
 
         
 
-        <div class="site-footer gt-c-content-color-first">
-    <div class="slogan gt-c-content-color-first">Start With Why</div>
-    <div class="social-container">
-        
-            
-        
-            
-        
-            
-        
-            
-        
-            
-        
-            
-        
-    </div>
-    Powered by <a href="https://github.com/luminqiang" target="_blank">LuMinQiang</a> | <a href="https://luminqiang.github.io//atom.xml" target="_blank">RSS</a>
+        <div class="site-footer">
+  Powered by <a href="https://github.com/luminqiang" target="_blank">LuMinQiang</a> | 
+  <a class="rss" href="https://luminqiang.github.io//atom.xml" target="_blank">RSS</a>
 </div>
 
 <script>
-    hljs.initHighlightingOnLoad()
+  hljs.initHighlightingOnLoad()
+
+  let mainNavLinks = document.querySelectorAll(".markdownIt-TOC a");
+
+  // This should probably be throttled.
+  // Especially because it triggers during smooth scrolling.
+  // https://lodash.com/docs/4.17.10#throttle
+  // You could do like...
+  // window.addEventListener("scroll", () => {
+  //    _.throttle(doThatStuff, 100);
+  // });
+  // Only not doing it here to keep this Pen dependency-free.
+
+  window.addEventListener("scroll", event => {
+    let fromTop = window.scrollY;
+
+    mainNavLinks.forEach((link, index) => {
+      let section = document.getElementById(decodeURI(link.hash).substring(1));
+      let nextSection = null
+      if (mainNavLinks[index + 1]) {
+        nextSection = document.getElementById(decodeURI(mainNavLinks[index + 1].hash).substring(1));
+      }
+      if (section.offsetTop <= fromTop) {
+        if (nextSection) {
+          if (nextSection.offsetTop > fromTop) {
+            link.classList.add("current");
+          } else {
+            link.classList.remove("current");    
+          }
+        } else {
+          link.classList.add("current");
+        }
+      } else {
+        link.classList.remove("current");
+      }
+    });
+  });
+
 </script>
 
-
+      </div>
     </div>
-</div>
-</body>
+  </body>
 </html>
