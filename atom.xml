@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://luminqiang.github.io/</id>
     <title>卢敏强的博客</title>
-    <updated>2020-04-09T14:00:39.075Z</updated>
+    <updated>2020-04-09T14:05:10.333Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://luminqiang.github.io/"/>
     <link rel="self" href="https://luminqiang.github.io/atom.xml"/>
@@ -10,6 +10,43 @@
     <logo>https://luminqiang.github.io/images/avatar.png</logo>
     <icon>https://luminqiang.github.io/favicon.ico</icon>
     <rights>All rights reserved 2020, 卢敏强的博客</rights>
+    <entry>
+        <title type="html"><![CDATA[.NET Core 3.0 配置允许所有域名跨域]]></title>
+        <id>https://luminqiang.github.io/i_Va9uR2B/</id>
+        <link href="https://luminqiang.github.io/i_Va9uR2B/">
+        </link>
+        <updated>2020-04-09T14:03:57.000Z</updated>
+        <content type="html"><![CDATA[<p>测试配置可行</p>
+<pre><code>public void ConfigureServices(IServiceCollection services)
+{
+    services.AddCors();
+}
+</code></pre>
+<p>SetIsOriginAllowed方法用于判断某个域名是否在允许跨域的名单中，这里不判断直接返回True</p>
+<pre><code>public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
+{
+    app.UseCors(options =&gt; options.SetIsOriginAllowed(x =&gt; _ = true).AllowAnyMethod().AllowAnyHeader().AllowCredentials());
+}
+</code></pre>
+<p><strong>SetIsOriginAllowed方法注释</strong></p>
+<pre><code>//
+// 摘要:
+//     /// Sets the specified isOriginAllowed for the underlying policy. ///
+//
+// 参数:
+//   isOriginAllowed:
+//     The function used by the policy to evaluate if an origin is allowed.
+//
+// 返回结果:
+//     The current policy builder.
+public CorsPolicyBuilder SetIsOriginAllowed(Func&lt;string, bool&gt; isOriginAllowed)
+{
+    throw null;
+}
+</code></pre>
+<figure data-type="image" tabindex="1"><img src="https://luminqiang.github.io//post-images/1586441071443.jfif" alt="" loading="lazy"></figure>
+]]></content>
+    </entry>
     <entry>
         <title type="html"><![CDATA[.NET Core 3.0 使用 IHostApplicationLifetime 处理应用启动和停止事件]]></title>
         <id>https://luminqiang.github.io/0HNFPxdKG/</id>
