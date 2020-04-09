@@ -1,0 +1,294 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>.NET Core 3.0 使用 IHostApplicationLifetime 处理应用启动和停止事件 | 卢敏强的博客</title>
+<meta name="description" content="Start With Why" />
+<link rel="shortcut icon" href="https://luminqiang.github.io//favicon.ico?v=1586438653563">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+<link rel="stylesheet" href="https://luminqiang.github.io//styles/main.css">
+
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Droid+Serif:400,700">
+
+
+
+  </head>
+  <body>
+    <div class="main">
+      <div class="main-content">
+        <div class="site-header">
+  <a href="https://luminqiang.github.io/">
+  <img class="avatar" src="https://luminqiang.github.io//images/avatar.png?v=1586438653563" alt="">
+  </a>
+  <h1 class="site-title">
+    卢敏强的博客
+  </h1>
+  <p class="site-description">
+    Start With Why
+  </p>
+  <div class="menu-container">
+    
+      
+        <a href="/" class="menu">
+          首页
+        </a>
+      
+    
+      
+        <a href="/archives" class="menu">
+          归档
+        </a>
+      
+    
+      
+        <a href="/tags" class="menu">
+          标签
+        </a>
+      
+    
+      
+        <a href="/post/about" class="menu">
+          关于
+        </a>
+      
+    
+  </div>
+  <div class="social-container">
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  </div>
+</div>
+
+        <div class="post-detail">
+          <article class="post">
+            <h2 class="post-title">
+              .NET Core 3.0 使用 IHostApplicationLifetime 处理应用启动和停止事件
+            </h2>
+            <div class="post-info">
+              <span>
+                2020-04-09
+              </span>
+              <span>
+                3 min read
+              </span>
+              
+            </div>
+            
+            <div class="post-content-wrapper">
+              <div class="post-content">
+                <h2 id="ihostedservice">IHostedService</h2>
+<p>该接口中有两个方法：</p>
+<p>StartAsync：当应用程序主机准备启动服务时触发</p>
+<p>StopAsync：当应用程序主机准备停止服务时触发</p>
+<pre><code>//
+// 摘要:
+//     /// Defines methods for objects that are managed by the host. ///
+public interface IHostedService
+{
+    //
+    // 摘要:
+    //     /// Triggered when the application host is ready to start the service. ///
+    //
+    // 参数:
+    //   cancellationToken:
+    //     Indicates that the start process has been aborted.
+    Task StartAsync(CancellationToken cancellationToken);
+
+    //
+    // 摘要:
+    //     /// Triggered when the application host is performing a graceful shutdown. ///
+    //
+    // 参数:
+    //   cancellationToken:
+    //     Indicates that the shutdown process should no longer be graceful.
+    Task StopAsync(CancellationToken cancellationToken);
+}
+</code></pre>
+<h2 id="ihostapplicationlifetime">IHostApplicationLifetime</h2>
+<p>该接口中包含三个属性：Host程序的启动、正在停止、已停止，一个方法StopApplication，该方法用于主动停止程序。</p>
+<pre><code>//
+// 摘要:
+//     /// Allows consumers to be notified of application lifetime events. ///
+public interface IHostApplicationLifetime
+{
+    //
+    // 摘要:
+    //     /// Triggered when the application host has fully started. ///
+    CancellationToken ApplicationStarted
+    {
+        get;
+    }
+
+    //
+    // 摘要:
+    //     /// Triggered when the application host is performing a graceful shutdown. ///
+    //     Shutdown will block until this event completes. ///
+    CancellationToken ApplicationStopped
+    {
+        get;
+    }
+
+    //
+    // 摘要:
+    //     /// Triggered when the application host is performing a graceful shutdown. ///
+    //     Shutdown will block until this event completes. ///
+    CancellationToken ApplicationStopping
+    {
+        get;
+    }
+
+    //
+    // 摘要:
+    //     /// Requests termination of the current application. ///
+    void StopApplication();
+}
+</code></pre>
+<p>这里实现<strong>IHostedService</strong>接口，然后使用<strong>IHostApplicationLifetime</strong>（该接口由框架自动实现注入），在<strong>IHostedService</strong>的<strong>StartAsync</strong>方法中注册<strong>IHostApplicationLifetime</strong>中的三个程序运行事件，可以做一些自定义的操作，我这里只是记录了日志。</p>
+<pre><code>internal class LifetimeEventsHostedService : IHostedService
+{
+    private readonly string appCode = ConfigurationManager.GetAppSetting(&quot;AppCode&quot;);
+    private readonly string appName = ConfigurationManager.GetAppSetting(&quot;AppName&quot;);
+    private readonly IHostApplicationLifetime _appLifetime;
+
+    public LifetimeEventsHostedService(IHostApplicationLifetime appLifetime)
+    {
+        _appLifetime = appLifetime;
+    }
+
+    public Task StartAsync(CancellationToken cancellationToken)
+    {
+        _appLifetime.ApplicationStarted.Register(OnStarted);
+        _appLifetime.ApplicationStopping.Register(OnStopping);
+        _appLifetime.ApplicationStopped.Register(OnStopped);
+
+        return Task.CompletedTask;
+    }
+
+    public Task StopAsync(CancellationToken cancellationToken)
+    {
+        return Task.CompletedTask;
+    }
+
+    private void OnStarted()
+    {
+        var interNetworkV6 = System.Net.Sockets.AddressFamily.InterNetworkV6;
+        var interNetwork = System.Net.Sockets.AddressFamily.InterNetwork;
+        var ipList = System.Net.NetworkInformation.NetworkInterface.GetAllNetworkInterfaces()
+          .Select(p =&gt; p.GetIPProperties())
+          .SelectMany(p =&gt; p.UnicastAddresses)
+          .Where(p =&gt; (p.Address.AddressFamily == interNetwork || p.Address.AddressFamily == interNetworkV6) &amp;&amp; !System.Net.IPAddress.IsLoopback(p.Address)).ToList();
+
+        Console.WriteLine($&quot;OnStarted has been called：【{appCode}】【{appName}】【{DateTime.Now}】 【{ipList[1].Address}】 【{ipList[0].Address}】&quot;);
+        Logger.Info($&quot;OnStarted has been called：【{appCode}】【{appName}】【{DateTime.Now}】 【{ipList[1].Address}】 【{ipList[0].Address}】&quot;);
+    }
+
+    private void OnStopping()
+    {
+        Console.WriteLine($&quot;OnStopping has been called：【{appCode}】【{appName}】【{DateTime.Now}】&quot;);
+        Logger.Info($&quot;OnStopping has been called：【{appCode}】【{appName}】【{DateTime.Now}】&quot;);
+    }
+
+    private void OnStopped()
+    {
+        Console.WriteLine($&quot;OnStopped has been called：【{appCode}】【{appName}】【{DateTime.Now}】&quot;);
+        Logger.Info($&quot;OnStopped has been called：【{appCode}】【{appName}】【{DateTime.Now}】&quot;);
+    }
+}
+</code></pre>
+<p><strong>最后在服务中注入</strong></p>
+<pre><code>.ConfigureServices(a =&gt;
+{
+    a.AddSingleton&lt;IHostedService, LifetimeEventsHostedService&gt;();
+});
+</code></pre>
+
+              </div>
+              <div class="toc-container">
+                <ul class="markdownIt-TOC">
+<li>
+<ul>
+<li><a href="#ihostedservice">IHostedService</a></li>
+<li><a href="#ihostapplicationlifetime">IHostApplicationLifetime</a></li>
+</ul>
+</li>
+</ul>
+
+              </div>
+            </div>
+          </article>
+        </div>
+
+        
+          <div class="next-post">
+            <div class="next">下一篇</div>
+            <a href="https://luminqiang.github.io/rhctu-ULk/">
+              <h3 class="post-title">
+                计算机组成原理17（数据通路）
+              </h3>
+            </a>
+          </div>
+        
+
+        
+
+        <div class="site-footer">
+  Powered by <a href="https://github.com/luminqiang" target="_blank">LuMinQiang</a> | 
+  <a class="rss" href="https://luminqiang.github.io//atom.xml" target="_blank">RSS</a>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+
+  let mainNavLinks = document.querySelectorAll(".markdownIt-TOC a");
+
+  // This should probably be throttled.
+  // Especially because it triggers during smooth scrolling.
+  // https://lodash.com/docs/4.17.10#throttle
+  // You could do like...
+  // window.addEventListener("scroll", () => {
+  //    _.throttle(doThatStuff, 100);
+  // });
+  // Only not doing it here to keep this Pen dependency-free.
+
+  window.addEventListener("scroll", event => {
+    let fromTop = window.scrollY;
+
+    mainNavLinks.forEach((link, index) => {
+      let section = document.getElementById(decodeURI(link.hash).substring(1));
+      let nextSection = null
+      if (mainNavLinks[index + 1]) {
+        nextSection = document.getElementById(decodeURI(mainNavLinks[index + 1].hash).substring(1));
+      }
+      if (section.offsetTop <= fromTop) {
+        if (nextSection) {
+          if (nextSection.offsetTop > fromTop) {
+            link.classList.add("current");
+          } else {
+            link.classList.remove("current");    
+          }
+        } else {
+          link.classList.add("current");
+        }
+      } else {
+        link.classList.remove("current");
+      }
+    });
+  });
+
+</script>
+
+      </div>
+    </div>
+  </body>
+</html>
