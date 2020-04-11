@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://luminqiang.github.io/</id>
     <title>卢敏强的博客</title>
-    <updated>2020-04-11T02:29:29.996Z</updated>
+    <updated>2020-04-11T02:34:34.504Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://luminqiang.github.io/"/>
     <link rel="self" href="https://luminqiang.github.io/atom.xml"/>
@@ -10,6 +10,43 @@
     <logo>https://luminqiang.github.io/images/avatar.png</logo>
     <icon>https://luminqiang.github.io/favicon.ico</icon>
     <rights>All rights reserved 2020, 卢敏强的博客</rights>
+    <entry>
+        <title type="html"><![CDATA[Nginx配置Https证书]]></title>
+        <id>https://luminqiang.github.io/G2HIIUMHo/</id>
+        <link href="https://luminqiang.github.io/G2HIIUMHo/">
+        </link>
+        <updated>2020-04-11T02:33:33.000Z</updated>
+        <content type="html"><![CDATA[<pre><code>server {
+    listen       80;
+	server_name  luminqiang.com;
+	location / {
+		root   /usr/share/nginx/html;
+		index  index.html index.htm;
+	}
+}
+server {
+	
+    listen                    443 ssl;			#SSL协议访问端口号为443。此处如未添加ssl，可能会造成Nginx无法启动。
+    server_name               luminqiang.com;    #将localhost修改为您证书绑定的域名，例如：www.example.com。
+    ssl_certificate           /etc/nginx/cert/www.luminqiang.com.pem;
+    ssl_certificate_key       /etc/nginx/cert/www.luminqiang.com.key;
+    ssl_ciphers               ECDHE-RSA-AES128-GCM-SHA256:ECDHE:ECDH:AES:HIGH:!NULL:!aNULL:!MD5:!ADH:!RC4;  #使用此加密套件
+    ssl_protocols             TLSv1 TLSv1.1 TLSv1.2;    #使用该协议进行配置
+    ssl_prefer_server_ciphers on;
+    ssl_session_timeout       5m;
+
+    location ^~/api/{
+        proxy_pass http://47.99.87.3:5000;
+    }
+    location / {
+        root   /usr/share/nginx/html;
+		index  index.html index.htm;
+    }
+}
+</code></pre>
+<p>docker run -d --name nginx -p 80:80 -p 443:443 -v /usr/local/nginx/sources/home:/usr/share/nginx/html -v /usr/local/nginx/cert:/etc/nginx/cert -v /usr/local/nginx/config/default.conf:/etc/nginx/conf.d/default.conf nginx</p>
+]]></content>
+    </entry>
     <entry>
         <title type="html"><![CDATA[.NET Core 3.0 配置允许所有域名跨域]]></title>
         <id>https://luminqiang.github.io/i_Va9uR2B/</id>
