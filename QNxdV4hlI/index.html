@@ -8,7 +8,7 @@
 <meta name="description" content="Start With Why">
 <meta name="theme-color" content="#000">
 <title>卢敏强的博客</title>
-<link rel="shortcut icon" href="/favicon.ico?v=1586571989187">
+<link rel="shortcut icon" href="/favicon.ico?v=1586572109274">
 <link rel="stylesheet" href="/styles/main.css">
 <link rel="stylesheet" href="/media/css/gemini.css">
 
@@ -318,41 +318,6 @@ var apiKey = landlord.dataset.key;
 <script type="text/javascript" src="/media/live2d/histoire/js/live2d.js"></script>
 <script type="text/javascript" src="/media/live2d/histoire/js/message.js"></script>
   
-  
-    
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer@1.10.1/dist/APlayer.min.css">
-  <script src="https://cdn.jsdelivr.net/npm/aplayer@1.10.1/dist/APlayer.min.js"></script>
-  <div class="aplayer" id="aplayer"></div>
-  <input hidden id="player_cover" value="" />
-  <div class="music-list">
-  
-  </div>
-  <script>
-  let musics = document.querySelector('.music-list').children;
-  let mediaMusic = [];
-  let cover = document.querySelector('#player_cover').value;
-  for (let i = 0; i < musics.length; i++) {
-    let item = musics[i];
-    let splits = item.value.split(',');
-    mediaMusic.push({
-      name: splits[0],
-      artist: splits[1],
-      url: splits[2],
-      lrc: splits[3],
-      cover: cover
-    });
-  }
-  const ap = new APlayer({
-      container: document.getElementById('aplayer'),
-      fixed: true,
-      lrcType: 3,
-      listFolded: false,
-      listMaxHeight: 90,
-      audio: mediaMusic
-  });
-  </script>
-
-
   
 </div>
 <script>
