@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://luminqiang.github.io/</id>
     <title>卢敏强的博客</title>
-    <updated>2020-04-11T04:07:54.112Z</updated>
+    <updated>2020-04-11T04:11:21.595Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://luminqiang.github.io/"/>
     <link rel="self" href="https://luminqiang.github.io/atom.xml"/>
@@ -10,6 +10,52 @@
     <logo>https://luminqiang.github.io/images/avatar.png</logo>
     <icon>https://luminqiang.github.io/favicon.ico</icon>
     <rights>All rights reserved 2020, 卢敏强的博客</rights>
+    <entry>
+        <title type="html"><![CDATA[C# 根据身份证号计算是否成年]]></title>
+        <id>https://luminqiang.github.io/nym_-OBjN/</id>
+        <link href="https://luminqiang.github.io/nym_-OBjN/">
+        </link>
+        <updated>2020-04-11T04:10:40.000Z</updated>
+        <content type="html"><![CDATA[<pre><code>
+public static int IsAdult(string input)
+{
+    if (!string.IsNullOrEmpty(input) &amp;&amp; !string.IsNullOrWhiteSpace(input))
+    {
+        if (input.Length != 15 &amp;&amp; input.Length != 18)
+        {
+            return 0;
+        }
+
+        string birthday;
+        if (input.Length == 18)
+        {
+            birthday = input.Substring(6, 4) + &quot;-&quot; + input.Substring(10, 2) + &quot;-&quot; + input.Substring(12, 2);
+        }
+        else
+        {
+            birthday = &quot;19&quot; + input.Substring(6, 2) + &quot;-&quot; + input.Substring(8, 2) + &quot;-&quot; + input.Substring(10, 2);
+        }
+
+        DateTime birthDate = DateTime.Parse(birthday);
+        DateTime nowDateTime = DateTime.Now;
+        int age = nowDateTime.Year - birthDate.Year;
+        if (nowDateTime.Month &lt; birthDate.Month || (nowDateTime.Month == birthDate.Month &amp;&amp; nowDateTime.Day &lt; birthDate.Day))
+        {
+            age--;
+        }
+
+        return 18 &lt;= age ? 1 : 2;
+    }
+    else
+    {
+        return 0;
+    }
+}
+
+
+</code></pre>
+]]></content>
+    </entry>
     <entry>
         <title type="html"><![CDATA[Nginx配置Https证书]]></title>
         <id>https://luminqiang.github.io/G2HIIUMHo/</id>
