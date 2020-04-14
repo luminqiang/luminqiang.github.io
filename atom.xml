@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://luminqiang.github.io/</id>
     <title>卢敏强的博客</title>
-    <updated>2020-04-11T04:11:21.595Z</updated>
+    <updated>2020-04-14T12:40:10.727Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://luminqiang.github.io/"/>
     <link rel="self" href="https://luminqiang.github.io/atom.xml"/>
@@ -10,6 +10,193 @@
     <logo>https://luminqiang.github.io/images/avatar.png</logo>
     <icon>https://luminqiang.github.io/favicon.ico</icon>
     <rights>All rights reserved 2020, 卢敏强的博客</rights>
+    <entry>
+        <title type="html"><![CDATA[.NET Core 3.1 下Rest API 与 GRPC 性能测试比较]]></title>
+        <id>https://luminqiang.github.io/Ces3IZPF5/</id>
+        <link href="https://luminqiang.github.io/Ces3IZPF5/">
+        </link>
+        <updated>2020-04-14T12:39:57.000Z</updated>
+        <content type="html"><![CDATA[<p>首先看看GRPC的定义：</p>
+<p><strong>gRPC 是一种与语言无关的高性能远程过程调用 (RPC) 框架。</strong></p>
+<p>gRPC 的主要优点是：</p>
+<ol>
+<li>现代高性能轻量级 RPC 框架。</li>
+<li>协定优先 API 开发，默认使用协议缓冲区，允许与语言无关的实现。</li>
+<li>可用于多种语言的工具，以生成强类型服务器和客户端。</li>
+<li>支持客户端、服务器和双向流式处理调用。</li>
+<li>使用 Protobuf 二进制序列化减少对网络的使用。</li>
+</ol>
+<p>这些优点使 gRPC 适用于：</p>
+<ol>
+<li>效率至关重要的轻量级微服务。</li>
+<li>需要多种语言用于开发的 Polyglot 系统。</li>
+<li>需要处理流式处理请求或响应的点对点实时服务。</li>
+</ol>
+<p>GRPC远程过程调用的最大优点就是高性能，通过protobuf可以将数据序列化为二进制编码，这会大幅减少需要传输的数据量，从而大幅提高性能。</p>
+<p>测试项目GitHub地址</p>
+<pre><code>https://github.com/luminqiang/RESTvsGRPC
+</code></pre>
+<p>先运行API项目：</p>
+<pre><code>dotnet run -p RestAPI.csproj -c Release
+</code></pre>
+<p>再运行GRPC项目：</p>
+<pre><code>dotnet run -p GrpcAPI.csproj -c Release
+</code></pre>
+<p>最后运行基准测试项目：</p>
+<pre><code>dotnet run -p RESTvsGRPC.csproj -c Release
+</code></pre>
+<p>等待测试结束后，测试结果如下：</p>
+<pre><code>BenchmarkDotNet=v0.12.1, OS=Windows 10.0.18362.720 (1903/May2019Update/19H1)
+Intel Core i5-9600K CPU 3.70GHz (Coffee Lake), 1 CPU, 6 logical and 6 physical cores
+.NET Core SDK=3.1.201
+  [Host]     : .NET Core 3.1.3 (CoreCLR 4.700.20.11803, CoreFX 4.700.20.12001), X64 RyuJIT  [AttachedDebugger]
+  DefaultJob : .NET Core 3.1.3 (CoreCLR 4.700.20.11803, CoreFX 4.700.20.12001), X64 RyuJIT
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>IterationCount</th>
+<th style="text-align:right">Mean</th>
+<th style="text-align:right">Error</th>
+<th style="text-align:right">StdDev</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>RestGetSmallPayloadAsync</td>
+<td>100</td>
+<td style="text-align:right">9.244 ms</td>
+<td style="text-align:right">0.0597 ms</td>
+<td style="text-align:right">0.0558 ms</td>
+</tr>
+<tr>
+<td>RestGetLargePayloadAsync</td>
+<td>100</td>
+<td style="text-align:right">741.352 ms</td>
+<td style="text-align:right">3.9088 ms</td>
+<td style="text-align:right">3.6563 ms</td>
+</tr>
+<tr>
+<td>RestPostLargePayloadAsync</td>
+<td>100</td>
+<td style="text-align:right">835.936 ms</td>
+<td style="text-align:right">4.9780 ms</td>
+<td style="text-align:right">4.4129 ms</td>
+</tr>
+<tr>
+<td>GrpcGetSmallPayloadAsync</td>
+<td>100</td>
+<td style="text-align:right">12.143 ms</td>
+<td style="text-align:right">0.0586 ms</td>
+<td style="text-align:right">0.0548 ms</td>
+</tr>
+<tr>
+<td>GrpcStreamLargePayloadAsync</td>
+<td>100</td>
+<td style="text-align:right">800.875 ms</td>
+<td style="text-align:right">6.4187 ms</td>
+<td style="text-align:right">6.0041 ms</td>
+</tr>
+<tr>
+<td>GrpcGetLargePayloadAsListAsync</td>
+<td>100</td>
+<td style="text-align:right">130.948 ms</td>
+<td style="text-align:right">1.2500 ms</td>
+<td style="text-align:right">1.1692 ms</td>
+</tr>
+<tr>
+<td>GrpcPostLargePayloadAsync</td>
+<td>100</td>
+<td style="text-align:right">131.427 ms</td>
+<td style="text-align:right">2.6249 ms</td>
+<td style="text-align:right">4.4572 ms</td>
+</tr>
+<tr>
+<td>RestGetSmallPayloadAsync</td>
+<td>200</td>
+<td style="text-align:right">18.368 ms</td>
+<td style="text-align:right">0.1172 ms</td>
+<td style="text-align:right">0.1096 ms</td>
+</tr>
+<tr>
+<td>RestGetLargePayloadAsync</td>
+<td>200</td>
+<td style="text-align:right">1,509.909 ms</td>
+<td style="text-align:right">4.7070 ms</td>
+<td style="text-align:right">4.4029 ms</td>
+</tr>
+<tr>
+<td>RestPostLargePayloadAsync</td>
+<td>200</td>
+<td style="text-align:right">1,676.551 ms</td>
+<td style="text-align:right">6.6714 ms</td>
+<td style="text-align:right">5.5710 ms</td>
+</tr>
+<tr>
+<td>GrpcGetSmallPayloadAsync</td>
+<td>200</td>
+<td style="text-align:right">24.336 ms</td>
+<td style="text-align:right">0.1501 ms</td>
+<td style="text-align:right">0.1172 ms</td>
+</tr>
+<tr>
+<td>GrpcStreamLargePayloadAsync</td>
+<td>200</td>
+<td style="text-align:right">1,598.346 ms</td>
+<td style="text-align:right">6.5488 ms</td>
+<td style="text-align:right">5.4685 ms</td>
+</tr>
+<tr>
+<td>GrpcGetLargePayloadAsListAsync</td>
+<td>200</td>
+<td style="text-align:right">263.885 ms</td>
+<td style="text-align:right">2.1572 ms</td>
+<td style="text-align:right">2.0178 ms</td>
+</tr>
+<tr>
+<td>GrpcPostLargePayloadAsync</td>
+<td>200</td>
+<td style="text-align:right">259.290 ms</td>
+<td style="text-align:right">3.4813 ms</td>
+<td style="text-align:right">3.0861 ms</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>当接口返回的数据量较小时，REST 的性能要比gRPC要好，当数据量变大之后gRPC的性能优势就比较明显了。</li>
+<li>.NET Core 3的 json 进行了大量的优化， 在处理消息有效负载中的小数据时会产生巨大的差异，但是实际上，对于大数据有效负载，差异就不复存在了。</li>
+<li>总体来说 gRPC在这一领域仍然是赢家，在业务案例中使用哪种协议的适当策略，通常在与外部世界的外部通信（例如外部服务集成，与前端的通信）中使用REST通信，内部服务之间通信采用gRPC。</li>
+</ul>
+<p><strong>因此在大数据量下，同时希望保持较高性能时，应考虑使用RPC进行通信，因为通过protobuf我们可以将数据压缩编码转化为二进制格式，通常传递的数据量要小得多，而且通过http2我们可以实现异步的请求，从而大大提高了通信效率。</strong></p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[.NET Core 3.0 ReadyToRun编译]]></title>
+        <id>https://luminqiang.github.io/I1-q0wkHh/</id>
+        <link href="https://luminqiang.github.io/I1-q0wkHh/">
+        </link>
+        <updated>2020-04-14T12:39:26.000Z</updated>
+        <content type="html"><![CDATA[<p><strong>先来总结：ReadyToRun是一种通过适当增加程序包大小，来达到更快启动速度和运行内存占用的编译方式，在 .NET Core3.0后可用。</strong></p>
+<p>.NET Core 3.0 Preview6，更新了能够加速程序加载速度的ReadyToRun（R2R）格式，以及可以缩减应用程序大小的组译连结（Assembly Linking）工具IL linker。</p>
+<p>.NET Core 3.0让开发者可以把 .NET Core用程序编译成为R2R格式，以缩短启动的时间，微软提到，R2R是一种AOT（Ahead-Of-Time）编译的形式，其二进制文件能够减少JIT在加载应用程序需要的工作量，藉以提高加载的效能。</p>
+<h3 id="为什么r2r-格式更快">为什么R2R 格式更快？</h3>
+<p>由于R2R二进制文件包含了类似JIT所产生的原生码，因此能够减少JIT的工作给予执行缓冲空间，不过也因为R2R包含了一些中介语言程序代码，虽然因此产生的程序包相对来说也比较大，是一个启动效能与包大小的取舍。</p>
+<p><strong>微软给出了实验数据：</strong></p>
+<ul>
+<li>只包含中介语言的应用程序，档案大小为150MB，内存使用量为69.1MB，而启动时间为1.9秒</li>
+<li></li>
+<li>使用ReadyToRun格式的相同应用程序，虽然档案略大为156MB，但是内存使用量只有55.7MB，而且启动速度只要1.3秒。</li>
+</ul>
+<h3 id="关于使用限制">关于使用限制：</h3>
+<p>不过目前R2R仍有许多限制，R2R现在仅支持自包含（Self-contained）应用程序，在之后的预览版才会开始支持与框架相依的应用程序。.NET Core 3.0 SDK可以设定排除特定应用程序，以免被编译成为R2R，微软提到，部分应用程序不需要优化效能，不编译成R2R反而比较省空间。</p>
+<p>.NET Core 3.0开始支持R2R，但R2R并不向后支持，因此较旧的.NET Core版本无法使用，另外，开发者只能编译函式库成R2R，以作为应用程序的一部分，目前还不能作为NuGet套件交付，微软表示，这项功能要依用户回馈决定是否要支持。</p>
+<ul>
+<li>R2R现在也不支持跨平台编译，在Windows x64环境只能编译Windows ARM32、ARM64以及x86映象檔，而在Linux x64只能编译Linux ARM32和ARM64映像档。除了R2R的更新，微软提到，.NET Core 3.0还提供了一个特别组译连结工具IL linker，可以透过分析中介语言并删减用不到的组译语言，确保自包含应用程序仅包含实际需要的程序代码，而这能够显著的降低某些应用程序的大小，微软提到，通常小型控制台应用程序可以减少最多，因为这些工具使用较小的框架子集，可以修剪的幅度比较大。微软的实验数据显示，对于最基本helloworld应用程序，可以从原本的68MB减少到大约28MB。</li>
+<li>而使用映像或是相关动态功能的应用程序或框架，组译连结工具的修剪工作通常会失败，因为IL linker不认识这类动态行为，并且无法决定在Runtime的时候需要使用的帧类型。IL linker与ReadToRun编译程序可以用在同一个应用程序，微软表示，正常情况是IL linker会让应用程序变小，但是ReadyToRun编译程序又为让应用程序变大，但是效能会大幅提升，开发者可以在各种配置中进行测试，了解这些工具选项产生的影响。</li>
+</ul>
+]]></content>
+    </entry>
     <entry>
         <title type="html"><![CDATA[C# 根据身份证号计算是否成年]]></title>
         <id>https://luminqiang.github.io/nym_-OBjN/</id>
@@ -528,104 +715,6 @@ function callOtherDomain(){
 负责运算寄存器中的数据。</p>
 <p>时钟：<br>
 发出CPU开始计时的时钟信号。</p>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[HTTP学习之缓存机制]]></title>
-        <id>https://luminqiang.github.io/http-xue-xi-zhi-huan-cun-ji-zhi/</id>
-        <link href="https://luminqiang.github.io/http-xue-xi-zhi-huan-cun-ji-zhi/">
-        </link>
-        <updated>2019-12-28T02:20:57.000Z</updated>
-        <content type="html"><![CDATA[<p><strong>什么是缓存？</strong><br>
-缓存(Cache)是计算机领域里的重要概念，是优化系统性能的重要手段。</p>
-<p><strong>为什么需要缓存？</strong><br>
-链路漫长，网络时延不可控，浏览器使用http获取资源的成本比较高，把上次请求的数据进行缓存，下次请求时可直接使用缓存中的数据，避免再进行多次请求 - 应答，节约网络带宽，提高响应速度。</p>
-<p><strong>缓存的基本流程？</strong><br>
-1.浏览器发现缓存无数据，则从浏览器获取相应的资源<br>
-2.服务器响应请求，返回资源，标记资源有效期<br>
-3.浏览器对资源进行缓存，再次请求在有效期内则使用缓存</p>
-<figure data-type="image" tabindex="1"><img src="https://static001.geekbang.org/resource/image/a1/5b/a1968821f214df4a3ae16c9b30f99a5b.png" alt="" loading="lazy"></figure>
-<p><strong>服务端控制缓存？</strong></p>
-<p>控制缓存通过请求/响应头中添加对应的缓存控制字段</p>
-<p>响应头中添加 Cache-Control:max-age=30，意思为该资源的有效时间为30秒，max-age代表资源的生存期，时间是从浏览器响应时间开始计算，并不是指浏览器拿到响应数据的时间，因为这是服务端进行设置的，自然是站在服务端的角度。</p>
-<p>max-age是缓存控制的基本属性，还有其他属性用来更精确的控制</p>
-<p>1.no_store 不允许浏览器缓存，资源变化比较频繁的数据一般使用这个选项<br>
-2.no_cache 并不是是指不使用缓存，而是可以使用缓存，但每次使用都必须去服务端验证缓存是否失效<br>
-3.must_revaldate 缓存不过期则可以继续使用，过期后再去服务端验证，不需要每次进行验证</p>
-<figure data-type="image" tabindex="2"><img src="https://static001.geekbang.org/resource/image/8a/b2/8a67535620ab9c7764560363f83982b2.png" alt="" loading="lazy"></figure>
-<p><strong>客户端控制缓存？</strong></p>
-<p>客户端控制缓存也是使用Cache-Control请求头字段，请求方和响应方都可以使用这个字段进行缓存控制，互相协商。</p>
-<p>常见场景：<br>
-1.F5刷新页面</p>
-<p>浏览器在请求头中添加Cache-Control:max=age=0 ，希望服务端返回最新的数据</p>
-<figure data-type="image" tabindex="3"><img src="https://luminqiang.github.io//post-images/1577501221957.png" alt="" loading="lazy"></figure>
-<p>2.Ctrl + F5 强制刷新页面</p>
-<p>浏览器在请求头中添加Cache-Control:no_cache，检查是否有最新的数据，有则返回</p>
-<figure data-type="image" tabindex="4"><img src="https://luminqiang.github.io//post-images/1577501283189.png" alt="" loading="lazy"></figure>
-<p>二者的效果通常是一致的</p>
-<p><strong>条件请求</strong></p>
-<p>浏览器用“Cache-Control”做缓存控制只能是刷新数据，但是如何去验证数据是否过期是否有效却做不到，需要通过其他方式实现。</p>
-<p>1.浏览器使用两个请求<br>
-第一步 先发送一个最简单的Head请求，获取资源的元信息，判断缓存的资源是否过期<br>
-第二步 如果对比后资源过期，则使用Get请求获取新数据</p>
-<p>但是因为需要使用两个请求才能完成验证，所以HTTP协议定义了一系列If开头的条件请求字段，专门用于检测资源是否过期，将验证工作整合在一次请求中，由服务端进行验证工作。</p>
-<p>条件请求一共有 5 个头字段，我们最常用的是“if-Modified-Since”和“If-None-Match”这两个。需要第一次的响应报文预先提供“Last-modified”和“ETag”，然后第二次请求时就可以带上缓存里的原值，验证资源是否是最新的。</p>
-<p>如果资源没有变，服务器就回应一个“304 Not Modified”，表示缓存依然有效，浏览器就可以更新一下有效期，然后放心大胆地使用缓存了。</p>
-<figure data-type="image" tabindex="5"><img src="https://static001.geekbang.org/resource/image/b2/37/b239d0804be630ce182e24ea9e4ab237.png" alt="" loading="lazy"></figure>
-<p>Last-modified : 文件的最后修改时间</p>
-<p>ETag : “实体标签”（Entity Tag）的缩写，是资源的一个唯一标识，主要是用来解决修改时间无法准确区分文件变化的问题。</p>
-<p>ETag 还有“强”“弱”之分。强 ETag 要求资源在字节级别必须完全相符，弱 ETag 在值前有个“W/”标记，只要求资源在语义上没有变化，但内部可能会有部分发生了改变（例如 HTML 里的标签顺序调整，或者多了几个空格）。</p>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[HTTP学习笔记之连接管理]]></title>
-        <id>https://luminqiang.github.io/http-xue-xi-bi-ji-zhi-lian-jie-guan-li/</id>
-        <link href="https://luminqiang.github.io/http-xue-xi-bi-ji-zhi-lian-jie-guan-li/">
-        </link>
-        <updated>2019-12-26T13:41:58.000Z</updated>
-        <content type="html"><![CDATA[<p>HTTP的性能中规中矩，不算差，并不够好，比不上RPC这种协议，但是胜在简单方便，关于http的连接，则分为短连接与长连接。</p>
-<p>短连接<br>
-HTTP 协议的最初版本0.9/1.0，是个非常简单的协议，通信过程也采用了简单的“请求 - 应答”方式。</p>
-<p>它底层的数据传输基于 TCP/IP，每次发送请求前需要先与服务器建立连接，收到响应报文后会立即关闭连接。</p>
-<p>因为客户端与服务器的整个连接过程很短暂，不会与服务器保持长时间的连接状态，所以就被称为“<strong>短连接</strong>”（short-lived connections）。早期的 HTTP 协议也被称为是“<strong>无连接</strong>”的协议。</p>
-<p><strong>短连接的缺点：</strong><br>
-在 TCP 协议里，建立连接和关闭连接都是非常“昂贵”的操作。<br>
-TCP 建立连接要有“三次握手”，发送 3 个数据包，需要 1 个 RTT；<br>
-关闭连接是“四次挥手”，4 个数据包需要 2 个 RTT。</p>
-<p><strong>什么是RTT？</strong><br>
-RTT=传播时延（往返）+排队时延（路由器和交换机的）+数据处理时延（应用程序的）<br>
-<img src="https://pic2.zhimg.com/v2-99e600bf39d58d7732b159325ca0caf7_r.jpg" alt="" loading="lazy"></p>
-<p>而即使 HTTP最简单的一次“请求 - 响应”通常需要 4 个包，如果不算服务器内部的处理时间，最多是 2 个 RTT。这么算下来，浪费的时间就是“3÷5=60%”，有三分之二的时间被浪费掉了，传输效率低得惊人。<br>
-<img src="https://static001.geekbang.org/resource/image/54/0c/54315ed9ac37fbc6547258040f00a80c.png" alt="" loading="lazy"></p>
-<p><strong>长连接</strong><br>
-针对短连接暴露出的缺点，HTTP 协议就提出了“长连接”的通信方式，也叫“持久连接”（persistent connections）、“连接保活”（keep alive）、“连接复用”（connection reuse）。</p>
-<p>其解决思路为“成本均摊”，既然 TCP 的连接和关闭非常耗时间，那么就把这个时间成本由原来的一个“请求 - 应答”均摊到多个“请求 - 应答”上。</p>
-<p>虽然不能改善 TCP 的连接效率，但基于“分母效应”，每个“请求 - 应答”的无效时间就会降低不少，整体传输效率也就提高了。</p>
-<p><strong>短连接与长连接的对比示意图</strong><br>
-<img src="https://static001.geekbang.org/resource/image/57/b4/57b3d80234a1f1b8c538a376aa01d3b4.png" alt="" loading="lazy"></p>
-<p>在短连接里发送了三次 HTTP“请求 - 应答”，每次都会浪费 60% 的 RTT 时间。而在长连接的情况下，同样发送三次请求，因为只在第一次时建立连接，在最后一次时关闭连接，所以浪费率就是“3÷9≈33%”，降低了差不多一半的时间损耗。显然，如果在这个长连接上发送的请求越多，分母就越大，利用率也就越高。</p>
-<p><strong>连接相关的头字段</strong><br>
-由于长连接对性能的改善效果非常显著，所以在 HTTP/1.1 中的连接都会默认启用长连接。不需要用什么特殊的头字段指定，只要向服务器发送了第一次请求，后续的请求都会重复利用第一次打开的 TCP 连接，也就是长连接，在这个连接上收发数据。</p>
-<p>当然，我们也可以在请求头里明确地要求使用长连接机制，使用的字段是<strong>Connection</strong>，值是“<strong>keep-alive</strong>”。</p>
-<p>如果服务器支持长连接，它总会在响应报文里放一个“<strong>Connection: keep-alive</strong>”字段，告诉客户端：“我是支持长连接的，接下来就用这个 TCP 一直收发数据吧”。</p>
-<p><strong>长连接的缺点</strong></p>
-<p>因为 TCP 连接长时间不关闭，服务器必须在内存里保存它的状态，这就占用了服务器的资源。如果有大量的空闲长连接只连不发，就会很快耗尽服务器的资源，导致服务器无法为真正有需要的用户提供服务。</p>
-<p>所以，长连接也需要在恰当的时间关闭，不能永远保持与服务器的连接，这在客户端或者服务器都可以做到：</p>
-<p>在客户端，可以在请求头里加上“Connection: close”字段，告诉服务器：“这次通信后就关闭连接”。服务器看到这个字段，就知道客户端要主动关闭连接，于是在响应报文里也加上这个字段，发送之后就调用 Socket API 关闭 TCP 连接。</p>
-<p>服务器端通常不会主动关闭连接，但也可以使用一些策略。拿 Nginx 来举例，它有两种方式：</p>
-<p>1.使用“keepalive_timeout”指令，设置长连接的超时时间，如果在一段时间内连接上没有任何数据收发就主动断开连接，避免空闲连接占用系统资源。</p>
-<p>2.使用“keepalive_requests”指令，设置长连接上可发送的最大请求次数。比如设置成 1000，那么当 Nginx 在这个连接上处理了 1000 个请求后，也会主动断开连接。</p>
-<p><strong>队头阻塞：</strong></p>
-<p>什么是队头阻塞？<br>
-因为 HTTP 规定报文必须是“一发一收”，这就形成了一个先进先出的“串行”队列。队列里的请求没有轻重缓急的优先级，只有入队的先后顺序，排在最前面的请求被最优先处理。如果队首的请求耽误时间，队列里后的所有请求阻塞起等待。<br>
-<img src="https://static001.geekbang.org/resource/image/6a/72/6a6d30a89fb085d5f1773a887aaf5572.png" alt="" loading="lazy"></p>
-<p><strong>优化队头阻塞问题</strong><br>
-“请求 - 应答”模型不能变，所以“队头阻塞”问题在 HTTP/1.1 里无法解决，只能缓解：</p>
-<p>1.采用就是“<strong>并发连接</strong>”（concurrent connections），也就是同时对一个域名发起多个长连接，用数量来解决质量的问题。</p>
-<p>缺陷：如果客户端随意建立多个连接，用户数 x 并发数，将会形成巨大的连接数，服务器资源很快耗尽，最后拒绝响应。浏览器一般并发连接数为6-8。</p>
-<p>2.采用“<strong>域名分片</strong>”（domain sharding）技术，还是用数量来解决质量的思路。<br>
-多个域名都指向同一台服务器 www.chrono.com，这样实际长连接的数量就又上去了。</p>
-<figure data-type="image" tabindex="1"><img src="https://static001.geekbang.org/resource/image/f9/72/f93afe4b663d681b8ce63c947f478072.png" alt="" loading="lazy"></figure>
 ]]></content>
     </entry>
 </feed>

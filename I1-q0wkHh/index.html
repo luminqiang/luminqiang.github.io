@@ -7,7 +7,7 @@
 <meta name="keywords" content="Gridea静态个人博客">
 <meta name="description" content="Start With Why">
 <meta name="theme-color" content="#000">
-<title>.NET Core 3.0 配置允许所有域名跨域 | 卢敏强的博客</title>
+<title>.NET Core 3.0 ReadyToRun编译 | 卢敏强的博客</title>
 <link rel="shortcut icon" href="/favicon.ico?v=1586868007462">
 <link rel="stylesheet" href="/styles/main.css">
 <link rel="stylesheet" href="/media/css/gemini.css">
@@ -25,8 +25,8 @@
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/auto-render.min.js" integrity="sha384-kWPLUVMOks5AQFrykwIup5lo0m3iMkkHrD0uJ4H5cjeGihAutqP0yW0J6dpFiVkI" crossorigin="anonymous"
     onload="renderMathInElement(document.body);"></script>
 
-    <meta name="description" content=".NET Core 3.0 配置允许所有域名跨域" />
-    <meta name="keywords" content=".NET Core" />
+    <meta name="description" content=".NET Core 3.0 ReadyToRun编译" />
+    <meta name="keywords" content="" />
   </head>
   <body>
     <div class="head-top-line"></div>
@@ -146,7 +146,8 @@
       <div class="sidebar-body gemini" id="sidebar_body">
         
           
-            
+            <div class="post-side-meta" id="post_side_meta">
+              
 <div class="sidebar-wrapper box-shadow-wrapper bg-color">
   <div class="sidebar-item">
     <img class="site-author-image right-motion" src="https://luminqiang.github.io//images/avatar.png"/>
@@ -188,6 +189,186 @@
 
 
 </div>
+            </div>
+            <div class="post-toc sidebar-body-active" id="post_toc" style="opacity: 1;">
+              <div class="toc-box right-motion">
+  <div class="toc-wrapper auto-number auto" id="toc_wrapper">
+    <ul class="markdownIt-TOC">
+<li>
+<ul>
+<li>
+<ul>
+<li><a href="#%E4%B8%BA%E4%BB%80%E4%B9%88r2r-%E6%A0%BC%E5%BC%8F%E6%9B%B4%E5%BF%AB">为什么R2R 格式更快？</a></li>
+<li><a href="#%E5%85%B3%E4%BA%8E%E4%BD%BF%E7%94%A8%E9%99%90%E5%88%B6">关于使用限制：</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  </div>
+</div>
+
+<script>
+
+let lastTop = 0, lList = [], hList = [], postBody, lastIndex = -1; 
+let active = 'active-show', activeClass = 'active-current';
+let tocWrapper = document.querySelector('#toc_wrapper');
+let tocContent = tocWrapper.children[0];
+let autoNumber = tocWrapper&&tocWrapper.classList.contains('auto-number');
+
+function addTocNumber(elem, deep) {
+  if (!elem) {
+    return;
+  }
+  let prop = elem.__proto__;
+
+  if (prop === HTMLUListElement.prototype) {
+    for (let i = 0; i < elem.children.length; i++) {
+      addTocNumber(elem.children[i], deep + (i + 1) + '.');
+    }
+  } else if (prop === HTMLLIElement.prototype) {
+    // 保存li元素
+    lList.push(elem);
+    for (let i = 0; i < elem.children.length; i++) {
+      let cur = elem.children[i];
+      if (cur.__proto__ === HTMLAnchorElement.prototype) {
+        if (autoNumber) {
+          cur.text =  deep + ' ' + cur.text;
+        }
+      } else if (cur.__proto__ === HTMLUListElement.prototype) {
+        addTocNumber(cur, deep);
+      }
+    }
+  }
+}
+
+
+document.addEventListener('scroll', function(e) {
+  if (lList.length <= 0) {
+    return;
+  }
+  let scrollTop = document.scrollingElement.scrollTop + 10;
+  let dir;
+
+  if (lastTop - scrollTop > 0) {
+    dir = 'up';
+  } else {
+    dir = 'down';
+  }
+
+  lastTop = scrollTop;
+  if (scrollTop <= 0) {
+    if (lastIndex >= 0 && lastIndex < hList.length) {
+      lList[lastIndex].classList.remove(activeClass);
+    }
+    return;
+  }
+
+  let current = 0, hasFind = false;
+  for (let i = 0; i < hList.length; i++) {
+    if (hList[i].offsetTop > scrollTop) {
+      current = i;
+      hasFind = true;
+      break;
+    }
+  }
+  if (!hasFind && scrollTop > lList[lList.length - 1].offsetTop) {
+    current = hList.length - 1;
+  } else {
+    current--;
+  }
+  if (dir === 'down') {
+    if (current > lastIndex) {
+      addActiveClass(current);
+      removeActiveClass(lastIndex) 
+      lastIndex = current;
+      removeParentActiveClass();
+      lList[current] && addActiveLiElemment(lList[current].parentElement,tocContent);
+    }
+  } else {
+    if (current < lastIndex) {
+      addActiveClass(current);
+      removeActiveClass(lastIndex);
+      lastIndex = current;
+      removeParentActiveClass();
+      lList[current] && addActiveLiElemment(lList[current].parentElement,tocContent);
+    }
+  }
+});
+
+function removeParentActiveClass() {
+  let parents = tocContent.querySelectorAll('.'+active)
+  parents.forEach(function(elem) {
+    elem.classList.remove(active);
+  });
+}
+
+function addActiveClass(index) {
+  if (index >= 0 && index < hList.length) {
+    lList[index].classList.add(activeClass);
+  }
+}
+
+function removeActiveClass(index) {
+  if (index >= 0 && index < hList.length) {
+    lList[index].classList.remove(activeClass);
+  }
+}
+
+function addActiveLiElemment(elem, parent) {
+  if (!elem || elem === parent) {
+    return;
+  } else {
+    if (elem.__proto__ === HTMLLIElement.prototype) {
+      elem.classList.add(active);
+    }
+    addActiveLiElemment(elem.parentElement, parent);
+  }
+}
+
+function showToc() {
+  if (tocWrapper) {
+    postBody = document.querySelector('#post_body');
+    for (let i = 0; i < postBody.children.length; i++) {
+      if (postBody.children[i].__proto__ === HTMLHeadingElement.prototype) {
+        hList.push(postBody.children[i]);
+      }
+    }
+    if (tocWrapper.classList.contains('compress')) {
+        tocContent.classList.add('closed');
+    } else if (tocWrapper.classList.contains('no_compress')){
+      tocContent.classList.add('expanded');
+    } else {
+      if (hList.length > 10) {
+        active = 'active-hidden'
+        tocContent.classList.add('closed');
+      } else {
+        tocContent.classList.add('expanded');
+      }
+    }
+  }
+}
+addTocNumber(tocContent, '');
+
+window.addEventListener('load', function() {
+  showToc();
+  document.querySelector('#sidebar').style='display: block;';
+  tocWrapper.classList.add('toc-active');
+  setTimeout(function() {
+    if ("createEvent" in document) {
+      let evt = document.createEvent("HTMLEvents");
+      evt.initEvent("scroll", false, true);
+      document.dispatchEvent(evt);
+    }
+    else {
+      document.fireEvent("scroll");
+    }
+  }, 500)
+})
+
+</script>
+            </div>
           
         
       </div>
@@ -275,8 +456,8 @@
             <div class="section bg-color post post-page">
               <header class="post-header">
   <h1 class="post-title">
-    <a class="post-title-link" href="https://luminqiang.github.io/i_Va9uR2B/">
-      .NET Core 3.0 配置允许所有域名跨域
+    <a class="post-title-link" href="https://luminqiang.github.io/I1-q0wkHh/">
+      .NET Core 3.0 ReadyToRun编译
     </a>
   </h1>
   <div class="post-meta">
@@ -284,31 +465,18 @@
     <span class="meta-item pc-show">
       <i class="fa fa-calendar-o"></i>
       <span>发布于</span>
-      <span>2020-04-09</span>
+      <span>2020-04-14</span>
       <span class="post-meta-divider pc-show">|</span>
     </span>
     
-      <span class="meta-item">
-        <i class="fa fa-folder-o"></i>
-        <span class="pc-show">分类于</span>
-        
-          
-            <a href="https://luminqiang.github.io/7udpce0yH/">
-              <span>.NET Core</span>
-            </a>
-          
-        
-      </span>
-      <span class="post-meta-divider">|</span>
-    
     <span class="meta-item">
       <i class="fa fa-clock-o"></i>
-      <span>1分钟</span>
+      <span>4分钟</span>
     </span>
     <span class="meta-item">
       <span class="post-meta-divider">|</span>
       <i class="fa fa-file-word-o"></i>
-      <span>117<span class="pc-show">字数</span></span>
+      <span>917<span class="pc-show">字数</span></span>
     </span>
     
       <span id="/postundefined" class="meta-item pc-show leancloud_visitors">
@@ -320,35 +488,24 @@
   </div>
 </header>
               <div class="post-body next-md-body" id="post_body">
-                <p>测试配置可行</p>
-<pre><code>public void ConfigureServices(IServiceCollection services)
-{
-    services.AddCors();
-}
-</code></pre>
-<p>SetIsOriginAllowed方法用于判断某个域名是否在允许跨域的名单中，这里不判断直接返回True</p>
-<pre><code>public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
-{
-    app.UseCors(options =&gt; options.SetIsOriginAllowed(x =&gt; _ = true).AllowAnyMethod().AllowAnyHeader().AllowCredentials());
-}
-</code></pre>
-<p><strong>SetIsOriginAllowed方法注释</strong></p>
-<pre><code>//
-// 摘要:
-//     /// Sets the specified isOriginAllowed for the underlying policy. ///
-//
-// 参数:
-//   isOriginAllowed:
-//     The function used by the policy to evaluate if an origin is allowed.
-//
-// 返回结果:
-//     The current policy builder.
-public CorsPolicyBuilder SetIsOriginAllowed(Func&lt;string, bool&gt; isOriginAllowed)
-{
-    throw null;
-}
-</code></pre>
-<figure data-type="image" tabindex="1"><img src="https://luminqiang.github.io//post-images/1586441071443.jfif" alt="" loading="lazy"></figure>
+                <p><strong>先来总结：ReadyToRun是一种通过适当增加程序包大小，来达到更快启动速度和运行内存占用的编译方式，在 .NET Core3.0后可用。</strong></p>
+<p>.NET Core 3.0 Preview6，更新了能够加速程序加载速度的ReadyToRun（R2R）格式，以及可以缩减应用程序大小的组译连结（Assembly Linking）工具IL linker。</p>
+<p>.NET Core 3.0让开发者可以把 .NET Core用程序编译成为R2R格式，以缩短启动的时间，微软提到，R2R是一种AOT（Ahead-Of-Time）编译的形式，其二进制文件能够减少JIT在加载应用程序需要的工作量，藉以提高加载的效能。</p>
+<h3 id="为什么r2r-格式更快">为什么R2R 格式更快？</h3>
+<p>由于R2R二进制文件包含了类似JIT所产生的原生码，因此能够减少JIT的工作给予执行缓冲空间，不过也因为R2R包含了一些中介语言程序代码，虽然因此产生的程序包相对来说也比较大，是一个启动效能与包大小的取舍。</p>
+<p><strong>微软给出了实验数据：</strong></p>
+<ul>
+<li>只包含中介语言的应用程序，档案大小为150MB，内存使用量为69.1MB，而启动时间为1.9秒</li>
+<li></li>
+<li>使用ReadyToRun格式的相同应用程序，虽然档案略大为156MB，但是内存使用量只有55.7MB，而且启动速度只要1.3秒。</li>
+</ul>
+<h3 id="关于使用限制">关于使用限制：</h3>
+<p>不过目前R2R仍有许多限制，R2R现在仅支持自包含（Self-contained）应用程序，在之后的预览版才会开始支持与框架相依的应用程序。.NET Core 3.0 SDK可以设定排除特定应用程序，以免被编译成为R2R，微软提到，部分应用程序不需要优化效能，不编译成R2R反而比较省空间。</p>
+<p>.NET Core 3.0开始支持R2R，但R2R并不向后支持，因此较旧的.NET Core版本无法使用，另外，开发者只能编译函式库成R2R，以作为应用程序的一部分，目前还不能作为NuGet套件交付，微软表示，这项功能要依用户回馈决定是否要支持。</p>
+<ul>
+<li>R2R现在也不支持跨平台编译，在Windows x64环境只能编译Windows ARM32、ARM64以及x86映象檔，而在Linux x64只能编译Linux ARM32和ARM64映像档。除了R2R的更新，微软提到，.NET Core 3.0还提供了一个特别组译连结工具IL linker，可以透过分析中介语言并删减用不到的组译语言，确保自包含应用程序仅包含实际需要的程序代码，而这能够显著的降低某些应用程序的大小，微软提到，通常小型控制台应用程序可以减少最多，因为这些工具使用较小的框架子集，可以修剪的幅度比较大。微软的实验数据显示，对于最基本helloworld应用程序，可以从原本的68MB减少到大约28MB。</li>
+<li>而使用映像或是相关动态功能的应用程序或框架，组译连结工具的修剪工作通常会失败，因为IL linker不认识这类动态行为，并且无法决定在Runtime的时候需要使用的帧类型。IL linker与ReadToRun编译程序可以用在同一个应用程序，微软表示，正常情况是IL linker会让应用程序变小，但是ReadyToRun编译程序又为让应用程序变大，但是效能会大幅提升，开发者可以在各种配置中进行测试，了解这些工具选项产生的影响。</li>
+</ul>
 
               </div>
               <div class="post-footer">
@@ -359,7 +516,7 @@ public CorsPolicyBuilder SetIsOriginAllowed(Func&lt;string, bool&gt; isOriginAll
     </li>
     <li class="post-copyright-link">
       <strong>本文链接：</strong>
-      <a href="https://luminqiang.github.io/i_Va9uR2B/" title=".NET Core 3.0 配置允许所有域名跨域">.NET Core 3.0 配置允许所有域名跨域</a>
+      <a href="https://luminqiang.github.io/I1-q0wkHh/" title=".NET Core 3.0 ReadyToRun编译">.NET Core 3.0 ReadyToRun编译</a>
     </li>
     <li class="post-copyright-license">
       <strong>版权声明： </strong>
@@ -368,21 +525,19 @@ public CorsPolicyBuilder SetIsOriginAllowed(Func&lt;string, bool&gt; isOriginAll
   </ul>
   <div class="tags">
     
-      <a href="https://luminqiang.github.io/7udpce0yH/"># .NET Core</a>
-    
   </div>
   <div class="nav">
     <div class="nav-prev">
       
         <i class="fa fa-chevron-left"></i>
-        <a class="nav-pc-next" title="Nginx配置Https证书" href="https://luminqiang.github.io/G2HIIUMHo/">Nginx配置Https证书</a class="nav-pc-next">
-        <a class="nav-mobile-prev" title="Nginx配置Https证书" href="https://luminqiang.github.io/G2HIIUMHo/">上一篇</a>
+        <a class="nav-pc-next" title=".NET Core 3.1 下Rest API 与 GRPC 性能测试比较" href="https://luminqiang.github.io/Ces3IZPF5/">.NET Core 3.1 下Rest API 与 GRPC 性能测试比较</a class="nav-pc-next">
+        <a class="nav-mobile-prev" title=".NET Core 3.1 下Rest API 与 GRPC 性能测试比较" href="https://luminqiang.github.io/Ces3IZPF5/">上一篇</a>
       
     </div>
     <div class="nav-next">
       
-        <a class="nav-pc-next" title=".NET Core 3.0 使用 IHostApplicationLifetime 处理应用启动和停止事件" href="https://luminqiang.github.io/0HNFPxdKG/">.NET Core 3.0 使用 IHostApplicationLifetime 处理应用启动和停止事件</a>
-        <a class="nav-mobile-next" title=".NET Core 3.0 使用 IHostApplicationLifetime 处理应用启动和停止事件" href="https://luminqiang.github.io/0HNFPxdKG/">下一篇</a>
+        <a class="nav-pc-next" title="C# 根据身份证号计算是否成年" href="https://luminqiang.github.io/nym_-OBjN/">C# 根据身份证号计算是否成年</a>
+        <a class="nav-mobile-next" title="C# 根据身份证号计算是否成年" href="https://luminqiang.github.io/nym_-OBjN/">下一篇</a>
         <i class="fa fa-chevron-right"></i>
       
     </div>
