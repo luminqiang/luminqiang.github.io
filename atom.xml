@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://luminqiang.github.io/</id>
     <title>卢敏强的博客</title>
-    <updated>2020-04-14T12:40:10.727Z</updated>
+    <updated>2020-04-26T14:25:40.965Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://luminqiang.github.io/"/>
     <link rel="self" href="https://luminqiang.github.io/atom.xml"/>
@@ -10,6 +10,198 @@
     <logo>https://luminqiang.github.io/images/avatar.png</logo>
     <icon>https://luminqiang.github.io/favicon.ico</icon>
     <rights>All rights reserved 2020, 卢敏强的博客</rights>
+    <entry>
+        <title type="html"><![CDATA[关于C#中实现单例模式]]></title>
+        <id>https://luminqiang.github.io/Uf8irdE0o/</id>
+        <link href="https://luminqiang.github.io/Uf8irdE0o/">
+        </link>
+        <updated>2020-04-26T14:25:27.000Z</updated>
+        <content type="html"><![CDATA[<h2 id="ihostedservice">IHostedService</h2>
+<p>该接口中有两个方法：</p>
+<p>StartAsync：当应用程序主机准备启动服务时触发</p>
+<p>StopAsync：当应用程序主机准备停止服务时触发</p>
+<pre><code>//
+// 摘要:
+//     /// Defines methods for objects that are managed by the host. ///
+public interface IHostedService
+{
+    //
+    // 摘要:
+    //     /// Triggered when the application host is ready to start the service. ///
+    //
+    // 参数:
+    //   cancellationToken:
+    //     Indicates that the start process has been aborted.
+    Task StartAsync(CancellationToken cancellationToken);
+
+    //
+    // 摘要:
+    //     /// Triggered when the application host is performing a graceful shutdown. ///
+    //
+    // 参数:
+    //   cancellationToken:
+    //     Indicates that the shutdown process should no longer be graceful.
+    Task StopAsync(CancellationToken cancellationToken);
+}
+</code></pre>
+<h2 id="ihostapplicationlifetime">IHostApplicationLifetime</h2>
+<p>该接口中包含三个属性：Host程序的启动、正在停止、已停止，一个方法StopApplication，该方法用于主动停止程序。</p>
+<pre><code>//
+// 摘要:
+//     /// Allows consumers to be notified of application lifetime events. ///
+public interface IHostApplicationLifetime
+{
+    //
+    // 摘要:
+    //     /// Triggered when the application host has fully started. ///
+    CancellationToken ApplicationStarted
+    {
+        get;
+    }
+
+    //
+    // 摘要:
+    //     /// Triggered when the application host is performing a graceful shutdown. ///
+    //     Shutdown will block until this event completes. ///
+    CancellationToken ApplicationStopped
+    {
+        get;
+    }
+
+    //
+    // 摘要:
+    //     /// Triggered when the application host is performing a graceful shutdown. ///
+    //     Shutdown will block until this event completes. ///
+    CancellationToken ApplicationStopping
+    {
+        get;
+    }
+
+    //
+    // 摘要:
+    //     /// Requests termination of the current application. ///
+    void StopApplication();
+}
+</code></pre>
+<p>这里实现<strong>IHostedService</strong>接口，然后使用<strong>IHostApplicationLifetime</strong>（该接口由框架自动实现注入），在<strong>IHostedService</strong>的<strong>StartAsync</strong>方法中注册<strong>IHostApplicationLifetime</strong>中的三个程序运行事件，可以做一些自定义的操作，我这里只是记录了日志。</p>
+<pre><code>internal class LifetimeEventsHostedService : IHostedService
+{
+    private readonly string appCode = ConfigurationManager.GetAppSetting(&quot;AppCode&quot;);
+    private readonly string appName = ConfigurationManager.GetAppSetting(&quot;AppName&quot;);
+    private readonly IHostApplicationLifetime _appLifetime;
+
+    public LifetimeEventsHostedService(IHostApplicationLifetime appLifetime)
+    {
+        _appLifetime = appLifetime;
+    }
+
+    public Task StartAsync(CancellationToken cancellationToken)
+    {
+        _appLifetime.ApplicationStarted.Register(OnStarted);
+        _appLifetime.ApplicationStopping.Register(OnStopping);
+        _appLifetime.ApplicationStopped.Register(OnStopped);
+
+        return Task.CompletedTask;
+    }
+
+    public Task StopAsync(CancellationToken cancellationToken)
+    {
+        return Task.CompletedTask;
+    }
+
+    private void OnStarted()
+    {
+        var interNetworkV6 = System.Net.Sockets.AddressFamily.InterNetworkV6;
+        var interNetwork = System.Net.Sockets.AddressFamily.InterNetwork;
+        var ipList = System.Net.NetworkInformation.NetworkInterface.GetAllNetworkInterfaces()
+          .Select(p =&gt; p.GetIPProperties())
+          .SelectMany(p =&gt; p.UnicastAddresses)
+          .Where(p =&gt; (p.Address.AddressFamily == interNetwork || p.Address.AddressFamily == interNetworkV6) &amp;&amp; !System.Net.IPAddress.IsLoopback(p.Address)).ToList();
+
+        Console.WriteLine($&quot;OnStarted has been called：【{appCode}】【{appName}】【{DateTime.Now}】 【{ipList[1].Address}】 【{ipList[0].Address}】&quot;);
+        Logger.Info($&quot;OnStarted has been called：【{appCode}】【{appName}】【{DateTime.Now}】 【{ipList[1].Address}】 【{ipList[0].Address}】&quot;);
+    }
+
+    private void OnStopping()
+    {
+        Console.WriteLine($&quot;OnStopping has been called：【{appCode}】【{appName}】【{DateTime.Now}】&quot;);
+        Logger.Info($&quot;OnStopping has been called：【{appCode}】【{appName}】【{DateTime.Now}】&quot;);
+    }
+
+    private void OnStopped()
+    {
+        Console.WriteLine($&quot;OnStopped has been called：【{appCode}】【{appName}】【{DateTime.Now}】&quot;);
+        Logger.Info($&quot;OnStopped has been called：【{appCode}】【{appName}】【{DateTime.Now}】&quot;);
+    }
+}
+</code></pre>
+<p><strong>最后在服务中注入</strong></p>
+<pre><code>.ConfigureServices(a =&gt;
+{
+    a.AddSingleton&lt;IHostedService, LifetimeEventsHostedService&gt;();
+});
+</code></pre>
+<p><strong>也可以不使用IHostedService进行承载，直接使用IHostApplicationLifetime进行注册</strong></p>
+<pre><code>internal static class RegisterLifetimeEvents
+    {
+        private static readonly string appCode = ConfigurationManager.GetAppSetting(&quot;AppCode&quot;);
+        private static readonly string appName = ConfigurationManager.GetAppSetting(&quot;AppName&quot;);
+        private static readonly string iPV4Address;
+        private static readonly string iPV6Address;
+
+        static RegisterLifetimeEvents()
+        {
+            var interNetworkV6 = AddressFamily.InterNetworkV6;
+            var interNetwork = AddressFamily.InterNetwork;
+            var ipList = NetworkInterface.GetAllNetworkInterfaces()
+                .Select(p =&gt; p.GetIPProperties())
+                .SelectMany(p =&gt; p.UnicastAddresses)
+                .Where(p =&gt; (p.Address.AddressFamily == interNetwork || p.Address.AddressFamily == interNetworkV6) &amp;&amp; !System.Net.IPAddress.IsLoopback(p.Address)).ToList();
+
+            iPV4Address = ipList[1]?.Address.ToString();
+            iPV6Address = ipList[0]?.Address.ToString();
+        }
+
+        /// &lt;summary&gt;
+        /// 注册应用程序生命周期事件
+        /// &lt;/summary&gt;
+        public static void RegisterApplicationLifetimeEvents(this IHost host)
+        {
+            var hostApplicationLifetime = host.Services.GetService&lt;IHostApplicationLifetime&gt;();
+            hostApplicationLifetime.ApplicationStarted.Register(OnStarted);
+            hostApplicationLifetime.ApplicationStopping.Register(OnStopping);
+            hostApplicationLifetime.ApplicationStopped.Register(OnStopped);
+        }
+
+        private static void OnStarted()
+        {
+            Console.WriteLine($&quot;OnStarted has been called：{appCode} {appName} {DateTime.Now} {iPV4Address} {iPV6Address}&quot;);
+            Logger.Info($&quot;OnStarted has been called：{appCode} {appName} {DateTime.Now} {iPV4Address} {iPV6Address}&quot;);
+        }
+
+        private static void OnStopping()
+        {
+            Console.WriteLine($&quot;OnStopping has been called：{appCode} {appName} {DateTime.Now} {iPV4Address} {iPV6Address}&quot;);
+            Logger.Info($&quot;OnStopping has been called：{appCode} {appName} {DateTime.Now} {iPV4Address} {iPV6Address}&quot;);
+        }
+
+        private static void OnStopped()
+        {
+            Console.WriteLine($&quot;OnStopped has been called：{appCode} {appName} {DateTime.Now} {iPV4Address} {iPV6Address}&quot;);
+            Logger.Info($&quot;OnStopped has been called：{appCode} {appName} {DateTime.Now} {iPV4Address} {iPV6Address}&quot;);
+        }
+    }
+</code></pre>
+<p>在Main函数中注册一下即可</p>
+<pre><code>public static void Main(string[] args)
+{
+    var host = CreateHostBuilder(args).Build();
+    host.RegisterApplicationLifetimeEvents();
+    host.Run();
+}
+</code></pre>
+]]></content>
+    </entry>
     <entry>
         <title type="html"><![CDATA[.NET Core 3.1 下Rest API 与 GRPC 性能测试比较]]></title>
         <id>https://luminqiang.github.io/Ces3IZPF5/</id>
@@ -690,31 +882,6 @@ function callOtherDomain(){
 <p>如果我们有一个可以能够解析 PE 格式的装载器，我们就有可能在 Linux 下运行 Windows 程序了。这样的程序真的存在吗？没错，Linux 下著名的开源项目 Wine，就是通过兼容 PE 格式的装载器，使得我们能直接在 Linux 下运行 Windows 程序的。而现在微软的 Windows 里面也提供了 WSL，也就是 Windows Subsystem for Linux，可以解析和加载 ELF 格式的文件。</p>
 <p>我们去写可以用的程序，也不仅仅是把所有代码放在一个文件里来编译执行，而是可以拆分成不同的函数库，最后通过一个静态链接的机制，使得不同的文件之间既有分工，又能通过静态链接来“合作”，变成一个可执行的程序。</p>
 <p>对于 ELF 格式的文件，为了能够实现这样一个静态链接的机制，里面不只是简单罗列了程序所需要执行的指令，还会包括链接所需要的重定位表和符号表。</p>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[计算机组成原理学习笔记（一）]]></title>
-        <id>https://luminqiang.github.io/ji-suan-ji-zu-cheng-yuan-li-xue-xi-bi-ji-yi/</id>
-        <link href="https://luminqiang.github.io/ji-suan-ji-zu-cheng-yuan-li-xue-xi-bi-ji-yi/">
-        </link>
-        <updated>2020-02-12T00:59:29.000Z</updated>
-        <content type="html"><![CDATA[<figure data-type="image" tabindex="1"><img src="https://luminqiang.github.io//post-images/1581469229146.jfif" alt="" loading="lazy"></figure>
-<p>计算机组成原理（Computer Organization），Organization为“组织结构”的意思，计算机的组成便是很多不同的部件构成的一个组织结构，这个组织结构可以进行计算、存储、输入、输出，组合在一起可以实现各种功能。</p>
-<p>冯.诺依曼体系结构中的五大基本组件：<br>
-运算器、寄存器、输入、输出设备、存储器</p>
-<p>计算机的两个核心指标：<br>
-性能和功耗</p>
-<p>CPU:Central Processing Unit(中央处理器)，由寄存器、控制器、运算器、时钟四个部分组成，每个部分由电流信号相互连通。</p>
-<p>寄存器：<br>
-用来暂存指令、数据等处理对象，是提供给CPU使用的“内存”，一个CPU内部会有20-100个寄存器。zhixing</p>
-<p>寄存器的种类：<br>
-累加寄存器：存储zhi'xing</p>
-<p>控制器：<br>
-负责把内存上的数据、指令等信息读入寄存器，并根据指令的执行结果来控制计算机。</p>
-<p>运算器：<br>
-负责运算寄存器中的数据。</p>
-<p>时钟：<br>
-发出CPU开始计时的时钟信号。</p>
 ]]></content>
     </entry>
 </feed>

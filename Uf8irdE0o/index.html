@@ -7,7 +7,7 @@
 <meta name="keywords" content="Gridea静态个人博客">
 <meta name="description" content="Start With Why">
 <meta name="theme-color" content="#000">
-<title>浏览器的同源策略 | 卢敏强的博客</title>
+<title>关于C#中实现单例模式 | 卢敏强的博客</title>
 <link rel="shortcut icon" href="/favicon.ico?v=1587911136815">
 <link rel="stylesheet" href="/styles/main.css">
 <link rel="stylesheet" href="/media/css/gemini.css">
@@ -25,7 +25,7 @@
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/auto-render.min.js" integrity="sha384-kWPLUVMOks5AQFrykwIup5lo0m3iMkkHrD0uJ4H5cjeGihAutqP0yW0J6dpFiVkI" crossorigin="anonymous"
     onload="renderMathInElement(document.body);"></script>
 
-    <meta name="description" content="浏览器的同源策略" />
+    <meta name="description" content="关于C#中实现单例模式" />
     <meta name="keywords" content="" />
   </head>
   <body>
@@ -196,17 +196,8 @@
     <ul class="markdownIt-TOC">
 <li>
 <ul>
-<li>
-<ul>
-<li><a href="#%E4%BB%80%E4%B9%88%E6%98%AF%E5%90%8C%E6%BA%90%E7%AD%96%E7%95%A5">什么是同源策略？</a></li>
-<li><a href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E9%9C%80%E8%A6%81%E5%90%8C%E6%BA%90%E7%AD%96%E7%95%A5">为什么需要同源策略？</a></li>
-<li><a href="#%E6%80%8E%E4%B9%88%E5%BA%94%E5%AF%B9%E5%90%8C%E6%BA%90%E7%AD%96%E7%95%A5">怎么应对同源策略？</a></li>
-<li><a href="#%E5%85%B3%E4%BA%8Ecors%E8%B7%A8%E5%9F%9F%E8%AF%B7%E6%B1%82%E6%96%B9%E6%A1%88">关于CORS跨域请求方案</a></li>
-<li><a href="#cors%E8%A7%84%E8%8C%83">CORS规范：</a></li>
-<li><a href="#cors%E4%B8%AD%E7%9A%84%E8%AF%B7%E6%B1%82%E9%A2%84%E6%A3%80preflight">CORS中的请求预检Preflight</a></li>
-<li><a href="#%E6%80%BB%E7%BB%93">总结</a></li>
-</ul>
-</li>
+<li><a href="#ihostedservice">IHostedService</a></li>
+<li><a href="#ihostapplicationlifetime">IHostApplicationLifetime</a></li>
 </ul>
 </li>
 </ul>
@@ -461,8 +452,8 @@ window.addEventListener('load', function() {
             <div class="section bg-color post post-page">
               <header class="post-header">
   <h1 class="post-title">
-    <a class="post-title-link" href="https://luminqiang.github.io/liu-lan-qi-de-tong-yuan-ce-lue/">
-      浏览器的同源策略
+    <a class="post-title-link" href="https://luminqiang.github.io/Uf8irdE0o/">
+      关于C#中实现单例模式
     </a>
   </h1>
   <div class="post-meta">
@@ -470,18 +461,18 @@ window.addEventListener('load', function() {
     <span class="meta-item pc-show">
       <i class="fa fa-calendar-o"></i>
       <span>发布于</span>
-      <span>2020-02-21</span>
+      <span>2020-04-26</span>
       <span class="post-meta-divider pc-show">|</span>
     </span>
     
     <span class="meta-item">
       <i class="fa fa-clock-o"></i>
-      <span>6分钟</span>
+      <span>5分钟</span>
     </span>
     <span class="meta-item">
       <span class="post-meta-divider">|</span>
       <i class="fa fa-file-word-o"></i>
-      <span>1230<span class="pc-show">字数</span></span>
+      <span>796<span class="pc-show">字数</span></span>
     </span>
     
       <span id="/postundefined" class="meta-item pc-show leancloud_visitors">
@@ -493,110 +484,190 @@ window.addEventListener('load', function() {
   </div>
 </header>
               <div class="post-body next-md-body" id="post_body">
-                <h3 id="什么是同源策略">什么是同源策略？</h3>
-<p>浏览器最基本的安全规范——同源策略(Same-Origin Policy)。所谓同源是指<strong>域名</strong>、<strong>协议</strong>、<strong>端口</strong>相同。不同源的<strong>浏览器脚本</strong>(javascript、ActionScript、canvas)在没明确授权的情况下，不能读写对方的资源。</p>
-<h3 id="为什么需要同源策略">为什么需要同源策略？</h3>
-<p>同源策略规定了浏览器脚本互操作web数据的基本原则，若没有这一基本原则，那么：</p>
-<ol>
-<li>某域下DOM元素被另一方任意操作、篡改，导致页面显示失控</li>
-<li>某域下的cookie等与该域相关的数据片段可以随意读取，导致与该域密切相关的浏览器cookie片段可能失真</li>
-<li>恶意网站能随意执行Ajax脚本偷取隐私数据，导致该域下核心业务数据被抓取。</li>
-</ol>
-<h3 id="怎么应对同源策略">怎么应对同源策略？</h3>
-<p>默认的同源策略 限制了脚本互操作其他域的能力，大棒一挥， 关闭了A站脚本正常访问B站数据的需求，有以下变通方法：</p>
-<ol>
-<li>实现CORS (Cross-Origin Resource Sharing)</li>
-<li>使用JSONP (JSON Padding)</li>
-<li>建立一个本地代理服务器，这样先同源访问，由代理服务器转发请求</li>
-</ol>
-<p><strong>方案1:CORS是w3C对于跨域请求推出的明确方案；方案2、3均是Hack行为。</strong></p>
-<h3 id="关于cors跨域请求方案">关于CORS跨域请求方案</h3>
-<p>W3C推出的跨域请求方案：<strong>让web服务器明确授权非同源页面脚本来访问自身，以Response特定标头Access-Control-*******-体现</strong>；目前现代浏览器均认可并支持这些标头。<br>
-<strong>CORS特定HTTP标头，为浏览器提供了授权脚本跨域访问其他域名页面数据的通道</strong>。</p>
-<p>所以CORS是处理跨域请求的常见方案，在Net Core中通常在Startup中配置跨域请求。</p>
-<p>常规的带Cookie Ajax跨域请求：</p>
-<pre><code>const invocation = new XMLHttpRequest();
-const url = 'http://bar.other/resources/credentialed-content/';
-function callOtherDomain(){
-  if(invocation) {
-    invocation.open('GET', url, true);
-    invocation.withCredentials = true;   // Ajax请求默认不会发送凭据， 这里设定在Ajax跨域请求中发送凭据
-    invocation.onreadystatechange = handler;
-    invocation.send(); 
-  }
+                <h2 id="ihostedservice">IHostedService</h2>
+<p>该接口中有两个方法：</p>
+<p>StartAsync：当应用程序主机准备启动服务时触发</p>
+<p>StopAsync：当应用程序主机准备停止服务时触发</p>
+<pre><code>//
+// 摘要:
+//     /// Defines methods for objects that are managed by the host. ///
+public interface IHostedService
+{
+    //
+    // 摘要:
+    //     /// Triggered when the application host is ready to start the service. ///
+    //
+    // 参数:
+    //   cancellationToken:
+    //     Indicates that the start process has been aborted.
+    Task StartAsync(CancellationToken cancellationToken);
+
+    //
+    // 摘要:
+    //     /// Triggered when the application host is performing a graceful shutdown. ///
+    //
+    // 参数:
+    //   cancellationToken:
+    //     Indicates that the shutdown process should no longer be graceful.
+    Task StopAsync(CancellationToken cancellationToken);
 }
 </code></pre>
-<figure data-type="image" tabindex="1"><img src="https://mmbiz.qpic.cn/mmbiz_png/Nf8EFKZQ5kO2TLsQ3NM1NLAZ5oHGKxvEKQgfL1WyPo11b6hIdeg4yUqP4LWRJNMSK7XFyyXB3jJce7lZ2eNXLg/640?wx_fmt=png&amp;tp=webp&amp;wxfrom=5&amp;wx_lazy=1&amp;wx_co=1" alt="image" loading="lazy"></figure>
-<h3 id="cors规范">CORS规范：</h3>
-<ol>
-<li>浏览器发起CORS或POST请求，浏览器会自动携带Origin标头（指示请求来自于哪个站点）</li>
-<li>Web服务器实现跨域访问授权逻辑。 授权结果在Response中以Access-Control--******* 标头体现。</li>
-<li>浏览器会遵守Access-Control--*******-- 标头值所施加的跨域限制。</li>
-</ol>
-<p>最常见的Access-Control-Allow-Origin标头包含  * / Origin /null三种响应值；当请求是携带凭据的跨域请求，不可囫囵吞枣地指定为*通配符，而必须指定特定Origin</p>
-<pre><code>GET /resources/access-control-with-credentials/ HTTP/1.1
-Host: bar.other
-User-Agent: Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10.5; en-US; rv:1.9.1b3pre) Gecko/20081130 Minefield/3.1b3pre
-Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
-Accept-Language: en-us,en;q=0.5
-Accept-Encoding: gzip,deflate
-Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7
-Connection: keep-alive
-Referer: http://foo.example/examples/credential.html
-Origin: http://foo.example
-Cookie: pageAccess=2
-
-
-HTTP/1.1 200 OK
-Date: Mon, 01 Dec 2008 01:34:52 GMT
-Server: Apache/2.0.61 (Unix) PHP/4.4.7 mod_ssl/2.0.61 OpenSSL/0.9.7e mod_fastcgi/2.4.2 DAV/2 SVN/1.4.2
-X-Powered-By: PHP/5.2.6
-Access-Control-Allow-Origin: http://foo.example
-Access-Control-Allow-Credentials: true
-Cache-Control: no-cache
-Pragma: no-cache
-Set-Cookie: pageAccess=3; expires=Wed, 31-Dec-2008 01:34:53 GMT
-Vary: Accept-Encoding, Origin
-Content-Encoding: gzip
-Content-Length: 106
-Keep-Alive: timeout=2, max=100
-Connection: Keep-Alive
-Content-Type: text/plain
-
-
-[text/plain payload]
-</code></pre>
-<p>以上表示了一个常见的携带cookie跨域Ajax Get请求，其中Access-Control-Allow-Credentials: true指示浏览器可以将跨域请求的Response结果暴露给页面。</p>
-<h3 id="cors中的请求预检preflight">CORS中的请求预检Preflight</h3>
-<p>对于非简单Ajax请求（通常是GET以外的HTTP方法，或者某些MIME类型的POST用法），CORS规范要求发起&quot;预检&quot;请求。</p>
-<p>注：不过，预检请求不需要你手动发起，浏览器会自动使用OPTIONS请求方法从服务器请求支持的方法，然后在服务器“批准”时，使用实际的HTTP请求方法发送实际请求。</p>
-<figure data-type="image" tabindex="2"><img src="https://mmbiz.qpic.cn/mmbiz_png/Nf8EFKZQ5kO2TLsQ3NM1NLAZ5oHGKxvEFCgLeQjvFNhoRmYrnF61OKHHwsMDJDnlicx5vQ9WY6xfVUM6BWZtOHA/640?wx_fmt=png&amp;tp=webp&amp;wxfrom=5&amp;wx_lazy=1&amp;wx_co=1" alt="image" loading="lazy"></figure>
-<p>下面使用POST动作发起Ajax跨域请求，同时自定义request header：X-PINGOTHER，该请求触发浏览器预检行为</p>
-<pre><code>
-const invocation = new XMLHttpRequest();
-const url = 'http://bar.other/resources/post-here/';
-const body = '&lt;?xml version=&quot;1.0&quot;?&gt;&lt;person&gt;&lt;name&gt;Arun&lt;/name&gt;&lt;/person&gt;';
-    
-function callOtherDomain(){
-  if(invocation)
+<h2 id="ihostapplicationlifetime">IHostApplicationLifetime</h2>
+<p>该接口中包含三个属性：Host程序的启动、正在停止、已停止，一个方法StopApplication，该方法用于主动停止程序。</p>
+<pre><code>//
+// 摘要:
+//     /// Allows consumers to be notified of application lifetime events. ///
+public interface IHostApplicationLifetime
+{
+    //
+    // 摘要:
+    //     /// Triggered when the application host has fully started. ///
+    CancellationToken ApplicationStarted
     {
-      invocation.open('POST', url, true);
-      invocation.setRequestHeader('X-PINGOTHER', 'pingpong');
-      invocation.setRequestHeader('Content-Type', 'application/xml');
-      invocation.onreadystatechange = handler;
-      invocation.send(body); 
+        get;
+    }
+
+    //
+    // 摘要:
+    //     /// Triggered when the application host is performing a graceful shutdown. ///
+    //     Shutdown will block until this event completes. ///
+    CancellationToken ApplicationStopped
+    {
+        get;
+    }
+
+    //
+    // 摘要:
+    //     /// Triggered when the application host is performing a graceful shutdown. ///
+    //     Shutdown will block until this event completes. ///
+    CancellationToken ApplicationStopping
+    {
+        get;
+    }
+
+    //
+    // 摘要:
+    //     /// Requests termination of the current application. ///
+    void StopApplication();
+}
+</code></pre>
+<p>这里实现<strong>IHostedService</strong>接口，然后使用<strong>IHostApplicationLifetime</strong>（该接口由框架自动实现注入），在<strong>IHostedService</strong>的<strong>StartAsync</strong>方法中注册<strong>IHostApplicationLifetime</strong>中的三个程序运行事件，可以做一些自定义的操作，我这里只是记录了日志。</p>
+<pre><code>internal class LifetimeEventsHostedService : IHostedService
+{
+    private readonly string appCode = ConfigurationManager.GetAppSetting(&quot;AppCode&quot;);
+    private readonly string appName = ConfigurationManager.GetAppSetting(&quot;AppName&quot;);
+    private readonly IHostApplicationLifetime _appLifetime;
+
+    public LifetimeEventsHostedService(IHostApplicationLifetime appLifetime)
+    {
+        _appLifetime = appLifetime;
+    }
+
+    public Task StartAsync(CancellationToken cancellationToken)
+    {
+        _appLifetime.ApplicationStarted.Register(OnStarted);
+        _appLifetime.ApplicationStopping.Register(OnStopping);
+        _appLifetime.ApplicationStopped.Register(OnStopped);
+
+        return Task.CompletedTask;
+    }
+
+    public Task StopAsync(CancellationToken cancellationToken)
+    {
+        return Task.CompletedTask;
+    }
+
+    private void OnStarted()
+    {
+        var interNetworkV6 = System.Net.Sockets.AddressFamily.InterNetworkV6;
+        var interNetwork = System.Net.Sockets.AddressFamily.InterNetwork;
+        var ipList = System.Net.NetworkInformation.NetworkInterface.GetAllNetworkInterfaces()
+          .Select(p =&gt; p.GetIPProperties())
+          .SelectMany(p =&gt; p.UnicastAddresses)
+          .Where(p =&gt; (p.Address.AddressFamily == interNetwork || p.Address.AddressFamily == interNetworkV6) &amp;&amp; !System.Net.IPAddress.IsLoopback(p.Address)).ToList();
+
+        Console.WriteLine($&quot;OnStarted has been called：【{appCode}】【{appName}】【{DateTime.Now}】 【{ipList[1].Address}】 【{ipList[0].Address}】&quot;);
+        Logger.Info($&quot;OnStarted has been called：【{appCode}】【{appName}】【{DateTime.Now}】 【{ipList[1].Address}】 【{ipList[0].Address}】&quot;);
+    }
+
+    private void OnStopping()
+    {
+        Console.WriteLine($&quot;OnStopping has been called：【{appCode}】【{appName}】【{DateTime.Now}】&quot;);
+        Logger.Info($&quot;OnStopping has been called：【{appCode}】【{appName}】【{DateTime.Now}】&quot;);
+    }
+
+    private void OnStopped()
+    {
+        Console.WriteLine($&quot;OnStopped has been called：【{appCode}】【{appName}】【{DateTime.Now}】&quot;);
+        Logger.Info($&quot;OnStopped has been called：【{appCode}】【{appName}】【{DateTime.Now}】&quot;);
     }
 }
 </code></pre>
-<figure data-type="image" tabindex="3"><img src="https://mmbiz.qpic.cn/mmbiz_png/Nf8EFKZQ5kO2TLsQ3NM1NLAZ5oHGKxvEiac7pdBDgRp336gAQ096hfTpnvicH2zjlEyibhG1S0Kmmy4zGGfTmcRVA/640?wx_fmt=png&amp;tp=webp&amp;wxfrom=5&amp;wx_lazy=1&amp;wx_co=1" alt="image" loading="lazy"></figure>
-<h3 id="总结">总结</h3>
-<ol>
-<li>浏览器同源策略限制对象是浏览器脚本；</li>
-<li>存在跨域请求的场景，某些方案是Hack行为；</li>
-<li>W3C推出的CORS 是标准的跨域请求方案，思路是在服务端Response标头体现 授权, 浏览器遵守该授权标头。</li>
-<li>对于非简单的脚本跨域请求，浏览器会自动发起 Option请求预检， 大部分时候无需关注</li>
-<li>提供curl 工具帮助高效、优雅调试CORS。</li>
-</ol>
+<p><strong>最后在服务中注入</strong></p>
+<pre><code>.ConfigureServices(a =&gt;
+{
+    a.AddSingleton&lt;IHostedService, LifetimeEventsHostedService&gt;();
+});
+</code></pre>
+<p><strong>也可以不使用IHostedService进行承载，直接使用IHostApplicationLifetime进行注册</strong></p>
+<pre><code>internal static class RegisterLifetimeEvents
+    {
+        private static readonly string appCode = ConfigurationManager.GetAppSetting(&quot;AppCode&quot;);
+        private static readonly string appName = ConfigurationManager.GetAppSetting(&quot;AppName&quot;);
+        private static readonly string iPV4Address;
+        private static readonly string iPV6Address;
+
+        static RegisterLifetimeEvents()
+        {
+            var interNetworkV6 = AddressFamily.InterNetworkV6;
+            var interNetwork = AddressFamily.InterNetwork;
+            var ipList = NetworkInterface.GetAllNetworkInterfaces()
+                .Select(p =&gt; p.GetIPProperties())
+                .SelectMany(p =&gt; p.UnicastAddresses)
+                .Where(p =&gt; (p.Address.AddressFamily == interNetwork || p.Address.AddressFamily == interNetworkV6) &amp;&amp; !System.Net.IPAddress.IsLoopback(p.Address)).ToList();
+
+            iPV4Address = ipList[1]?.Address.ToString();
+            iPV6Address = ipList[0]?.Address.ToString();
+        }
+
+        /// &lt;summary&gt;
+        /// 注册应用程序生命周期事件
+        /// &lt;/summary&gt;
+        public static void RegisterApplicationLifetimeEvents(this IHost host)
+        {
+            var hostApplicationLifetime = host.Services.GetService&lt;IHostApplicationLifetime&gt;();
+            hostApplicationLifetime.ApplicationStarted.Register(OnStarted);
+            hostApplicationLifetime.ApplicationStopping.Register(OnStopping);
+            hostApplicationLifetime.ApplicationStopped.Register(OnStopped);
+        }
+
+        private static void OnStarted()
+        {
+            Console.WriteLine($&quot;OnStarted has been called：{appCode} {appName} {DateTime.Now} {iPV4Address} {iPV6Address}&quot;);
+            Logger.Info($&quot;OnStarted has been called：{appCode} {appName} {DateTime.Now} {iPV4Address} {iPV6Address}&quot;);
+        }
+
+        private static void OnStopping()
+        {
+            Console.WriteLine($&quot;OnStopping has been called：{appCode} {appName} {DateTime.Now} {iPV4Address} {iPV6Address}&quot;);
+            Logger.Info($&quot;OnStopping has been called：{appCode} {appName} {DateTime.Now} {iPV4Address} {iPV6Address}&quot;);
+        }
+
+        private static void OnStopped()
+        {
+            Console.WriteLine($&quot;OnStopped has been called：{appCode} {appName} {DateTime.Now} {iPV4Address} {iPV6Address}&quot;);
+            Logger.Info($&quot;OnStopped has been called：{appCode} {appName} {DateTime.Now} {iPV4Address} {iPV6Address}&quot;);
+        }
+    }
+</code></pre>
+<p>在Main函数中注册一下即可</p>
+<pre><code>public static void Main(string[] args)
+{
+    var host = CreateHostBuilder(args).Build();
+    host.RegisterApplicationLifetimeEvents();
+    host.Run();
+}
+</code></pre>
 
               </div>
               <div class="post-footer">
@@ -607,7 +678,7 @@ function callOtherDomain(){
     </li>
     <li class="post-copyright-link">
       <strong>本文链接：</strong>
-      <a href="https://luminqiang.github.io/liu-lan-qi-de-tong-yuan-ce-lue/" title="浏览器的同源策略">浏览器的同源策略</a>
+      <a href="https://luminqiang.github.io/Uf8irdE0o/" title="关于C#中实现单例模式">关于C#中实现单例模式</a>
     </li>
     <li class="post-copyright-license">
       <strong>版权声明： </strong>
@@ -620,15 +691,11 @@ function callOtherDomain(){
   <div class="nav">
     <div class="nav-prev">
       
-        <i class="fa fa-chevron-left"></i>
-        <a class="nav-pc-next" title="计算机组成原理17（数据通路）" href="https://luminqiang.github.io/rhctu-ULk/">计算机组成原理17（数据通路）</a class="nav-pc-next">
-        <a class="nav-mobile-prev" title="计算机组成原理17（数据通路）" href="https://luminqiang.github.io/rhctu-ULk/">上一篇</a>
-      
     </div>
     <div class="nav-next">
       
-        <a class="nav-pc-next" title="计算机组成原理学习笔记（程序的编译、链接、装载）" href="https://luminqiang.github.io/ji-suan-ji-zu-cheng-yuan-li-xue-xi-bi-ji-cheng-xu-de-bian-yi-lian-jie-zhuang-zai/">计算机组成原理学习笔记（程序的编译、链接、装载）</a>
-        <a class="nav-mobile-next" title="计算机组成原理学习笔记（程序的编译、链接、装载）" href="https://luminqiang.github.io/ji-suan-ji-zu-cheng-yuan-li-xue-xi-bi-ji-cheng-xu-de-bian-yi-lian-jie-zhuang-zai/">下一篇</a>
+        <a class="nav-pc-next" title=".NET Core 3.1 下Rest API 与 GRPC 性能测试比较" href="https://luminqiang.github.io/Ces3IZPF5/">.NET Core 3.1 下Rest API 与 GRPC 性能测试比较</a>
+        <a class="nav-mobile-next" title=".NET Core 3.1 下Rest API 与 GRPC 性能测试比较" href="https://luminqiang.github.io/Ces3IZPF5/">下一篇</a>
         <i class="fa fa-chevron-right"></i>
       
     </div>
