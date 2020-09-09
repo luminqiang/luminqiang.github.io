@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://luminqiang.github.io/</id>
     <title>卢敏强的博客</title>
-    <updated>2020-09-09T11:40:31.271Z</updated>
+    <updated>2020-09-09T12:21:33.236Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://luminqiang.github.io/"/>
     <link rel="self" href="https://luminqiang.github.io/atom.xml"/>
@@ -10,6 +10,51 @@
     <logo>https://luminqiang.github.io/images/avatar.png</logo>
     <icon>https://luminqiang.github.io/favicon.ico</icon>
     <rights>All rights reserved 2020, 卢敏强的博客</rights>
+    <entry>
+        <title type="html"><![CDATA[分布式服务 Trace - 慢请求的排查思路]]></title>
+        <id>https://luminqiang.github.io/8Gt-IZY36/</id>
+        <link href="https://luminqiang.github.io/8Gt-IZY36/">
+        </link>
+        <updated>2020-09-09T12:20:11.000Z</updated>
+        <content type="html"><![CDATA[<h3 id="问题场景">问题场景</h3>
+<p>通过系统监控发现，某个核心服务如支付下单服务在高峰期时出现少量的慢请求，有用户向客服反馈在APP上支付下单时出现等待时间比较长的情况。由于下单服务调用了多个RPC或API服务，短时间内很难判断具体是调用链中的哪个服务出现了问题。</p>
+<h3 id="解决方案">解决方案</h3>
+<ol>
+<li>
+<p>在原来单体服务的情况下，简单方法就是打印处理流程的各个步骤的耗时情况日志，然后去日志中分析耗时情况，找到引起慢请求的那个或多个服务，进行针对性的优化。</p>
+</li>
+<li>
+<p>但是这种方案下，如果系统请求量稍微高点，就会出现多个日志穿插打印，很难一眼分辨出哪些是来自同一个请求，这时候需要一个标记来对同一个请求下的日志进行区分，这个标记可以叫做requestId，在请求进入的时候生成，放在线程上下文中，在需要的时候可以获取这个requestId并打印至日志中。</p>
+</li>
+<li>
+<p>现在已经可以通过日志分析出导致慢请求的具体原因了，比如，发现是下单操作时数据库查询慢导致的请求耗时增加，然后对数据库进行了优化，比如索引，这个问题最终得到解决。</p>
+</li>
+</ol>
+<p>可是没过多久，商品相关的服务又出现了请求缓慢的问题，又通过在代码中增加日志的方式来排查问题，很快，你会发现这种排查方式麻烦耗时，每次出现问题需要临时增加日志排查，不仅需要重新发布版本，而且排查时间也比较长。</p>
+<p>其实，一个接口出现响应时间慢的问题，大概率是出现在跨网络调用上，如数据库查询、依赖的第三方服务、缓存服务等，我们需要在这些外部调用的地方，统一的做耗时统计并进行上报。</p>
+<h3 id="切面编程-aop">切面编程 - AOP</h3>
+<p>AOP是比较适合这类场景的，在不修改源代码的情况下，对处理过程进行拦截处理，我们就可以在调用外部服务时进行耗时统计，并上报至日志。</p>
+<p>切面编程分成两类：</p>
+<ol>
+<li>静态代理：代码编译期进行代码注入，性能影响几乎忽略不计</li>
+<li>动态代理：运行期间生成代理对象，会有一些性能影响</li>
+</ol>
+<p>由于只是生成用于排查问题的追踪日志，应该尽量减少对接口性能的影响，推荐使用静态代理的方式。</p>
+<p>需要注意的点：</p>
+<ul>
+<li>日志上报需要一个集中存储，如Elasticsearch，如果还是打印到服务器上的文本文件中，找日志又是一个问题。</li>
+<li>如果服务的请求量很大，一次完整的请求可能会多达十几次的外部请求，假设系统的QPS是1000，那么一秒钟就会产生上万条日志，排查问题并不需要这么多的日志，需要对日志进行采样过滤，简单的方式就是使用requestId，假设采集20%的日志，那么就是requestId%10==0的请求进行打印。</li>
+<li>基于尽可能减少日志打印对接口性能影响的出发点，日志需要采用异步的方式写入消息队列，也可以在程序内部实现一个队里，然后由专门的消息处理程序或者处理线程把日志消息进行上报。</li>
+<li>最好是在配置中心配置有日志相关的设置，比如日志打印开关、日志采样数量等，这样就会更加灵活可控。</li>
+</ul>
+<p>以上的改造可以解决了日志获取困难、多个请求的日志难以区分、全量日志打印的问题，但是在分布式服务的环境下，一次完整请求下的服务调用顺序是难以区分的，比如，你知道下单接口请求了A，B，C三个服务，却不知道请求的顺序是什么（异步请求前提下）。</p>
+<p>现在需要其他标识去区分所依赖外部服务的调用顺序，假设这个调用顺序用字段orderId进行标识， 那么就是requestId + orderId 这两个数据维度来记录服务之间的调用关系，也就是使用 requestId 区分单次请求，用 orderId 记录每一次依赖的外部调用。</p>
+<p>比如，你的请求从用户端过来，先到达 A 服务，A 服务会分别调用 B 和 C 服务，B 服务又会调用 D 和 E 服务。</p>
+<p>用户到 A 服务之后会初始化一个 traceId 为 100，spanId 为 1；</p>
+<p>A 服务调用 B 服务时，traceId 不变，而 spanId 用 1.1 标识，代表上一级的 spanId 是1，这一级的调用次序是 1；</p>
+<p>A 调用 C 服务时，traceId 依然不变，spanId 则变为了 1.2，代表上一级的 spanId 还是 1，而调用次序则变成了 2，以此类推。</p>
+]]></content>
+    </entry>
     <entry>
         <title type="html"><![CDATA[关于C#中实现单例模式]]></title>
         <id>https://luminqiang.github.io/Uf8irdE0o/</id>
@@ -832,56 +877,6 @@ function callOtherDomain(){
 <li>对于非简单的脚本跨域请求，浏览器会自动发起 Option请求预检， 大部分时候无需关注</li>
 <li>提供curl 工具帮助高效、优雅调试CORS。</li>
 </ol>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[计算机组成原理学习笔记（程序的编译、链接、装载）]]></title>
-        <id>https://luminqiang.github.io/ji-suan-ji-zu-cheng-yuan-li-xue-xi-bi-ji-cheng-xu-de-bian-yi-lian-jie-zhuang-zai/</id>
-        <link href="https://luminqiang.github.io/ji-suan-ji-zu-cheng-yuan-li-xue-xi-bi-ji-cheng-xu-de-bian-yi-lian-jie-zhuang-zai/">
-        </link>
-        <updated>2020-02-20T13:51:03.000Z</updated>
-        <content type="html"><![CDATA[<p>首先我们都明白写好的程序通过编译之后变成了机器码由CPU执行，但是为什么相同的代码无法在同一台计算机的Linux和Windows系统下同时运行？</p>
-<ul>
-<li>
-<h2 id="拆解程序执行">拆解程序执行</h2>
-</li>
-</ul>
-<p>写好的 C 语言代码，可以通过编译器编译成汇编代码，然后汇编代码再通过汇编器变成 CPU 可以理解的机器码，于是 CPU 就可以执行这些机器码。这个过程是最简练的三个步骤，但具体是怎么变成一个可执行程序的呢？</p>
-<p><strong>“C 语言代码 - 汇编代码 - 机器码”</strong> 这个过程，在我们的计算机上进行的时候是由两部分组成的。</p>
-<p>第一部分:由编译（Compile）、汇编（Assemble）以及链接（Link）三个阶段组成。在这三个阶段完成之后，我们就生成了一个可执行文件。</p>
-<p>第二部分:通过装载器（Loader）把可执行文件装载（Load）到内存中。CPU 从内存中读取指令和数据，来开始真正执行程序。</p>
-<figure data-type="image" tabindex="1"><img src="https://static001.geekbang.org/resource/image/99/a7/997341ed0fa9018561c7120c19cfa2a7.jpg" alt="iamge" loading="lazy"></figure>
-<ul>
-<li>
-<h2 id="elf-格式和链接理解链接过程">ELF 格式和链接：理解链接过程</h2>
-</li>
-</ul>
-<p>程序最终是通过装载器变成指令和数据的，所以其实我们生成的可执行代码也并不仅仅是一条条的指令。</p>
-<p>Linux 下，可执行文件和目标文件所使用的都是一种叫ELF（Execuatable and Linkable File Format）的文件格式，中文名字叫可执行与可链接文件格式，这里面不仅存放了编译成的汇编指令，还保留了很多别的数据。</p>
-<figure data-type="image" tabindex="2"><img src="https://static001.geekbang.org/resource/image/27/b3/276a740d0eabf5f4be905fe7326d9fb3.jpg" alt="image" loading="lazy"></figure>
-<p>ELF 文件格式把各种信息，分成一个一个的 Section 保存起来。ELF 有一个基本的文件头（File Header），用来表示这个文件的基本属性，比如是否是可执行文件，对应的 CPU、操作系统等等。除了这些基本属性之外，大部分程序还有这么一些 Section：</p>
-<ol>
-<li>
-<p>首先是.text Section，也叫作代码段或者指令段（Code Section），用来保存程序的代码和指令；</p>
-</li>
-<li>
-<p>接着是.data Section，也叫作数据段（Data Section），用来保存程序里面设置好的初始化数据信息；</p>
-</li>
-<li>
-<p>然后就是.rel.text Secion，叫作重定位表（Relocation Table）。重定位表里，保留的是当前的文件里面，哪些跳转地址其实是我们不知道的。比如上面的 link_example.o 里面，我们在 main 函数里面调用了 add 和 printf 这两个函数，但是在链接发生之前，我们并不知道该跳转到哪里，这些信息就会存储在重定位表里；</p>
-</li>
-<li>
-<p>最后是.symtab Section，叫作符号表（Symbol Table）。符号表保留了我们所说的当前文件里面定义的函数名称和对应地址的地址簿。</p>
-</li>
-</ol>
-<p>链接器会扫描所有输入的目标文件，然后把所有符号表里的信息收集起来，构成一个全局的符号表。然后再根据重定位表，把所有不确定要跳转地址的代码，根据符号表里面存储的地址，进行一次修正。最后，把所有的目标文件的对应段进行一次合并，变成了最终的可执行代码。这也是为什么，可执行文件里面的函数调用的地址都是正确的。</p>
-<figure data-type="image" tabindex="3"><img src="https://static001.geekbang.org/resource/image/f6/12/f62da9b29aa53218f8907851df27f912.jpeg" alt="image" loading="lazy"></figure>
-<p>在链接器把程序变成可执行文件之后，要装载器去执行程序就容易多了。装载器不再需要考虑地址跳转的问题，只需要解析 ELF 文件，把对应的指令和数据，加载到内存里面供 CPU 执行就可以了。</p>
-<p>为什么同样一个程序，在 Linux 下可以执行而在 Windows 下不能执行了。其中一个非常重要的原因就是，两个操作系统下可执行文件的格式不一样。</p>
-<p>Linux 下是 ELF 文件格式，而 Windows 的可执行文件格式是一种叫作PE（Portable Executable Format）的文件格式。Linux 下的装载器只能解析 ELF 格式而不能解析 PE 格式。</p>
-<p>如果我们有一个可以能够解析 PE 格式的装载器，我们就有可能在 Linux 下运行 Windows 程序了。这样的程序真的存在吗？没错，Linux 下著名的开源项目 Wine，就是通过兼容 PE 格式的装载器，使得我们能直接在 Linux 下运行 Windows 程序的。而现在微软的 Windows 里面也提供了 WSL，也就是 Windows Subsystem for Linux，可以解析和加载 ELF 格式的文件。</p>
-<p>我们去写可以用的程序，也不仅仅是把所有代码放在一个文件里来编译执行，而是可以拆分成不同的函数库，最后通过一个静态链接的机制，使得不同的文件之间既有分工，又能通过静态链接来“合作”，变成一个可执行的程序。</p>
-<p>对于 ELF 格式的文件，为了能够实现这样一个静态链接的机制，里面不只是简单罗列了程序所需要执行的指令，还会包括链接所需要的重定位表和符号表。</p>
 ]]></content>
     </entry>
 </feed>

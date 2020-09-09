@@ -7,7 +7,7 @@
 <meta name="keywords" content="Gridea静态个人博客">
 <meta name="description" content="Start With Why">
 <meta name="theme-color" content="#000">
-<title>计算机组成原理学习笔记（一） | 卢敏强的博客</title>
+<title>分布式服务 Trace - 慢请求的排查思路 | 卢敏强的博客</title>
 <link rel="shortcut icon" href="/favicon.ico?v=1599654085826">
 <link rel="stylesheet" href="/styles/main.css">
 <link rel="stylesheet" href="/media/css/gemini.css">
@@ -25,7 +25,7 @@
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/auto-render.min.js" integrity="sha384-kWPLUVMOks5AQFrykwIup5lo0m3iMkkHrD0uJ4H5cjeGihAutqP0yW0J6dpFiVkI" crossorigin="anonymous"
     onload="renderMathInElement(document.body);"></script>
 
-    <meta name="description" content="计算机组成原理学习笔记（一）" />
+    <meta name="description" content="分布式服务 Trace - 慢请求的排查思路" />
     <meta name="keywords" content="" />
   </head>
   <body>
@@ -146,7 +146,8 @@
       <div class="sidebar-body gemini" id="sidebar_body">
         
           
-            
+            <div class="post-side-meta" id="post_side_meta">
+              
 <div class="sidebar-wrapper box-shadow-wrapper bg-color">
   <div class="sidebar-item">
     <img class="site-author-image right-motion" src="https://luminqiang.github.io//images/avatar.png"/>
@@ -188,6 +189,187 @@
 
 
 </div>
+            </div>
+            <div class="post-toc sidebar-body-active" id="post_toc" style="opacity: 1;">
+              <div class="toc-box right-motion">
+  <div class="toc-wrapper auto-number auto" id="toc_wrapper">
+    <ul class="markdownIt-TOC">
+<li>
+<ul>
+<li>
+<ul>
+<li><a href="#%E9%97%AE%E9%A2%98%E5%9C%BA%E6%99%AF">问题场景</a></li>
+<li><a href="#%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88">解决方案</a></li>
+<li><a href="#%E5%88%87%E9%9D%A2%E7%BC%96%E7%A8%8B-aop">切面编程 - AOP</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  </div>
+</div>
+
+<script>
+
+let lastTop = 0, lList = [], hList = [], postBody, lastIndex = -1; 
+let active = 'active-show', activeClass = 'active-current';
+let tocWrapper = document.querySelector('#toc_wrapper');
+let tocContent = tocWrapper.children[0];
+let autoNumber = tocWrapper&&tocWrapper.classList.contains('auto-number');
+
+function addTocNumber(elem, deep) {
+  if (!elem) {
+    return;
+  }
+  let prop = elem.__proto__;
+
+  if (prop === HTMLUListElement.prototype) {
+    for (let i = 0; i < elem.children.length; i++) {
+      addTocNumber(elem.children[i], deep + (i + 1) + '.');
+    }
+  } else if (prop === HTMLLIElement.prototype) {
+    // 保存li元素
+    lList.push(elem);
+    for (let i = 0; i < elem.children.length; i++) {
+      let cur = elem.children[i];
+      if (cur.__proto__ === HTMLAnchorElement.prototype) {
+        if (autoNumber) {
+          cur.text =  deep + ' ' + cur.text;
+        }
+      } else if (cur.__proto__ === HTMLUListElement.prototype) {
+        addTocNumber(cur, deep);
+      }
+    }
+  }
+}
+
+
+document.addEventListener('scroll', function(e) {
+  if (lList.length <= 0) {
+    return;
+  }
+  let scrollTop = document.scrollingElement.scrollTop + 10;
+  let dir;
+
+  if (lastTop - scrollTop > 0) {
+    dir = 'up';
+  } else {
+    dir = 'down';
+  }
+
+  lastTop = scrollTop;
+  if (scrollTop <= 0) {
+    if (lastIndex >= 0 && lastIndex < hList.length) {
+      lList[lastIndex].classList.remove(activeClass);
+    }
+    return;
+  }
+
+  let current = 0, hasFind = false;
+  for (let i = 0; i < hList.length; i++) {
+    if (hList[i].offsetTop > scrollTop) {
+      current = i;
+      hasFind = true;
+      break;
+    }
+  }
+  if (!hasFind && scrollTop > lList[lList.length - 1].offsetTop) {
+    current = hList.length - 1;
+  } else {
+    current--;
+  }
+  if (dir === 'down') {
+    if (current > lastIndex) {
+      addActiveClass(current);
+      removeActiveClass(lastIndex) 
+      lastIndex = current;
+      removeParentActiveClass();
+      lList[current] && addActiveLiElemment(lList[current].parentElement,tocContent);
+    }
+  } else {
+    if (current < lastIndex) {
+      addActiveClass(current);
+      removeActiveClass(lastIndex);
+      lastIndex = current;
+      removeParentActiveClass();
+      lList[current] && addActiveLiElemment(lList[current].parentElement,tocContent);
+    }
+  }
+});
+
+function removeParentActiveClass() {
+  let parents = tocContent.querySelectorAll('.'+active)
+  parents.forEach(function(elem) {
+    elem.classList.remove(active);
+  });
+}
+
+function addActiveClass(index) {
+  if (index >= 0 && index < hList.length) {
+    lList[index].classList.add(activeClass);
+  }
+}
+
+function removeActiveClass(index) {
+  if (index >= 0 && index < hList.length) {
+    lList[index].classList.remove(activeClass);
+  }
+}
+
+function addActiveLiElemment(elem, parent) {
+  if (!elem || elem === parent) {
+    return;
+  } else {
+    if (elem.__proto__ === HTMLLIElement.prototype) {
+      elem.classList.add(active);
+    }
+    addActiveLiElemment(elem.parentElement, parent);
+  }
+}
+
+function showToc() {
+  if (tocWrapper) {
+    postBody = document.querySelector('#post_body');
+    for (let i = 0; i < postBody.children.length; i++) {
+      if (postBody.children[i].__proto__ === HTMLHeadingElement.prototype) {
+        hList.push(postBody.children[i]);
+      }
+    }
+    if (tocWrapper.classList.contains('compress')) {
+        tocContent.classList.add('closed');
+    } else if (tocWrapper.classList.contains('no_compress')){
+      tocContent.classList.add('expanded');
+    } else {
+      if (hList.length > 10) {
+        active = 'active-hidden'
+        tocContent.classList.add('closed');
+      } else {
+        tocContent.classList.add('expanded');
+      }
+    }
+  }
+}
+addTocNumber(tocContent, '');
+
+window.addEventListener('load', function() {
+  showToc();
+  document.querySelector('#sidebar').style='display: block;';
+  tocWrapper.classList.add('toc-active');
+  setTimeout(function() {
+    if ("createEvent" in document) {
+      let evt = document.createEvent("HTMLEvents");
+      evt.initEvent("scroll", false, true);
+      document.dispatchEvent(evt);
+    }
+    else {
+      document.fireEvent("scroll");
+    }
+  }, 500)
+})
+
+</script>
+            </div>
           
         
       </div>
@@ -275,8 +457,8 @@
             <div class="section bg-color post post-page">
               <header class="post-header">
   <h1 class="post-title">
-    <a class="post-title-link" href="https://luminqiang.github.io/ji-suan-ji-zu-cheng-yuan-li-xue-xi-bi-ji-yi/">
-      计算机组成原理学习笔记（一）
+    <a class="post-title-link" href="https://luminqiang.github.io/8Gt-IZY36/">
+      分布式服务 Trace - 慢请求的排查思路
     </a>
   </h1>
   <div class="post-meta">
@@ -284,18 +466,18 @@
     <span class="meta-item pc-show">
       <i class="fa fa-calendar-o"></i>
       <span>发布于</span>
-      <span>2020-02-12</span>
+      <span>2020-09-09</span>
       <span class="post-meta-divider pc-show">|</span>
     </span>
     
     <span class="meta-item">
       <i class="fa fa-clock-o"></i>
-      <span>1分钟</span>
+      <span>5分钟</span>
     </span>
     <span class="meta-item">
       <span class="post-meta-divider">|</span>
       <i class="fa fa-file-word-o"></i>
-      <span>279<span class="pc-show">字数</span></span>
+      <span>1319<span class="pc-show">字数</span></span>
     </span>
     
       <span id="/postundefined" class="meta-item pc-show leancloud_visitors">
@@ -307,23 +489,43 @@
   </div>
 </header>
               <div class="post-body next-md-body" id="post_body">
-                <figure data-type="image" tabindex="1"><img src="https://luminqiang.github.io//post-images/1581469229146.jfif" alt="" loading="lazy"></figure>
-<p>计算机组成原理（Computer Organization），Organization为“组织结构”的意思，计算机的组成便是很多不同的部件构成的一个组织结构，这个组织结构可以进行计算、存储、输入、输出，组合在一起可以实现各种功能。</p>
-<p>冯.诺依曼体系结构中的五大基本组件：<br>
-运算器、寄存器、输入、输出设备、存储器</p>
-<p>计算机的两个核心指标：<br>
-性能和功耗</p>
-<p>CPU:Central Processing Unit(中央处理器)，由寄存器、控制器、运算器、时钟四个部分组成，每个部分由电流信号相互连通。</p>
-<p>寄存器：<br>
-用来暂存指令、数据等处理对象，是提供给CPU使用的“内存”，一个CPU内部会有20-100个寄存器。zhixing</p>
-<p>寄存器的种类：<br>
-累加寄存器：存储zhi'xing</p>
-<p>控制器：<br>
-负责把内存上的数据、指令等信息读入寄存器，并根据指令的执行结果来控制计算机。</p>
-<p>运算器：<br>
-负责运算寄存器中的数据。</p>
-<p>时钟：<br>
-发出CPU开始计时的时钟信号。</p>
+                <h3 id="问题场景">问题场景</h3>
+<p>通过系统监控发现，某个核心服务如支付下单服务在高峰期时出现少量的慢请求，有用户向客服反馈在APP上支付下单时出现等待时间比较长的情况。由于下单服务调用了多个RPC或API服务，短时间内很难判断具体是调用链中的哪个服务出现了问题。</p>
+<h3 id="解决方案">解决方案</h3>
+<ol>
+<li>
+<p>在原来单体服务的情况下，简单方法就是打印处理流程的各个步骤的耗时情况日志，然后去日志中分析耗时情况，找到引起慢请求的那个或多个服务，进行针对性的优化。</p>
+</li>
+<li>
+<p>但是这种方案下，如果系统请求量稍微高点，就会出现多个日志穿插打印，很难一眼分辨出哪些是来自同一个请求，这时候需要一个标记来对同一个请求下的日志进行区分，这个标记可以叫做requestId，在请求进入的时候生成，放在线程上下文中，在需要的时候可以获取这个requestId并打印至日志中。</p>
+</li>
+<li>
+<p>现在已经可以通过日志分析出导致慢请求的具体原因了，比如，发现是下单操作时数据库查询慢导致的请求耗时增加，然后对数据库进行了优化，比如索引，这个问题最终得到解决。</p>
+</li>
+</ol>
+<p>可是没过多久，商品相关的服务又出现了请求缓慢的问题，又通过在代码中增加日志的方式来排查问题，很快，你会发现这种排查方式麻烦耗时，每次出现问题需要临时增加日志排查，不仅需要重新发布版本，而且排查时间也比较长。</p>
+<p>其实，一个接口出现响应时间慢的问题，大概率是出现在跨网络调用上，如数据库查询、依赖的第三方服务、缓存服务等，我们需要在这些外部调用的地方，统一的做耗时统计并进行上报。</p>
+<h3 id="切面编程-aop">切面编程 - AOP</h3>
+<p>AOP是比较适合这类场景的，在不修改源代码的情况下，对处理过程进行拦截处理，我们就可以在调用外部服务时进行耗时统计，并上报至日志。</p>
+<p>切面编程分成两类：</p>
+<ol>
+<li>静态代理：代码编译期进行代码注入，性能影响几乎忽略不计</li>
+<li>动态代理：运行期间生成代理对象，会有一些性能影响</li>
+</ol>
+<p>由于只是生成用于排查问题的追踪日志，应该尽量减少对接口性能的影响，推荐使用静态代理的方式。</p>
+<p>需要注意的点：</p>
+<ul>
+<li>日志上报需要一个集中存储，如Elasticsearch，如果还是打印到服务器上的文本文件中，找日志又是一个问题。</li>
+<li>如果服务的请求量很大，一次完整的请求可能会多达十几次的外部请求，假设系统的QPS是1000，那么一秒钟就会产生上万条日志，排查问题并不需要这么多的日志，需要对日志进行采样过滤，简单的方式就是使用requestId，假设采集20%的日志，那么就是requestId%10==0的请求进行打印。</li>
+<li>基于尽可能减少日志打印对接口性能影响的出发点，日志需要采用异步的方式写入消息队列，也可以在程序内部实现一个队里，然后由专门的消息处理程序或者处理线程把日志消息进行上报。</li>
+<li>最好是在配置中心配置有日志相关的设置，比如日志打印开关、日志采样数量等，这样就会更加灵活可控。</li>
+</ul>
+<p>以上的改造可以解决了日志获取困难、多个请求的日志难以区分、全量日志打印的问题，但是在分布式服务的环境下，一次完整请求下的服务调用顺序是难以区分的，比如，你知道下单接口请求了A，B，C三个服务，却不知道请求的顺序是什么（异步请求前提下）。</p>
+<p>现在需要其他标识去区分所依赖外部服务的调用顺序，假设这个调用顺序用字段orderId进行标识， 那么就是requestId + orderId 这两个数据维度来记录服务之间的调用关系，也就是使用 requestId 区分单次请求，用 orderId 记录每一次依赖的外部调用。</p>
+<p>比如，你的请求从用户端过来，先到达 A 服务，A 服务会分别调用 B 和 C 服务，B 服务又会调用 D 和 E 服务。</p>
+<p>用户到 A 服务之后会初始化一个 traceId 为 100，spanId 为 1；</p>
+<p>A 服务调用 B 服务时，traceId 不变，而 spanId 用 1.1 标识，代表上一级的 spanId 是1，这一级的调用次序是 1；</p>
+<p>A 调用 C 服务时，traceId 依然不变，spanId 则变为了 1.2，代表上一级的 spanId 还是 1，而调用次序则变成了 2，以此类推。</p>
 
               </div>
               <div class="post-footer">
@@ -334,7 +536,7 @@
     </li>
     <li class="post-copyright-link">
       <strong>本文链接：</strong>
-      <a href="https://luminqiang.github.io/ji-suan-ji-zu-cheng-yuan-li-xue-xi-bi-ji-yi/" title="计算机组成原理学习笔记（一）">计算机组成原理学习笔记（一）</a>
+      <a href="https://luminqiang.github.io/8Gt-IZY36/" title="分布式服务 Trace - 慢请求的排查思路">分布式服务 Trace - 慢请求的排查思路</a>
     </li>
     <li class="post-copyright-license">
       <strong>版权声明： </strong>
@@ -347,15 +549,11 @@
   <div class="nav">
     <div class="nav-prev">
       
-        <i class="fa fa-chevron-left"></i>
-        <a class="nav-pc-next" title="计算机组成原理学习笔记（程序的编译、链接、装载）" href="https://luminqiang.github.io/ji-suan-ji-zu-cheng-yuan-li-xue-xi-bi-ji-cheng-xu-de-bian-yi-lian-jie-zhuang-zai/">计算机组成原理学习笔记（程序的编译、链接、装载）</a class="nav-pc-next">
-        <a class="nav-mobile-prev" title="计算机组成原理学习笔记（程序的编译、链接、装载）" href="https://luminqiang.github.io/ji-suan-ji-zu-cheng-yuan-li-xue-xi-bi-ji-cheng-xu-de-bian-yi-lian-jie-zhuang-zai/">上一篇</a>
-      
     </div>
     <div class="nav-next">
       
-        <a class="nav-pc-next" title="HTTP学习之缓存机制" href="https://luminqiang.github.io/http-xue-xi-zhi-huan-cun-ji-zhi/">HTTP学习之缓存机制</a>
-        <a class="nav-mobile-next" title="HTTP学习之缓存机制" href="https://luminqiang.github.io/http-xue-xi-zhi-huan-cun-ji-zhi/">下一篇</a>
+        <a class="nav-pc-next" title="关于C#中实现单例模式" href="https://luminqiang.github.io/Uf8irdE0o/">关于C#中实现单例模式</a>
+        <a class="nav-mobile-next" title="关于C#中实现单例模式" href="https://luminqiang.github.io/Uf8irdE0o/">下一篇</a>
         <i class="fa fa-chevron-right"></i>
       
     </div>
