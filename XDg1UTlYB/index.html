@@ -7,7 +7,7 @@
 <meta name="keywords" content="Gridea静态个人博客">
 <meta name="description" content="Start With Why">
 <meta name="theme-color" content="#000">
-<title>.NET Core 3.0 配置允许所有域名跨域 | 卢敏强的博客</title>
+<title>微信小程序 - 动画的使用 | 卢敏强的博客</title>
 <link rel="shortcut icon" href="/favicon.ico?v=1599996756242">
 <link rel="stylesheet" href="/styles/main.css">
 <link rel="stylesheet" href="/media/css/gemini.css">
@@ -25,8 +25,8 @@
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/auto-render.min.js" integrity="sha384-kWPLUVMOks5AQFrykwIup5lo0m3iMkkHrD0uJ4H5cjeGihAutqP0yW0J6dpFiVkI" crossorigin="anonymous"
     onload="renderMathInElement(document.body);"></script>
 
-    <meta name="description" content=".NET Core 3.0 配置允许所有域名跨域" />
-    <meta name="keywords" content=".NET Core" />
+    <meta name="description" content="微信小程序 - 动画的使用" />
+    <meta name="keywords" content="小程序" />
   </head>
   <body>
     <div class="head-top-line"></div>
@@ -146,7 +146,8 @@
       <div class="sidebar-body gemini" id="sidebar_body">
         
           
-            
+            <div class="post-side-meta" id="post_side_meta">
+              
 <div class="sidebar-wrapper box-shadow-wrapper bg-color">
   <div class="sidebar-item">
     <img class="site-author-image right-motion" src="https://luminqiang.github.io//images/avatar.png"/>
@@ -188,6 +189,189 @@
 
 
 </div>
+            </div>
+            <div class="post-toc sidebar-body-active" id="post_toc" style="opacity: 1;">
+              <div class="toc-box right-motion">
+  <div class="toc-wrapper auto-number auto" id="toc_wrapper">
+    <ul class="markdownIt-TOC">
+<li>
+<ul>
+<li>
+<ul>
+<li><a href="#%E5%AE%9A%E4%B9%89%E4%B8%80%E4%B8%AA%E5%8A%A8%E7%94%BB%E5%B7%A5%E5%85%B7%E7%B1%BB-animationutiljs">定义一个动画工具类 animationUtil.js</a>
+<ul>
+<li><a href="#%E4%BD%BF%E7%94%A8%E5%A6%82%E4%B8%8B">使用如下</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  </div>
+</div>
+
+<script>
+
+let lastTop = 0, lList = [], hList = [], postBody, lastIndex = -1; 
+let active = 'active-show', activeClass = 'active-current';
+let tocWrapper = document.querySelector('#toc_wrapper');
+let tocContent = tocWrapper.children[0];
+let autoNumber = tocWrapper&&tocWrapper.classList.contains('auto-number');
+
+function addTocNumber(elem, deep) {
+  if (!elem) {
+    return;
+  }
+  let prop = elem.__proto__;
+
+  if (prop === HTMLUListElement.prototype) {
+    for (let i = 0; i < elem.children.length; i++) {
+      addTocNumber(elem.children[i], deep + (i + 1) + '.');
+    }
+  } else if (prop === HTMLLIElement.prototype) {
+    // 保存li元素
+    lList.push(elem);
+    for (let i = 0; i < elem.children.length; i++) {
+      let cur = elem.children[i];
+      if (cur.__proto__ === HTMLAnchorElement.prototype) {
+        if (autoNumber) {
+          cur.text =  deep + ' ' + cur.text;
+        }
+      } else if (cur.__proto__ === HTMLUListElement.prototype) {
+        addTocNumber(cur, deep);
+      }
+    }
+  }
+}
+
+
+document.addEventListener('scroll', function(e) {
+  if (lList.length <= 0) {
+    return;
+  }
+  let scrollTop = document.scrollingElement.scrollTop + 10;
+  let dir;
+
+  if (lastTop - scrollTop > 0) {
+    dir = 'up';
+  } else {
+    dir = 'down';
+  }
+
+  lastTop = scrollTop;
+  if (scrollTop <= 0) {
+    if (lastIndex >= 0 && lastIndex < hList.length) {
+      lList[lastIndex].classList.remove(activeClass);
+    }
+    return;
+  }
+
+  let current = 0, hasFind = false;
+  for (let i = 0; i < hList.length; i++) {
+    if (hList[i].offsetTop > scrollTop) {
+      current = i;
+      hasFind = true;
+      break;
+    }
+  }
+  if (!hasFind && scrollTop > lList[lList.length - 1].offsetTop) {
+    current = hList.length - 1;
+  } else {
+    current--;
+  }
+  if (dir === 'down') {
+    if (current > lastIndex) {
+      addActiveClass(current);
+      removeActiveClass(lastIndex) 
+      lastIndex = current;
+      removeParentActiveClass();
+      lList[current] && addActiveLiElemment(lList[current].parentElement,tocContent);
+    }
+  } else {
+    if (current < lastIndex) {
+      addActiveClass(current);
+      removeActiveClass(lastIndex);
+      lastIndex = current;
+      removeParentActiveClass();
+      lList[current] && addActiveLiElemment(lList[current].parentElement,tocContent);
+    }
+  }
+});
+
+function removeParentActiveClass() {
+  let parents = tocContent.querySelectorAll('.'+active)
+  parents.forEach(function(elem) {
+    elem.classList.remove(active);
+  });
+}
+
+function addActiveClass(index) {
+  if (index >= 0 && index < hList.length) {
+    lList[index].classList.add(activeClass);
+  }
+}
+
+function removeActiveClass(index) {
+  if (index >= 0 && index < hList.length) {
+    lList[index].classList.remove(activeClass);
+  }
+}
+
+function addActiveLiElemment(elem, parent) {
+  if (!elem || elem === parent) {
+    return;
+  } else {
+    if (elem.__proto__ === HTMLLIElement.prototype) {
+      elem.classList.add(active);
+    }
+    addActiveLiElemment(elem.parentElement, parent);
+  }
+}
+
+function showToc() {
+  if (tocWrapper) {
+    postBody = document.querySelector('#post_body');
+    for (let i = 0; i < postBody.children.length; i++) {
+      if (postBody.children[i].__proto__ === HTMLHeadingElement.prototype) {
+        hList.push(postBody.children[i]);
+      }
+    }
+    if (tocWrapper.classList.contains('compress')) {
+        tocContent.classList.add('closed');
+    } else if (tocWrapper.classList.contains('no_compress')){
+      tocContent.classList.add('expanded');
+    } else {
+      if (hList.length > 10) {
+        active = 'active-hidden'
+        tocContent.classList.add('closed');
+      } else {
+        tocContent.classList.add('expanded');
+      }
+    }
+  }
+}
+addTocNumber(tocContent, '');
+
+window.addEventListener('load', function() {
+  showToc();
+  document.querySelector('#sidebar').style='display: block;';
+  tocWrapper.classList.add('toc-active');
+  setTimeout(function() {
+    if ("createEvent" in document) {
+      let evt = document.createEvent("HTMLEvents");
+      evt.initEvent("scroll", false, true);
+      document.dispatchEvent(evt);
+    }
+    else {
+      document.fireEvent("scroll");
+    }
+  }, 500)
+})
+
+</script>
+            </div>
           
         
       </div>
@@ -275,8 +459,8 @@
             <div class="section bg-color post post-page">
               <header class="post-header">
   <h1 class="post-title">
-    <a class="post-title-link" href="https://luminqiang.github.io/i_Va9uR2B/">
-      .NET Core 3.0 配置允许所有域名跨域
+    <a class="post-title-link" href="https://luminqiang.github.io/XDg1UTlYB/">
+      微信小程序 - 动画的使用
     </a>
   </h1>
   <div class="post-meta">
@@ -284,7 +468,7 @@
     <span class="meta-item pc-show">
       <i class="fa fa-calendar-o"></i>
       <span>发布于</span>
-      <span>2020-04-09</span>
+      <span>2020-09-13</span>
       <span class="post-meta-divider pc-show">|</span>
     </span>
     
@@ -293,8 +477,8 @@
         <span class="pc-show">分类于</span>
         
           
-            <a href="https://luminqiang.github.io/7udpce0yH/">
-              <span>.NET Core</span>
+            <a href="https://luminqiang.github.io/SHdHsvOvt/">
+              <span>小程序</span>
             </a>
           
         
@@ -303,12 +487,12 @@
     
     <span class="meta-item">
       <i class="fa fa-clock-o"></i>
-      <span>1分钟</span>
+      <span>2分钟</span>
     </span>
     <span class="meta-item">
       <span class="post-meta-divider">|</span>
       <i class="fa fa-file-word-o"></i>
-      <span>117<span class="pc-show">字数</span></span>
+      <span>390<span class="pc-show">字数</span></span>
     </span>
     
       <span id="/postundefined" class="meta-item pc-show leancloud_visitors">
@@ -320,35 +504,82 @@
   </div>
 </header>
               <div class="post-body next-md-body" id="post_body">
-                <p>测试配置可行</p>
-<pre><code>public void ConfigureServices(IServiceCollection services)
-{
-    services.AddCors();
+                <p><strong>因为是第一次在微信小程序中使用动画对象，因此记录一下，先封装了一个简单的左右滑动的动画效果，其他动画效果的定义也类似，可以传递动画详细参数进去自定义。</strong></p>
+<h3 id="定义一个动画工具类-animationutiljs">定义一个动画工具类 animationUtil.js</h3>
+<pre><code>var app = getApp()
+
+//左右平缓滑动
+function sliderOfRightLeft(that){
+  var circleCount = 0;
+  // 创建一个动画实例
+  var animation = wx.createAnimation({
+    duration: 2000, // 动画持续时间    
+    timingFunction: 'linear' // 定义动画效果，当前是匀速
+  })
+  // 将该变量赋值给当前动画
+  that.animationData = animation
+  setInterval(function () {
+    if (circleCount % 2 == 0) {
+      that.animationData.translateX(30).step();
+    }
+    else {
+      that.animationData.translateX(0).step();
+    }
+    that.setData({
+      animationData: that.animationData.export() // 通过export()方法导出数据
+    })
+    circleCount++;
+    if (circleCount == 1000) {
+      circleCount = 0;
+    }
+  }, 1000)
+  return that.animationData;
+}
+
+module.exports = {
+  sliderOfRightLeft: sliderOfRightLeft
 }
 </code></pre>
-<p>SetIsOriginAllowed方法用于判断某个域名是否在允许跨域的名单中，这里不判断直接返回True</p>
-<pre><code>public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
-{
-    app.UseCors(options =&gt; options.SetIsOriginAllowed(x =&gt; _ = true).AllowAnyMethod().AllowAnyHeader().AllowCredentials());
+<ul>
+<li>自定义函数需要暴露时使用</li>
+</ul>
+<pre><code>module.exports = {
+  sliderOfRightLeft: sliderOfRightLeft
 }
 </code></pre>
-<p><strong>SetIsOriginAllowed方法注释</strong></p>
-<pre><code>//
-// 摘要:
-//     /// Sets the specified isOriginAllowed for the underlying policy. ///
-//
-// 参数:
-//   isOriginAllowed:
-//     The function used by the policy to evaluate if an origin is allowed.
-//
-// 返回结果:
-//     The current policy builder.
-public CorsPolicyBuilder SetIsOriginAllowed(Func&lt;string, bool&gt; isOriginAllowed)
-{
-    throw null;
-}
+<ul>
+<li>因为是设置一直运行的首页动画，使用circleCount变量和setInterval周期函数控制动画重复播放</li>
+<li>动画设置完毕后，需要返回动画对象给调用方</li>
+</ul>
+<h4 id="使用如下">使用如下</h4>
+<ul>
+<li>先引入动画工具类</li>
+</ul>
+<pre><code>var animationUtil= require('../../utils/animationUtil');
 </code></pre>
-<figure data-type="image" tabindex="1"><img src="https://luminqiang.github.io//post-images/1586441071443.jfif" alt="" loading="lazy"></figure>
+<ul>
+<li>在page的data对象中定义动画对象变量</li>
+</ul>
+<pre><code>Page({
+  data: {
+    animationData: {}
+  },
+</code></pre>
+<ul>
+<li>在view中设置动画属性，绑定动画对象</li>
+</ul>
+<pre><code>&lt;view animation='{{animationData}}' class=&quot;timeicon&quot;&gt;
+	&lt;image wx:if=&quot;{{isnight}}&quot; src=&quot;../../image/夜晚.png&quot; mode=&quot;scaleToFill&quot;&gt;&lt;/image&gt;
+	&lt;image wx:if=&quot;{{!isnight}}&quot; src=&quot;../../image/太阳.png&quot; mode=&quot;scaleToFill&quot;&gt;&lt;/image&gt;
+&lt;/view&gt;
+</code></pre>
+<ul>
+<li>最后在onShow页面加载事件中使用动画函数，传递page对象进去</li>
+</ul>
+<pre><code>onShow: function () {
+    animationUtil.sliderOfRightLeft(this);
+  },
+</code></pre>
 
               </div>
               <div class="post-footer">
@@ -359,7 +590,7 @@ public CorsPolicyBuilder SetIsOriginAllowed(Func&lt;string, bool&gt; isOriginAll
     </li>
     <li class="post-copyright-link">
       <strong>本文链接：</strong>
-      <a href="https://luminqiang.github.io/i_Va9uR2B/" title=".NET Core 3.0 配置允许所有域名跨域">.NET Core 3.0 配置允许所有域名跨域</a>
+      <a href="https://luminqiang.github.io/XDg1UTlYB/" title="微信小程序 - 动画的使用">微信小程序 - 动画的使用</a>
     </li>
     <li class="post-copyright-license">
       <strong>版权声明： </strong>
@@ -368,21 +599,17 @@ public CorsPolicyBuilder SetIsOriginAllowed(Func&lt;string, bool&gt; isOriginAll
   </ul>
   <div class="tags">
     
-      <a href="https://luminqiang.github.io/7udpce0yH/"># .NET Core</a>
+      <a href="https://luminqiang.github.io/SHdHsvOvt/"># 小程序</a>
     
   </div>
   <div class="nav">
     <div class="nav-prev">
       
-        <i class="fa fa-chevron-left"></i>
-        <a class="nav-pc-next" title="Nginx配置Https证书" href="https://luminqiang.github.io/G2HIIUMHo/">Nginx配置Https证书</a class="nav-pc-next">
-        <a class="nav-mobile-prev" title="Nginx配置Https证书" href="https://luminqiang.github.io/G2HIIUMHo/">上一篇</a>
-      
     </div>
     <div class="nav-next">
       
-        <a class="nav-pc-next" title=".NET Core 3.0 使用 IHostApplicationLifetime 处理应用启动和停止事件" href="https://luminqiang.github.io/0HNFPxdKG/">.NET Core 3.0 使用 IHostApplicationLifetime 处理应用启动和停止事件</a>
-        <a class="nav-mobile-next" title=".NET Core 3.0 使用 IHostApplicationLifetime 处理应用启动和停止事件" href="https://luminqiang.github.io/0HNFPxdKG/">下一篇</a>
+        <a class="nav-pc-next" title="分布式服务 Trace - 慢请求的排查思路" href="https://luminqiang.github.io/8Gt-IZY36/">分布式服务 Trace - 慢请求的排查思路</a>
+        <a class="nav-mobile-next" title="分布式服务 Trace - 慢请求的排查思路" href="https://luminqiang.github.io/8Gt-IZY36/">下一篇</a>
         <i class="fa fa-chevron-right"></i>
       
     </div>
