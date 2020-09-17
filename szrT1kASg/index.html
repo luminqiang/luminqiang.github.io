@@ -7,7 +7,7 @@
 <meta name="keywords" content="Gridea静态个人博客">
 <meta name="description" content="Start With Why">
 <meta name="theme-color" content="#000">
-<title>关于C#中实现单例模式 | 卢敏强的博客</title>
+<title>Docker中安装Mysql | 卢敏强的博客</title>
 <link rel="shortcut icon" href="/favicon.ico?v=1600386902032">
 <link rel="stylesheet" href="/styles/main.css">
 <link rel="stylesheet" href="/media/css/gemini.css">
@@ -25,8 +25,8 @@
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/auto-render.min.js" integrity="sha384-kWPLUVMOks5AQFrykwIup5lo0m3iMkkHrD0uJ4H5cjeGihAutqP0yW0J6dpFiVkI" crossorigin="anonymous"
     onload="renderMathInElement(document.body);"></script>
 
-    <meta name="description" content="关于C#中实现单例模式" />
-    <meta name="keywords" content="" />
+    <meta name="description" content="Docker中安装Mysql" />
+    <meta name="keywords" content="Docker,Mysql,主从同步" />
   </head>
   <body>
     <div class="head-top-line"></div>
@@ -146,8 +146,7 @@
       <div class="sidebar-body gemini" id="sidebar_body">
         
           
-            <div class="post-side-meta" id="post_side_meta">
-              
+            
 <div class="sidebar-wrapper box-shadow-wrapper bg-color">
   <div class="sidebar-item">
     <img class="site-author-image right-motion" src="https://luminqiang.github.io//images/avatar.png"/>
@@ -189,182 +188,6 @@
 
 
 </div>
-            </div>
-            <div class="post-toc sidebar-body-active" id="post_toc" style="opacity: 1;">
-              <div class="toc-box right-motion">
-  <div class="toc-wrapper auto-number auto" id="toc_wrapper">
-    <ul class="markdownIt-TOC">
-<li>
-<ul>
-<li><a href="#ihostedservice">IHostedService</a></li>
-<li><a href="#ihostapplicationlifetime">IHostApplicationLifetime</a></li>
-</ul>
-</li>
-</ul>
-
-  </div>
-</div>
-
-<script>
-
-let lastTop = 0, lList = [], hList = [], postBody, lastIndex = -1; 
-let active = 'active-show', activeClass = 'active-current';
-let tocWrapper = document.querySelector('#toc_wrapper');
-let tocContent = tocWrapper.children[0];
-let autoNumber = tocWrapper&&tocWrapper.classList.contains('auto-number');
-
-function addTocNumber(elem, deep) {
-  if (!elem) {
-    return;
-  }
-  let prop = elem.__proto__;
-
-  if (prop === HTMLUListElement.prototype) {
-    for (let i = 0; i < elem.children.length; i++) {
-      addTocNumber(elem.children[i], deep + (i + 1) + '.');
-    }
-  } else if (prop === HTMLLIElement.prototype) {
-    // 保存li元素
-    lList.push(elem);
-    for (let i = 0; i < elem.children.length; i++) {
-      let cur = elem.children[i];
-      if (cur.__proto__ === HTMLAnchorElement.prototype) {
-        if (autoNumber) {
-          cur.text =  deep + ' ' + cur.text;
-        }
-      } else if (cur.__proto__ === HTMLUListElement.prototype) {
-        addTocNumber(cur, deep);
-      }
-    }
-  }
-}
-
-
-document.addEventListener('scroll', function(e) {
-  if (lList.length <= 0) {
-    return;
-  }
-  let scrollTop = document.scrollingElement.scrollTop + 10;
-  let dir;
-
-  if (lastTop - scrollTop > 0) {
-    dir = 'up';
-  } else {
-    dir = 'down';
-  }
-
-  lastTop = scrollTop;
-  if (scrollTop <= 0) {
-    if (lastIndex >= 0 && lastIndex < hList.length) {
-      lList[lastIndex].classList.remove(activeClass);
-    }
-    return;
-  }
-
-  let current = 0, hasFind = false;
-  for (let i = 0; i < hList.length; i++) {
-    if (hList[i].offsetTop > scrollTop) {
-      current = i;
-      hasFind = true;
-      break;
-    }
-  }
-  if (!hasFind && scrollTop > lList[lList.length - 1].offsetTop) {
-    current = hList.length - 1;
-  } else {
-    current--;
-  }
-  if (dir === 'down') {
-    if (current > lastIndex) {
-      addActiveClass(current);
-      removeActiveClass(lastIndex) 
-      lastIndex = current;
-      removeParentActiveClass();
-      lList[current] && addActiveLiElemment(lList[current].parentElement,tocContent);
-    }
-  } else {
-    if (current < lastIndex) {
-      addActiveClass(current);
-      removeActiveClass(lastIndex);
-      lastIndex = current;
-      removeParentActiveClass();
-      lList[current] && addActiveLiElemment(lList[current].parentElement,tocContent);
-    }
-  }
-});
-
-function removeParentActiveClass() {
-  let parents = tocContent.querySelectorAll('.'+active)
-  parents.forEach(function(elem) {
-    elem.classList.remove(active);
-  });
-}
-
-function addActiveClass(index) {
-  if (index >= 0 && index < hList.length) {
-    lList[index].classList.add(activeClass);
-  }
-}
-
-function removeActiveClass(index) {
-  if (index >= 0 && index < hList.length) {
-    lList[index].classList.remove(activeClass);
-  }
-}
-
-function addActiveLiElemment(elem, parent) {
-  if (!elem || elem === parent) {
-    return;
-  } else {
-    if (elem.__proto__ === HTMLLIElement.prototype) {
-      elem.classList.add(active);
-    }
-    addActiveLiElemment(elem.parentElement, parent);
-  }
-}
-
-function showToc() {
-  if (tocWrapper) {
-    postBody = document.querySelector('#post_body');
-    for (let i = 0; i < postBody.children.length; i++) {
-      if (postBody.children[i].__proto__ === HTMLHeadingElement.prototype) {
-        hList.push(postBody.children[i]);
-      }
-    }
-    if (tocWrapper.classList.contains('compress')) {
-        tocContent.classList.add('closed');
-    } else if (tocWrapper.classList.contains('no_compress')){
-      tocContent.classList.add('expanded');
-    } else {
-      if (hList.length > 10) {
-        active = 'active-hidden'
-        tocContent.classList.add('closed');
-      } else {
-        tocContent.classList.add('expanded');
-      }
-    }
-  }
-}
-addTocNumber(tocContent, '');
-
-window.addEventListener('load', function() {
-  showToc();
-  document.querySelector('#sidebar').style='display: block;';
-  tocWrapper.classList.add('toc-active');
-  setTimeout(function() {
-    if ("createEvent" in document) {
-      let evt = document.createEvent("HTMLEvents");
-      evt.initEvent("scroll", false, true);
-      document.dispatchEvent(evt);
-    }
-    else {
-      document.fireEvent("scroll");
-    }
-  }, 500)
-})
-
-</script>
-            </div>
           
         
       </div>
@@ -452,8 +275,8 @@ window.addEventListener('load', function() {
             <div class="section bg-color post post-page">
               <header class="post-header">
   <h1 class="post-title">
-    <a class="post-title-link" href="https://luminqiang.github.io/Uf8irdE0o/">
-      关于C#中实现单例模式
+    <a class="post-title-link" href="https://luminqiang.github.io/szrT1kASg/">
+      Docker中安装Mysql
     </a>
   </h1>
   <div class="post-meta">
@@ -461,9 +284,34 @@ window.addEventListener('load', function() {
     <span class="meta-item pc-show">
       <i class="fa fa-calendar-o"></i>
       <span>发布于</span>
-      <span>2020-04-26</span>
+      <span>2020-09-18</span>
       <span class="post-meta-divider pc-show">|</span>
     </span>
+    
+      <span class="meta-item">
+        <i class="fa fa-folder-o"></i>
+        <span class="pc-show">分类于</span>
+        
+          
+            <a href="https://luminqiang.github.io/R1OXjqacF/">
+              <span>Docker</span>
+            </a>、
+          
+        
+          
+            <a href="https://luminqiang.github.io/Kg_Tbh-k1/">
+              <span>Mysql</span>
+            </a>、
+          
+        
+          
+            <a href="https://luminqiang.github.io/U15LDMKpn8/">
+              <span>主从同步</span>
+            </a>
+          
+        
+      </span>
+      <span class="post-meta-divider">|</span>
     
     <span class="meta-item">
       <i class="fa fa-clock-o"></i>
@@ -472,7 +320,7 @@ window.addEventListener('load', function() {
     <span class="meta-item">
       <span class="post-meta-divider">|</span>
       <i class="fa fa-file-word-o"></i>
-      <span>796<span class="pc-show">字数</span></span>
+      <span>927<span class="pc-show">字数</span></span>
     </span>
     
       <span id="/postundefined" class="meta-item pc-show leancloud_visitors">
@@ -484,190 +332,173 @@ window.addEventListener('load', function() {
   </div>
 </header>
               <div class="post-body next-md-body" id="post_body">
-                <h2 id="ihostedservice">IHostedService</h2>
-<p>该接口中有两个方法：</p>
-<p>StartAsync：当应用程序主机准备启动服务时触发</p>
-<p>StopAsync：当应用程序主机准备停止服务时触发</p>
-<pre><code>//
-// 摘要:
-//     /// Defines methods for objects that are managed by the host. ///
-public interface IHostedService
-{
-    //
-    // 摘要:
-    //     /// Triggered when the application host is ready to start the service. ///
-    //
-    // 参数:
-    //   cancellationToken:
-    //     Indicates that the start process has been aborted.
-    Task StartAsync(CancellationToken cancellationToken);
-
-    //
-    // 摘要:
-    //     /// Triggered when the application host is performing a graceful shutdown. ///
-    //
-    // 参数:
-    //   cancellationToken:
-    //     Indicates that the shutdown process should no longer be graceful.
-    Task StopAsync(CancellationToken cancellationToken);
-}
+                <p><strong>准备搭建Mysql主从同步，原来是在linux直接安装的，感觉不是很方便，这次准备使用挂载的方式安装，前提是Docker已经安装好了</strong></p>
+<ul>
+<li><strong>搜索Mysql</strong></li>
+</ul>
+<pre><code> docker search mysql
 </code></pre>
-<h2 id="ihostapplicationlifetime">IHostApplicationLifetime</h2>
-<p>该接口中包含三个属性：Host程序的启动、正在停止、已停止，一个方法StopApplication，该方法用于主动停止程序。</p>
-<pre><code>//
-// 摘要:
-//     /// Allows consumers to be notified of application lifetime events. ///
-public interface IHostApplicationLifetime
-{
-    //
-    // 摘要:
-    //     /// Triggered when the application host has fully started. ///
-    CancellationToken ApplicationStarted
-    {
-        get;
-    }
+<p>搜索结果如下：</p>
+<pre><code>NAME                              DESCRIPTION                                     STARS               OFFICIAL            AUTOMATED
+mysql                             MySQL is a widely used, open-source relation…   9968                [OK]                
+mariadb                           MariaDB is a community-developed fork of MyS…   3645                [OK]                
+mysql/mysql-server                Optimized MySQL Server Docker images. Create…   727                                     [OK]
+percona                           Percona Server is a fork of the MySQL relati…   509                 [OK]                
+centos/mysql-57-centos7           MySQL 5.7 SQL database server                   83                                      
+mysql/mysql-cluster               Experimental MySQL Cluster Docker images. Cr…   75                                      
+centurylink/mysql                 Image containing mysql. Optimized to be link…   61                                      [OK]
+bitnami/mysql                     Bitnami MySQL Docker Image                      44                                      [OK]
+deitch/mysql-backup               REPLACED! Please use http://hub.docker.com/r…   41                                      [OK]
+tutum/mysql                       Base docker image to run a MySQL database se…   35                                      
+prom/mysqld-exporter                                                              31                                      [OK]
+schickling/mysql-backup-s3        Backup MySQL to S3 (supports periodic backup…   30                                      [OK]
+databack/mysql-backup             Back up mysql databases to... anywhere!         30                                      
+linuxserver/mysql                 A Mysql container, brought to you by LinuxSe…   26                                      
+centos/mysql-56-centos7           MySQL 5.6 SQL database server                   20                                      
+circleci/mysql                    MySQL is a widely used, open-source relation…   19                                      
+mysql/mysql-router                MySQL Router provides transparent routing be…   16                                      
+arey/mysql-client                 Run a MySQL client from a docker container      14                                      [OK]
+fradelg/mysql-cron-backup         MySQL/MariaDB database backup using cron tas…   8                                       [OK]
+openshift/mysql-55-centos7        DEPRECATED: A Centos7 based MySQL v5.5 image…   6                                       
+devilbox/mysql                    Retagged MySQL, MariaDB and PerconaDB offici…   3                                       
+ansibleplaybookbundle/mysql-apb   An APB which deploys RHSCL MySQL                2                                       [OK]
+widdpim/mysql-client              Dockerized MySQL Client (5.7) including Curl…   1                                       [OK]
+jelastic/mysql                    An image of the MySQL database server mainta…   1                                       
+monasca/mysql-init                A minimal decoupled init container for mysql    0                                       
 
-    //
-    // 摘要:
-    //     /// Triggered when the application host is performing a graceful shutdown. ///
-    //     Shutdown will block until this event completes. ///
-    CancellationToken ApplicationStopped
-    {
-        get;
-    }
-
-    //
-    // 摘要:
-    //     /// Triggered when the application host is performing a graceful shutdown. ///
-    //     Shutdown will block until this event completes. ///
-    CancellationToken ApplicationStopping
-    {
-        get;
-    }
-
-    //
-    // 摘要:
-    //     /// Requests termination of the current application. ///
-    void StopApplication();
-}
 </code></pre>
-<p>这里实现<strong>IHostedService</strong>接口，然后使用<strong>IHostApplicationLifetime</strong>（该接口由框架自动实现注入），在<strong>IHostedService</strong>的<strong>StartAsync</strong>方法中注册<strong>IHostApplicationLifetime</strong>中的三个程序运行事件，可以做一些自定义的操作，我这里只是记录了日志。</p>
-<pre><code>internal class LifetimeEventsHostedService : IHostedService
-{
-    private readonly string appCode = ConfigurationManager.GetAppSetting(&quot;AppCode&quot;);
-    private readonly string appName = ConfigurationManager.GetAppSetting(&quot;AppName&quot;);
-    private readonly IHostApplicationLifetime _appLifetime;
-
-    public LifetimeEventsHostedService(IHostApplicationLifetime appLifetime)
-    {
-        _appLifetime = appLifetime;
-    }
-
-    public Task StartAsync(CancellationToken cancellationToken)
-    {
-        _appLifetime.ApplicationStarted.Register(OnStarted);
-        _appLifetime.ApplicationStopping.Register(OnStopping);
-        _appLifetime.ApplicationStopped.Register(OnStopped);
-
-        return Task.CompletedTask;
-    }
-
-    public Task StopAsync(CancellationToken cancellationToken)
-    {
-        return Task.CompletedTask;
-    }
-
-    private void OnStarted()
-    {
-        var interNetworkV6 = System.Net.Sockets.AddressFamily.InterNetworkV6;
-        var interNetwork = System.Net.Sockets.AddressFamily.InterNetwork;
-        var ipList = System.Net.NetworkInformation.NetworkInterface.GetAllNetworkInterfaces()
-          .Select(p =&gt; p.GetIPProperties())
-          .SelectMany(p =&gt; p.UnicastAddresses)
-          .Where(p =&gt; (p.Address.AddressFamily == interNetwork || p.Address.AddressFamily == interNetworkV6) &amp;&amp; !System.Net.IPAddress.IsLoopback(p.Address)).ToList();
-
-        Console.WriteLine($&quot;OnStarted has been called：【{appCode}】【{appName}】【{DateTime.Now}】 【{ipList[1].Address}】 【{ipList[0].Address}】&quot;);
-        Logger.Info($&quot;OnStarted has been called：【{appCode}】【{appName}】【{DateTime.Now}】 【{ipList[1].Address}】 【{ipList[0].Address}】&quot;);
-    }
-
-    private void OnStopping()
-    {
-        Console.WriteLine($&quot;OnStopping has been called：【{appCode}】【{appName}】【{DateTime.Now}】&quot;);
-        Logger.Info($&quot;OnStopping has been called：【{appCode}】【{appName}】【{DateTime.Now}】&quot;);
-    }
-
-    private void OnStopped()
-    {
-        Console.WriteLine($&quot;OnStopped has been called：【{appCode}】【{appName}】【{DateTime.Now}】&quot;);
-        Logger.Info($&quot;OnStopped has been called：【{appCode}】【{appName}】【{DateTime.Now}】&quot;);
-    }
-}
+<ul>
+<li><strong>直接下载最新的Mysql镜像</strong></li>
+</ul>
+<pre><code>docker pull mysql
 </code></pre>
-<p><strong>最后在服务中注入</strong></p>
-<pre><code>.ConfigureServices(a =&gt;
-{
-    a.AddSingleton&lt;IHostedService, LifetimeEventsHostedService&gt;();
-});
+<ul>
+<li><strong>查看Docker 镜像</strong></li>
+</ul>
+<pre><code>docker images
 </code></pre>
-<p><strong>也可以不使用IHostedService进行承载，直接使用IHostApplicationLifetime进行注册</strong></p>
-<pre><code>internal static class RegisterLifetimeEvents
-    {
-        private static readonly string appCode = ConfigurationManager.GetAppSetting(&quot;AppCode&quot;);
-        private static readonly string appName = ConfigurationManager.GetAppSetting(&quot;AppName&quot;);
-        private static readonly string iPV4Address;
-        private static readonly string iPV6Address;
+<p>结果如下：</p>
+<pre><code>REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
+mysql               latest              e1d7dc9731da        7 days ago          544MB
 
-        static RegisterLifetimeEvents()
-        {
-            var interNetworkV6 = AddressFamily.InterNetworkV6;
-            var interNetwork = AddressFamily.InterNetwork;
-            var ipList = NetworkInterface.GetAllNetworkInterfaces()
-                .Select(p =&gt; p.GetIPProperties())
-                .SelectMany(p =&gt; p.UnicastAddresses)
-                .Where(p =&gt; (p.Address.AddressFamily == interNetwork || p.Address.AddressFamily == interNetworkV6) &amp;&amp; !System.Net.IPAddress.IsLoopback(p.Address)).ToList();
-
-            iPV4Address = ipList[1]?.Address.ToString();
-            iPV6Address = ipList[0]?.Address.ToString();
-        }
-
-        /// &lt;summary&gt;
-        /// 注册应用程序生命周期事件
-        /// &lt;/summary&gt;
-        public static void RegisterApplicationLifetimeEvents(this IHost host)
-        {
-            var hostApplicationLifetime = host.Services.GetService&lt;IHostApplicationLifetime&gt;();
-            hostApplicationLifetime.ApplicationStarted.Register(OnStarted);
-            hostApplicationLifetime.ApplicationStopping.Register(OnStopping);
-            hostApplicationLifetime.ApplicationStopped.Register(OnStopped);
-        }
-
-        private static void OnStarted()
-        {
-            Console.WriteLine($&quot;OnStarted has been called：{appCode} {appName} {DateTime.Now} {iPV4Address} {iPV6Address}&quot;);
-            Logger.Info($&quot;OnStarted has been called：{appCode} {appName} {DateTime.Now} {iPV4Address} {iPV6Address}&quot;);
-        }
-
-        private static void OnStopping()
-        {
-            Console.WriteLine($&quot;OnStopping has been called：{appCode} {appName} {DateTime.Now} {iPV4Address} {iPV6Address}&quot;);
-            Logger.Info($&quot;OnStopping has been called：{appCode} {appName} {DateTime.Now} {iPV4Address} {iPV6Address}&quot;);
-        }
-
-        private static void OnStopped()
-        {
-            Console.WriteLine($&quot;OnStopped has been called：{appCode} {appName} {DateTime.Now} {iPV4Address} {iPV6Address}&quot;);
-            Logger.Info($&quot;OnStopped has been called：{appCode} {appName} {DateTime.Now} {iPV4Address} {iPV6Address}&quot;);
-        }
-    }
 </code></pre>
-<p>在Main函数中注册一下即可</p>
-<pre><code>public static void Main(string[] args)
-{
-    var host = CreateHostBuilder(args).Build();
-    host.RegisterApplicationLifetimeEvents();
-    host.Run();
-}
+<ul>
+<li><strong>在opt下创建mysql的挂载目录</strong></li>
+</ul>
+<pre><code>cd /opt/
+
+mkdir mysql_docker
+
+cd mysql_docker/
+
+echo $PWD
 </code></pre>
+<ul>
+<li><strong>在conf目录下新建my.cnf配置文件</strong></li>
+</ul>
+<pre><code>[mysqld]
+#主从复制设置 本机为副本实例
+server-id=2
+relay-log=relay-log
+relay-log-index=relay-log.index
+innodb_file_per_table=ON
+skip_name_resolve=ON
+
+datadir=/var/lib/mysql
+socket=/var/run/mysqld/mysqld.sock
+# Disabling symbolic-links is recommended to prevent assorted security risks
+symbolic-links=0
+# Settings user and group are ignored when systemd is used.
+# If you need to run mysqld under a different user or group,
+# customize your systemd unit file for mariadb according to the
+# instructions in http://fedoraproject.org/wiki/Systemd
+
+[mysqld_safe]
+log-error=/var/log/mariadb/mariadb.log
+pid-file=/var/run/mariadb/mariadb.pid
+
+#
+# include all files from the config directory
+#
+#!includedir /etc/my.cnf.d
+</code></pre>
+<ul>
+<li><strong>启动mysql容器</strong></li>
+</ul>
+<p>可以使用$PWD代替/opt/mysql_docker路径，我直接指定路径</p>
+<pre><code>docker run --name mysqlserver -v $PWD/conf:/etc/mysql/conf.d -v $PWD/logs:/logs -v $PWD/data:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=Jay@:19951027123 -d -i -p 3306:3306 mysql:latest
+</code></pre>
+<pre><code>docker run --name mysqlserver -v /opt/mysql_docker/conf:/etc/mysql/conf.d -v /opt/mysql_docker/logs:/logs -v /opt/mysql_docker/data:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=Jay@:19951027123 -d -i -p 3306:3306 mysql:latest
+</code></pre>
+<p>命令备注：</p>
+<pre><code>-p 3306:3306：将容器的 3306 端口映射到主机的 3306 端口。
+
+-v $PWD/conf:/etc/mysql/conf.d：将主机当前目录下的 conf/my.cnf 挂载到容器的 /etc/mysql/my.cnf。
+
+-v $PWD/logs:/logs：将主机当前目录下的 logs 目录挂载到容器的 /logs。
+
+-v $PWD/data:/var/lib/mysql ：将主机当前目录下的data目录挂载到容器的 /var/lib/mysql 。
+
+-e MYSQL_ROOT_PASSWORD=123456：初始化 root 用户的密码。
+</code></pre>
+<p>docker查看已启动的容器</p>
+<pre><code> docker ps
+</code></pre>
+<figure data-type="image" tabindex="1"><img src="https://img2018.cnblogs.com/blog/997646/202001/997646-20200117102003235-1426406656.png" alt="image" loading="lazy"></figure>
+<ul>
+<li><strong>进入mysql容器，并登陆mysql</strong></li>
+</ul>
+<pre><code>docker exec -it mysqlserver bash
+</code></pre>
+<pre><code>mysql -uroot -p
+</code></pre>
+<p>注意：mysqld和mysql标签对应的socket文件路径不对等的问题，需要修改my.cnf文件中的socket路径为错误提示中的。然后重启mysql可以解决</p>
+<pre><code>重启命令
+docker restart mysqlserver
+</code></pre>
+<pre><code>ERROR 2002 (HY000): Can't connect to local MySQL server through socket '/var/run/mysqld/mysqld.sock' (2)
+</code></pre>
+<p>然后重新登录mysql即可</p>
+<figure data-type="image" tabindex="2"><img src="https://img2018.cnblogs.com/blog/997646/202001/997646-20200117102011980-2122252374.png" alt="image" loading="lazy"></figure>
+<ul>
+<li><strong>开启远程访问权限</strong></li>
+</ul>
+<pre><code>use mysql;
+
+select host,user from user;
+
+ALTER USER 'root'@'%' IDENTIFIED WITH mysql_native_password BY '123456';
+
+flush privileges;
+</code></pre>
+<figure data-type="image" tabindex="3"><img src="https://img2018.cnblogs.com/blog/997646/202001/997646-20200117102022439-1012036839.png" alt="image" loading="lazy"></figure>
+<ul>
+<li>密码太简单，最好改个密码</li>
+</ul>
+<pre><code>ALTER USER 'root'@'localhost' IDENTIFIED BY 'TestBicon@123';
+</code></pre>
+<p>改完刷新权限，重新登录</p>
+<pre><code>flush privileges;
+</code></pre>
+<ul>
+<li>查看Dokcer日志</li>
+</ul>
+<pre><code>docker logs -f --tail 10 a4dac74d48f7
+</code></pre>
+<figure data-type="image" tabindex="4"><img src="https://img2018.cnblogs.com/blog/997646/202001/997646-20200117102048856-1273275706.png" alt="image" loading="lazy"></figure>
+<p>常用命令：</p>
+<ul>
+<li>关闭docker中mysql容器</li>
+</ul>
+<pre><code>docker stop mysqlserver
+</code></pre>
+<figure data-type="image" tabindex="5"><img src="https://img2018.cnblogs.com/blog/997646/202001/997646-20200117102059917-479100535.png" alt="image" loading="lazy"></figure>
+<ul>
+<li>docker中mysql重启</li>
+</ul>
+<pre><code>docker restart mysqlserver
+</code></pre>
+<figure data-type="image" tabindex="6"><img src="https://img2018.cnblogs.com/blog/997646/202001/997646-20200117102109562-1174307222.png" alt="image" loading="lazy"></figure>
 
               </div>
               <div class="post-footer">
@@ -678,7 +509,7 @@ public interface IHostApplicationLifetime
     </li>
     <li class="post-copyright-link">
       <strong>本文链接：</strong>
-      <a href="https://luminqiang.github.io/Uf8irdE0o/" title="关于C#中实现单例模式">关于C#中实现单例模式</a>
+      <a href="https://luminqiang.github.io/szrT1kASg/" title="Docker中安装Mysql">Docker中安装Mysql</a>
     </li>
     <li class="post-copyright-license">
       <strong>版权声明： </strong>
@@ -687,19 +518,21 @@ public interface IHostApplicationLifetime
   </ul>
   <div class="tags">
     
+      <a href="https://luminqiang.github.io/R1OXjqacF/"># Docker</a>
+    
+      <a href="https://luminqiang.github.io/Kg_Tbh-k1/"># Mysql</a>
+    
+      <a href="https://luminqiang.github.io/U15LDMKpn8/"># 主从同步</a>
+    
   </div>
   <div class="nav">
     <div class="nav-prev">
       
-        <i class="fa fa-chevron-left"></i>
-        <a class="nav-pc-next" title="分布式服务 Trace - 慢请求的排查思路" href="https://luminqiang.github.io/8Gt-IZY36/">分布式服务 Trace - 慢请求的排查思路</a class="nav-pc-next">
-        <a class="nav-mobile-prev" title="分布式服务 Trace - 慢请求的排查思路" href="https://luminqiang.github.io/8Gt-IZY36/">上一篇</a>
-      
     </div>
     <div class="nav-next">
       
-        <a class="nav-pc-next" title=".NET Core 3.1 下Rest API 与 GRPC 性能测试比较" href="https://luminqiang.github.io/Ces3IZPF5/">.NET Core 3.1 下Rest API 与 GRPC 性能测试比较</a>
-        <a class="nav-mobile-next" title=".NET Core 3.1 下Rest API 与 GRPC 性能测试比较" href="https://luminqiang.github.io/Ces3IZPF5/">下一篇</a>
+        <a class="nav-pc-next" title="Mysql主从复制搭建" href="https://luminqiang.github.io/MD4meW1ep/">Mysql主从复制搭建</a>
+        <a class="nav-mobile-next" title="Mysql主从复制搭建" href="https://luminqiang.github.io/MD4meW1ep/">下一篇</a>
         <i class="fa fa-chevron-right"></i>
       
     </div>
