@@ -7,7 +7,7 @@
 <meta name="keywords" content="Gridea静态个人博客">
 <meta name="description" content="Start With Why">
 <meta name="theme-color" content="#000">
-<title>.NET Core 3.1 下Rest API 与 GRPC 性能测试比较 | 卢敏强的博客</title>
+<title>Mysql主从复制搭建 | 卢敏强的博客</title>
 <link rel="shortcut icon" href="/favicon.ico?v=1600386693501">
 <link rel="stylesheet" href="/styles/main.css">
 <link rel="stylesheet" href="/media/css/gemini.css">
@@ -25,8 +25,8 @@
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/auto-render.min.js" integrity="sha384-kWPLUVMOks5AQFrykwIup5lo0m3iMkkHrD0uJ4H5cjeGihAutqP0yW0J6dpFiVkI" crossorigin="anonymous"
     onload="renderMathInElement(document.body);"></script>
 
-    <meta name="description" content=".NET Core 3.1 下Rest API 与 GRPC 性能测试比较" />
-    <meta name="keywords" content="" />
+    <meta name="description" content="Mysql主从复制搭建" />
+    <meta name="keywords" content="Mysql,主从同步" />
   </head>
   <body>
     <div class="head-top-line"></div>
@@ -146,7 +146,8 @@
       <div class="sidebar-body gemini" id="sidebar_body">
         
           
-            
+            <div class="post-side-meta" id="post_side_meta">
+              
 <div class="sidebar-wrapper box-shadow-wrapper bg-color">
   <div class="sidebar-item">
     <img class="site-author-image right-motion" src="https://luminqiang.github.io//images/avatar.png"/>
@@ -188,6 +189,190 @@
 
 
 </div>
+            </div>
+            <div class="post-toc sidebar-body-active" id="post_toc" style="opacity: 1;">
+              <div class="toc-box right-motion">
+  <div class="toc-wrapper auto-number auto" id="toc_wrapper">
+    <ul class="markdownIt-TOC">
+<li>
+<ul>
+<li>
+<ul>
+<li>
+<ul>
+<li><a href="#%E4%B8%BB%E8%8A%82%E7%82%B9">主节点：</a></li>
+<li><a href="#%E4%BB%8E%E6%95%B0%E6%8D%AE%E5%BA%93%E9%85%8D%E7%BD%AE">从数据库配置</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  </div>
+</div>
+
+<script>
+
+let lastTop = 0, lList = [], hList = [], postBody, lastIndex = -1; 
+let active = 'active-show', activeClass = 'active-current';
+let tocWrapper = document.querySelector('#toc_wrapper');
+let tocContent = tocWrapper.children[0];
+let autoNumber = tocWrapper&&tocWrapper.classList.contains('auto-number');
+
+function addTocNumber(elem, deep) {
+  if (!elem) {
+    return;
+  }
+  let prop = elem.__proto__;
+
+  if (prop === HTMLUListElement.prototype) {
+    for (let i = 0; i < elem.children.length; i++) {
+      addTocNumber(elem.children[i], deep + (i + 1) + '.');
+    }
+  } else if (prop === HTMLLIElement.prototype) {
+    // 保存li元素
+    lList.push(elem);
+    for (let i = 0; i < elem.children.length; i++) {
+      let cur = elem.children[i];
+      if (cur.__proto__ === HTMLAnchorElement.prototype) {
+        if (autoNumber) {
+          cur.text =  deep + ' ' + cur.text;
+        }
+      } else if (cur.__proto__ === HTMLUListElement.prototype) {
+        addTocNumber(cur, deep);
+      }
+    }
+  }
+}
+
+
+document.addEventListener('scroll', function(e) {
+  if (lList.length <= 0) {
+    return;
+  }
+  let scrollTop = document.scrollingElement.scrollTop + 10;
+  let dir;
+
+  if (lastTop - scrollTop > 0) {
+    dir = 'up';
+  } else {
+    dir = 'down';
+  }
+
+  lastTop = scrollTop;
+  if (scrollTop <= 0) {
+    if (lastIndex >= 0 && lastIndex < hList.length) {
+      lList[lastIndex].classList.remove(activeClass);
+    }
+    return;
+  }
+
+  let current = 0, hasFind = false;
+  for (let i = 0; i < hList.length; i++) {
+    if (hList[i].offsetTop > scrollTop) {
+      current = i;
+      hasFind = true;
+      break;
+    }
+  }
+  if (!hasFind && scrollTop > lList[lList.length - 1].offsetTop) {
+    current = hList.length - 1;
+  } else {
+    current--;
+  }
+  if (dir === 'down') {
+    if (current > lastIndex) {
+      addActiveClass(current);
+      removeActiveClass(lastIndex) 
+      lastIndex = current;
+      removeParentActiveClass();
+      lList[current] && addActiveLiElemment(lList[current].parentElement,tocContent);
+    }
+  } else {
+    if (current < lastIndex) {
+      addActiveClass(current);
+      removeActiveClass(lastIndex);
+      lastIndex = current;
+      removeParentActiveClass();
+      lList[current] && addActiveLiElemment(lList[current].parentElement,tocContent);
+    }
+  }
+});
+
+function removeParentActiveClass() {
+  let parents = tocContent.querySelectorAll('.'+active)
+  parents.forEach(function(elem) {
+    elem.classList.remove(active);
+  });
+}
+
+function addActiveClass(index) {
+  if (index >= 0 && index < hList.length) {
+    lList[index].classList.add(activeClass);
+  }
+}
+
+function removeActiveClass(index) {
+  if (index >= 0 && index < hList.length) {
+    lList[index].classList.remove(activeClass);
+  }
+}
+
+function addActiveLiElemment(elem, parent) {
+  if (!elem || elem === parent) {
+    return;
+  } else {
+    if (elem.__proto__ === HTMLLIElement.prototype) {
+      elem.classList.add(active);
+    }
+    addActiveLiElemment(elem.parentElement, parent);
+  }
+}
+
+function showToc() {
+  if (tocWrapper) {
+    postBody = document.querySelector('#post_body');
+    for (let i = 0; i < postBody.children.length; i++) {
+      if (postBody.children[i].__proto__ === HTMLHeadingElement.prototype) {
+        hList.push(postBody.children[i]);
+      }
+    }
+    if (tocWrapper.classList.contains('compress')) {
+        tocContent.classList.add('closed');
+    } else if (tocWrapper.classList.contains('no_compress')){
+      tocContent.classList.add('expanded');
+    } else {
+      if (hList.length > 10) {
+        active = 'active-hidden'
+        tocContent.classList.add('closed');
+      } else {
+        tocContent.classList.add('expanded');
+      }
+    }
+  }
+}
+addTocNumber(tocContent, '');
+
+window.addEventListener('load', function() {
+  showToc();
+  document.querySelector('#sidebar').style='display: block;';
+  tocWrapper.classList.add('toc-active');
+  setTimeout(function() {
+    if ("createEvent" in document) {
+      let evt = document.createEvent("HTMLEvents");
+      evt.initEvent("scroll", false, true);
+      document.dispatchEvent(evt);
+    }
+    else {
+      document.fireEvent("scroll");
+    }
+  }, 500)
+})
+
+</script>
+            </div>
           
         
       </div>
@@ -275,8 +460,8 @@
             <div class="section bg-color post post-page">
               <header class="post-header">
   <h1 class="post-title">
-    <a class="post-title-link" href="https://luminqiang.github.io/Ces3IZPF5/">
-      .NET Core 3.1 下Rest API 与 GRPC 性能测试比较
+    <a class="post-title-link" href="https://luminqiang.github.io/MD4meW1ep/">
+      Mysql主从复制搭建
     </a>
   </h1>
   <div class="post-meta">
@@ -284,18 +469,37 @@
     <span class="meta-item pc-show">
       <i class="fa fa-calendar-o"></i>
       <span>发布于</span>
-      <span>2020-04-14</span>
+      <span>2020-09-18</span>
       <span class="post-meta-divider pc-show">|</span>
     </span>
     
+      <span class="meta-item">
+        <i class="fa fa-folder-o"></i>
+        <span class="pc-show">分类于</span>
+        
+          
+            <a href="https://luminqiang.github.io/Kg_Tbh-k1/">
+              <span>Mysql</span>
+            </a>、
+          
+        
+          
+            <a href="https://luminqiang.github.io/U15LDMKpn8/">
+              <span>主从同步</span>
+            </a>
+          
+        
+      </span>
+      <span class="post-meta-divider">|</span>
+    
     <span class="meta-item">
       <i class="fa fa-clock-o"></i>
-      <span>4分钟</span>
+      <span>5分钟</span>
     </span>
     <span class="meta-item">
       <span class="post-meta-divider">|</span>
       <i class="fa fa-file-word-o"></i>
-      <span>814<span class="pc-show">字数</span></span>
+      <span>1117<span class="pc-show">字数</span></span>
     </span>
     
       <span id="/postundefined" class="meta-item pc-show leancloud_visitors">
@@ -307,159 +511,221 @@
   </div>
 </header>
               <div class="post-body next-md-body" id="post_body">
-                <p>首先看看GRPC的定义：</p>
-<p><strong>gRPC 是一种与语言无关的高性能远程过程调用 (RPC) 框架。</strong></p>
-<p>gRPC 的主要优点是：</p>
-<ol>
-<li>现代高性能轻量级 RPC 框架。</li>
-<li>协定优先 API 开发，默认使用协议缓冲区，允许与语言无关的实现。</li>
-<li>可用于多种语言的工具，以生成强类型服务器和客户端。</li>
-<li>支持客户端、服务器和双向流式处理调用。</li>
-<li>使用 Protobuf 二进制序列化减少对网络的使用。</li>
-</ol>
-<p>这些优点使 gRPC 适用于：</p>
-<ol>
-<li>效率至关重要的轻量级微服务。</li>
-<li>需要多种语言用于开发的 Polyglot 系统。</li>
-<li>需要处理流式处理请求或响应的点对点实时服务。</li>
-</ol>
-<p>GRPC远程过程调用的最大优点就是高性能，通过protobuf可以将数据序列化为二进制编码，这会大幅减少需要传输的数据量，从而大幅提高性能。</p>
-<p>测试项目GitHub地址</p>
-<pre><code>https://github.com/luminqiang/RESTvsGRPC
+                <blockquote>
+<h4 id="主节点">主节点：</h4>
+</blockquote>
+<p>在my.cnf配置文件中增加配置如下：</p>
+<pre><code>[mysqld]
+#主从复制配置 主实例
+log-bin=mysql-bin
+server-id=1
+innodb-file-per-table=ON
+skip_name_resolve=ON
 </code></pre>
-<p>先运行API项目：</p>
-<pre><code>dotnet run -p RestAPI.csproj -c Release
+<p>设置完毕后重启mysql</p>
+<pre><code>systemctl restart mysqld
 </code></pre>
-<p>再运行GRPC项目：</p>
-<pre><code>dotnet run -p GrpcAPI.csproj -c Release
+<p>进入mysql 查看二进制日志是否开启成功</p>
+<pre><code>show global variables like '%log%';
 </code></pre>
-<p>最后运行基准测试项目：</p>
-<pre><code>dotnet run -p RESTvsGRPC.csproj -c Release
+<figure data-type="image" tabindex="1"><img src="https://img-blog.csdn.net/20180412130457822?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2RhaWNvb3Blcg==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70" alt="image" loading="lazy"></figure>
+<p>查看主节点二进制日志列表</p>
+<pre><code>show master logs;
 </code></pre>
-<p>等待测试结束后，测试结果如下：</p>
-<pre><code>BenchmarkDotNet=v0.12.1, OS=Windows 10.0.18362.720 (1903/May2019Update/19H1)
-Intel Core i5-9600K CPU 3.70GHz (Coffee Lake), 1 CPU, 6 logical and 6 physical cores
-.NET Core SDK=3.1.201
-  [Host]     : .NET Core 3.1.3 (CoreCLR 4.700.20.11803, CoreFX 4.700.20.12001), X64 RyuJIT  [AttachedDebugger]
-  DefaultJob : .NET Core 3.1.3 (CoreCLR 4.700.20.11803, CoreFX 4.700.20.12001), X64 RyuJIT
+<pre><code>+------------------+-----------+-----------+
+| Log_name         | File_size | Encrypted |
++------------------+-----------+-----------+
+| mysql-bin.000001 |       155 | No        |
++------------------+-----------+-----------+
+
 </code></pre>
-<table>
-<thead>
-<tr>
-<th>Method</th>
-<th>IterationCount</th>
-<th style="text-align:right">Mean</th>
-<th style="text-align:right">Error</th>
-<th style="text-align:right">StdDev</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>RestGetSmallPayloadAsync</td>
-<td>100</td>
-<td style="text-align:right">9.244 ms</td>
-<td style="text-align:right">0.0597 ms</td>
-<td style="text-align:right">0.0558 ms</td>
-</tr>
-<tr>
-<td>RestGetLargePayloadAsync</td>
-<td>100</td>
-<td style="text-align:right">741.352 ms</td>
-<td style="text-align:right">3.9088 ms</td>
-<td style="text-align:right">3.6563 ms</td>
-</tr>
-<tr>
-<td>RestPostLargePayloadAsync</td>
-<td>100</td>
-<td style="text-align:right">835.936 ms</td>
-<td style="text-align:right">4.9780 ms</td>
-<td style="text-align:right">4.4129 ms</td>
-</tr>
-<tr>
-<td>GrpcGetSmallPayloadAsync</td>
-<td>100</td>
-<td style="text-align:right">12.143 ms</td>
-<td style="text-align:right">0.0586 ms</td>
-<td style="text-align:right">0.0548 ms</td>
-</tr>
-<tr>
-<td>GrpcStreamLargePayloadAsync</td>
-<td>100</td>
-<td style="text-align:right">800.875 ms</td>
-<td style="text-align:right">6.4187 ms</td>
-<td style="text-align:right">6.0041 ms</td>
-</tr>
-<tr>
-<td>GrpcGetLargePayloadAsListAsync</td>
-<td>100</td>
-<td style="text-align:right">130.948 ms</td>
-<td style="text-align:right">1.2500 ms</td>
-<td style="text-align:right">1.1692 ms</td>
-</tr>
-<tr>
-<td>GrpcPostLargePayloadAsync</td>
-<td>100</td>
-<td style="text-align:right">131.427 ms</td>
-<td style="text-align:right">2.6249 ms</td>
-<td style="text-align:right">4.4572 ms</td>
-</tr>
-<tr>
-<td>RestGetSmallPayloadAsync</td>
-<td>200</td>
-<td style="text-align:right">18.368 ms</td>
-<td style="text-align:right">0.1172 ms</td>
-<td style="text-align:right">0.1096 ms</td>
-</tr>
-<tr>
-<td>RestGetLargePayloadAsync</td>
-<td>200</td>
-<td style="text-align:right">1,509.909 ms</td>
-<td style="text-align:right">4.7070 ms</td>
-<td style="text-align:right">4.4029 ms</td>
-</tr>
-<tr>
-<td>RestPostLargePayloadAsync</td>
-<td>200</td>
-<td style="text-align:right">1,676.551 ms</td>
-<td style="text-align:right">6.6714 ms</td>
-<td style="text-align:right">5.5710 ms</td>
-</tr>
-<tr>
-<td>GrpcGetSmallPayloadAsync</td>
-<td>200</td>
-<td style="text-align:right">24.336 ms</td>
-<td style="text-align:right">0.1501 ms</td>
-<td style="text-align:right">0.1172 ms</td>
-</tr>
-<tr>
-<td>GrpcStreamLargePayloadAsync</td>
-<td>200</td>
-<td style="text-align:right">1,598.346 ms</td>
-<td style="text-align:right">6.5488 ms</td>
-<td style="text-align:right">5.4685 ms</td>
-</tr>
-<tr>
-<td>GrpcGetLargePayloadAsListAsync</td>
-<td>200</td>
-<td style="text-align:right">263.885 ms</td>
-<td style="text-align:right">2.1572 ms</td>
-<td style="text-align:right">2.0178 ms</td>
-</tr>
-<tr>
-<td>GrpcPostLargePayloadAsync</td>
-<td>200</td>
-<td style="text-align:right">259.290 ms</td>
-<td style="text-align:right">3.4813 ms</td>
-<td style="text-align:right">3.0861 ms</td>
-</tr>
-</tbody>
-</table>
+<p>查看主节点的server id</p>
+<pre><code>show global variables like '%server%';
+</code></pre>
+<pre><code>+---------------------------------+--------------------------------------+
+| Variable_name                   | Value                                |
++---------------------------------+--------------------------------------+
+| character_set_server            | utf8mb4                              |
+| collation_server                | utf8mb4_0900_ai_ci                   |
+| innodb_dedicated_server         | OFF                                  |
+| innodb_ft_server_stopword_table |                                      |
+| server_id                       | 1                                    |
+| server_id_bits                  | 32                                   |
+| server_uuid                     | 1633904d-6597-11ea-895a-00163e084251 |
++---------------------------------+--------------------------------------+
+
+</code></pre>
+<p>创建用于数据同步的账户</p>
+<pre><code>CREATE USER 'repl'@'192.168.102.11' IDENTIFIED BY '123456';
+GRANT REPLICATION SLAVE ON *.* TO 'repl'@'192.168.102.11';
+FLUSH PRIVILEGES;
+</code></pre>
+<p>查看master状态</p>
+<pre><code> show master status;
+</code></pre>
+<pre><code>+------------------+----------+--------------+------------------+-------------------+
+| File             | Position | Binlog_Do_DB | Binlog_Ignore_DB | Executed_Gtid_Set |
++------------------+----------+--------------+------------------+-------------------+
+| mysql-bin.000001 |      155 |              |                  |                   |
++------------------+----------+--------------+------------------+-------------------+
+</code></pre>
+<pre><code>show variables like '%log_bin%';
+</code></pre>
+<pre><code>+---------------------------------+--------------------------------+
+| Variable_name                   | Value                          |
++---------------------------------+--------------------------------+
+| log_bin                         | ON                             |
+| log_bin_basename                | /var/lib/mysql/mysql-bin       |
+| log_bin_index                   | /var/lib/mysql/mysql-bin.index |
+| log_bin_trust_function_creators | OFF                            |
+| log_bin_use_v1_row_events       | OFF                            |
+| sql_log_bin                     | ON                             |
++---------------------------------+--------------------------------+
+
+</code></pre>
 <ul>
-<li>当接口返回的数据量较小时，REST 的性能要比gRPC要好，当数据量变大之后gRPC的性能优势就比较明显了。</li>
-<li>.NET Core 3的 json 进行了大量的优化， 在处理消息有效负载中的小数据时会产生巨大的差异，但是实际上，对于大数据有效负载，差异就不复存在了。</li>
-<li>总体来说 gRPC在这一领域仍然是赢家，在业务案例中使用哪种协议的适当策略，通常在与外部世界的外部通信（例如外部服务集成，与前端的通信）中使用REST通信，内部服务之间通信采用gRPC。</li>
+<li>如果数据库有数据持续写入的话，主库上锁表，然后备份数据库</li>
 </ul>
-<p><strong>因此在大数据量下，同时希望保持较高性能时，应考虑使用RPC进行通信，因为通过protobuf我们可以将数据压缩编码转化为二进制格式，通常传递的数据量要小得多，而且通过http2我们可以实现异步的请求，从而大大提高了通信效率。</strong></p>
+<pre><code>flush table with read lock;
+</code></pre>
+<p>锁表后查看主库状态，需要记录在案，待会复制主库就是从这个位置开始的。</p>
+<pre><code>mysql&gt; show master status;
++------------------+----------+--------------+------------------+-------------------+
+| File             | Position | Binlog_Do_DB | Binlog_Ignore_DB | Executed_Gtid_Set |
++------------------+----------+--------------+------------------+-------------------+
+| mysql-bin.000001 |      155 |              |                  |                   |
++------------------+----------+--------------+------------------+-------------------+
+1 row in set (0.00 sec)
+
+</code></pre>
+<blockquote>
+<h4 id="从数据库配置">从数据库配置</h4>
+</blockquote>
+<ul>
+<li>首先要设置server-id并关闭binlog功能</li>
+</ul>
+<pre><code>show variables like '%log_bin%';
+</code></pre>
+<p>log_bin 如果显示为ON,标识binlog为开启状态，需要关闭</p>
+<pre><code>+---------------------------------+-----------------------------+
+| Variable_name                   | Value                       |
++---------------------------------+-----------------------------+
+| log_bin                         | ON                          |
+| log_bin_basename                | /var/lib/mysql/binlog       |
+| log_bin_index                   | /var/lib/mysql/binlog.index |
+| log_bin_trust_function_creators | OFF                         |
+| log_bin_use_v1_row_events       | OFF                         |
+| sql_log_bin                     | ON                          |
++---------------------------------+-----------------------------+
+
+</code></pre>
+<p>关闭方法为在my.cnf的[mysqld]下添加skip-log-bin</p>
+<p>8.0以下版本注释掉配置即可</p>
+<pre><code>#log-bin=mysql-bin
+#binlog_format=mixed
+#server-id   = 1
+#expire_logs_days = 10
+</code></pre>
+<p>由于我装的是最新版本，关闭方法不一样</p>
+<pre><code>[mysqld]
+skip-log-bin #8.0版本关闭binlog
+</code></pre>
+<p>修改配置后重启mysql，再次查询log_bin状态则为关闭状态</p>
+<pre><code>mysql&gt; show variables like '%log_bin%';
++---------------------------------+-------+
+| Variable_name                   | Value |
++---------------------------------+-------+
+| log_bin                         | OFF   |
+| log_bin_basename                |       |
+| log_bin_index                   |       |
+| log_bin_trust_function_creators | OFF   |
+| log_bin_use_v1_row_events       | OFF   |
+| sql_log_bin                     | ON    |
++---------------------------------+-------+
+6 rows in set (0.02 sec)
+
+</code></pre>
+<p>然后增加从库的配置，注意从库的server-id不能和主库一样，我的主库设置为1，从库就设置2：</p>
+<pre><code>[mysqld]
+#主从复制设置 本机为副本实例
+server-id=2
+relay-log=relay-log
+relay-log-index=relay-log.index
+innodb_file_per_table=ON
+skip_name_resolve=ON
+</code></pre>
+<p>编辑保存，重启数据库</p>
+<p>从库配置复制参数如下（这个操作实际上就是把用户、密码以及主库的其他信息写入到从库的master.info文件去）：</p>
+<pre><code>CHANGE MASTER TO
+MASTER_HOST='47.99.87.3',
+MASTER_PORT=3306,
+MASTER_USER='luminqiang_back',
+MASTER_PASSWORD='Jay@:19951027123',
+MASTER_LOG_FILE='mysql-bin.000001',
+MASTER_LOG_POS=155;
+</code></pre>
+<ul>
+<li>从库上开启同步开关</li>
+</ul>
+<pre><code>start slave;
+</code></pre>
+<p>我这里出现了如下异常：</p>
+<pre><code>ERROR 1872 (HY000): Slave failed to initialize relay log info structure from the repository
+</code></pre>
+<p>去docker查看日志，会发现原因是找不到对应的中继日志，导致启动slave报错，由于mysql.slave_relay_log_info表中保留了以前的复制信息，导致新从库启动时无法找到对应文件，需要清理掉该表中的记录</p>
+<p>清理命令，执行后mysql会进行如下操作</p>
+<pre><code>reset slave
+</code></pre>
+<p>1、删除slave_master_info ，slave_relay_log_info两个表中数据</p>
+<p>2、删除所有relay log文件，并重新创建新的relay log文件；</p>
+<p>3、不会改变gtid_executed 或者 gtid_purged的值</p>
+<p>然后重新启动</p>
+<pre><code>start slave;
+</code></pre>
+<p>出现如下错误需要先停止slave</p>
+<pre><code>ERROR 3021 (HY000): This operation cannot be performed with a running slave io thread; run STOP SLAVE IO_THREAD FOR CHANNEL '' first.
+</code></pre>
+<p>测试：</p>
+<ul>
+<li>在从节点查找二进制日志信息，并查看mydb数据库是否复制成功</li>
+</ul>
+<pre><code>SHOW SLAVE STATUS\G;
+</code></pre>
+<figure data-type="image" tabindex="2"><img src="https://img-blog.csdn.net/20180412165806457?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2RhaWNvb3Blcg==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70" alt="image" loading="lazy"></figure>
+<p>我发现我的同步不成功，看到有一条错误信息如下：</p>
+<pre><code>error connecting to master 'luminqiang_back@47.99.87.3:3306' - retry-time: 60 retries: 1 message: Authentication plugin 'caching_sha2_password' reported error: Authentication requires secure connection.
+</code></pre>
+<p>就是主库下用来同步的账号的验证方式问题了，主库查询下用户的验证方式：</p>
+<pre><code>mysql&gt; select user,host,plugin from user;
++------------------+---------------+-----------------------+
+| user             | host          | plugin                |
++------------------+---------------+-----------------------+
+| lumq             | %             | mysql_native_password |
+| luminqiang_back  | 47.*.48.*     | caching_sha2_password |
+| mysql.infoschema | localhost     | caching_sha2_password |
+| mysql.session    | localhost     | caching_sha2_password |
+| mysql.sys        | localhost     | caching_sha2_password |
+| root             | localhost     | mysql_native_password |
++------------------+---------------+-----------------------+
+
+</code></pre>
+<p>我用的是这个账号 luminqiang_back，验证方式为caching_sha2_password，需要改成mysql_native_password，修改命令如下：</p>
+<pre><code>ALTER USER luminqiang_back@47.*.48.* IDENTIFIED WITH mysql_native_password BY '111111';
+</code></pre>
+<p>同步指定数据库可以在主库配置增加如下配置，然后重启mysql</p>
+<pre><code>binlog-do-db=ZhiFouMovie
+</code></pre>
+<p>建议最好是指定数据库同步，那些mysql自带的系统库是不需要同步的</p>
+<p>这时在主库增加一条记录，去从库查看就是成功的了</p>
+<p>slave命令相关：</p>
+<pre><code>start slave;
+stop slave;
+reset slave;
+</code></pre>
+<p>总结：参考了很多博客，有些写的很不靠谱，还是需要自己多实践，多记录</p>
+<ul>
+<li>https://blog.csdn.net/daicooper/article/details/79905660</li>
+</ul>
 
               </div>
               <div class="post-footer">
@@ -470,7 +736,7 @@ Intel Core i5-9600K CPU 3.70GHz (Coffee Lake), 1 CPU, 6 logical and 6 physical c
     </li>
     <li class="post-copyright-link">
       <strong>本文链接：</strong>
-      <a href="https://luminqiang.github.io/Ces3IZPF5/" title=".NET Core 3.1 下Rest API 与 GRPC 性能测试比较">.NET Core 3.1 下Rest API 与 GRPC 性能测试比较</a>
+      <a href="https://luminqiang.github.io/MD4meW1ep/" title="Mysql主从复制搭建">Mysql主从复制搭建</a>
     </li>
     <li class="post-copyright-license">
       <strong>版权声明： </strong>
@@ -479,19 +745,19 @@ Intel Core i5-9600K CPU 3.70GHz (Coffee Lake), 1 CPU, 6 logical and 6 physical c
   </ul>
   <div class="tags">
     
+      <a href="https://luminqiang.github.io/Kg_Tbh-k1/"># Mysql</a>
+    
+      <a href="https://luminqiang.github.io/U15LDMKpn8/"># 主从同步</a>
+    
   </div>
   <div class="nav">
     <div class="nav-prev">
       
-        <i class="fa fa-chevron-left"></i>
-        <a class="nav-pc-next" title="关于C#中实现单例模式" href="https://luminqiang.github.io/Uf8irdE0o/">关于C#中实现单例模式</a class="nav-pc-next">
-        <a class="nav-mobile-prev" title="关于C#中实现单例模式" href="https://luminqiang.github.io/Uf8irdE0o/">上一篇</a>
-      
     </div>
     <div class="nav-next">
       
-        <a class="nav-pc-next" title=".NET Core 3.0 ReadyToRun编译" href="https://luminqiang.github.io/I1-q0wkHh/">.NET Core 3.0 ReadyToRun编译</a>
-        <a class="nav-mobile-next" title=".NET Core 3.0 ReadyToRun编译" href="https://luminqiang.github.io/I1-q0wkHh/">下一篇</a>
+        <a class="nav-pc-next" title="微信小程序 - 动画的使用" href="https://luminqiang.github.io/XDg1UTlYB/">微信小程序 - 动画的使用</a>
+        <a class="nav-mobile-next" title="微信小程序 - 动画的使用" href="https://luminqiang.github.io/XDg1UTlYB/">下一篇</a>
         <i class="fa fa-chevron-right"></i>
       
     </div>

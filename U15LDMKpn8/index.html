@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <meta charset="UTF-8"/>
+      <meta charset="UTF-8"/>
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <meta name="keywords" content="Gridea静态个人博客">
 <meta name="description" content="Start With Why">
 <meta name="theme-color" content="#000">
-<title>.NET Core 3.1 下Rest API 与 GRPC 性能测试比较 | 卢敏强的博客</title>
+<title>卢敏强的博客</title>
 <link rel="shortcut icon" href="/favicon.ico?v=1600386693501">
 <link rel="stylesheet" href="/styles/main.css">
 <link rel="stylesheet" href="/media/css/gemini.css">
@@ -25,8 +25,6 @@
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/auto-render.min.js" integrity="sha384-kWPLUVMOks5AQFrykwIup5lo0m3iMkkHrD0uJ4H5cjeGihAutqP0yW0J6dpFiVkI" crossorigin="anonymous"
     onload="renderMathInElement(document.body);"></script>
 
-    <meta name="description" content=".NET Core 3.1 下Rest API 与 GRPC 性能测试比较" />
-    <meta name="keywords" content="" />
   </head>
   <body>
     <div class="head-top-line"></div>
@@ -128,25 +126,10 @@
     </div>
     <div class="main-continer">
       
-      <div class="section-layout gemini ">
+      <div class="section-layout  gemini">
         <div class="section-layout-wrapper">
-          
-
-<div class="sidebar">
-  
-    <div class="sidebar-box box-shadow-wrapper bg-color right-motion" id="sidebar">
-      
-        <div class="post-list-sidebar">
-          <div class="sidebar-title">
-            <span id="tocSideBar" class="sidebar-title-item sidebar-title-active">文章目录</span>
-            <span id="metaSideBar" class="sidebar-title-item">站点概览</span>
-          </div>
-        </div>
-      
-      <div class="sidebar-body gemini" id="sidebar_body">
-        
-          
-            
+          <div id="sidebarMeta" class="sidebar">
+    
 <div class="sidebar-wrapper box-shadow-wrapper bg-color">
   <div class="sidebar-item">
     <img class="site-author-image right-motion" src="https://luminqiang.github.io//images/avatar.png"/>
@@ -188,336 +171,98 @@
 
 
 </div>
+</div>
+<script>
+  let sidebarMeta = document.querySelector('#sidebarMeta');
+  let scheme = 'gemini';
+  let sidebarWrapper = document.querySelector('.sidebar-wrapper');
+  if (sidebarMeta && (scheme === 'pisces' || scheme === 'gemini')) {
+    document.addEventListener('scroll', function(e) {
+      if (document.scrollingElement.scrollTop > parseInt(sidebarMeta.style.marginTop) + 10) {
+        sidebarWrapper.classList.add('home-sidebar-fixed')
+      } else {
+        sidebarWrapper.classList.remove('home-sidebar-fixed')
+      }
+    });
+  }
+  </script>
+            <div class="section-box tag-line">
+              <div class="box-shadow-wrapper">
+                <div class="bg-color">
+                  <section class="section posts-expand">
+                    <div class="padding-wrapper">
+  <div class="tag-timeline-box">
+    <div class="tag-timeline-wrapper">
+      <div class="tag-timeline-title">
+        <h2>
+          主从同步
+          <small>标签</small>
+        </h2>
+      </div>
+      
+        
           
         
-      </div>
-    </div>
-  
-</div>
-<script>
-  const SIDEBAR_TITLE_ACTIVE = 'sidebar-title-active';
-  const SIDEBAR_BODY_ACTIVE = 'sidebar-body-active';
-  const SLIDE_UP_IN = 'slide-up-in';
-
-  let sidebar = document.querySelector('#sidebar'),
-  tocSideBar = document.querySelector('#tocSideBar'),
-  metaSideBar = document.querySelector('#metaSideBar'),
-  postToc = document.querySelector('#post_toc'),
-  postSiteMeta = document.querySelector('#post_side_meta'),
-  sidebarTitle = document.querySelector('.sidebar-title'),
-  sidebarBody = document.querySelector('#sidebar_body');
-
-  tocSideBar && tocSideBar.addEventListener('click', (e) => {
-    toggleSidebar(e);
-  });
-
-  metaSideBar && metaSideBar.addEventListener('click', (e) => {
-    toggleSidebar(e);
-  });
-
-  function toggleSidebar(e) {
-    let currentTitle = document.querySelector("."+SIDEBAR_TITLE_ACTIVE);
-    if (currentTitle == e.srcElement) {
-      return ;
-    }
-    let current, showElement, hideElement;
-    if (e.srcElement == metaSideBar) {
-      showElement = postSiteMeta;
-      hideElement = postToc;
-    } else if (e.srcElement == tocSideBar){
-      showElement = postToc;
-      hideElement = postSiteMeta;
-    }
-    currentTitle.classList.remove(SIDEBAR_TITLE_ACTIVE);
-    e.srcElement.classList.add(SIDEBAR_TITLE_ACTIVE);
-
-    window.Velocity(hideElement, 'stop');
-    window.Velocity(hideElement, 'transition.slideUpOut', {
-      display: 'none',
-      duration: 200,
-      complete: function () {
-        window.Velocity(showElement, 'transition.slideDownIn', {
-          duration: 200
-        });
-      }
-    })
-    hideElement.classList.remove(SIDEBAR_BODY_ACTIVE);
-    showElement.classList.add(SIDEBAR_BODY_ACTIVE);
-  }
-
-  postToc && postToc.addEventListener('transitionend', function() {
-    this.classList.remove(SLIDE_UP_IN);
-  });
-
-  if (sidebarBody) {
-    if (sidebarBody.classList.contains('pisces') || sidebarBody.classList.contains('gemini')) {
-      let hasFix = false;
-      let scrollEl = document.querySelector('.main-continer');
-      let limitTop = document.querySelector('#nav_ul').children.length * 42 + 162;
-      window.addEventListener('scroll', function(e) {
-        if (document.scrollingElement.scrollTop >= limitTop) {
-          if (!hasFix) {
-            sidebar.classList.add('sidebar-fixed');
-            hasFix = true;
-          }
-        } else {
-          if (hasFix) {
-            sidebar.classList.remove('sidebar-fixed');
-            hasFix = false;
-          }
-        }
-      });
-    }
-  }
-  
-</script>
-          <div class="section-box box-shadow-wrapper">
-            <div class="section bg-color post post-page">
-              <header class="post-header">
-  <h1 class="post-title">
-    <a class="post-title-link" href="https://luminqiang.github.io/Ces3IZPF5/">
-      .NET Core 3.1 下Rest API 与 GRPC 性能测试比较
-    </a>
-  </h1>
-  <div class="post-meta">
-    
-    <span class="meta-item pc-show">
-      <i class="fa fa-calendar-o"></i>
-      <span>发布于</span>
-      <span>2020-04-14</span>
-      <span class="post-meta-divider pc-show">|</span>
-    </span>
-    
-    <span class="meta-item">
-      <i class="fa fa-clock-o"></i>
-      <span>4分钟</span>
-    </span>
-    <span class="meta-item">
-      <span class="post-meta-divider">|</span>
-      <i class="fa fa-file-word-o"></i>
-      <span>814<span class="pc-show">字数</span></span>
-    </span>
-    
-      <span id="/postundefined" class="meta-item pc-show leancloud_visitors">
-        <span class="post-meta-divider">|</span>
-        <i class="fa fa-eye"></i>
-        <span>浏览量：<span class="leancloud-visitors-count" ></span></span>
-      </span>
-    
-  </div>
-</header>
-              <div class="post-body next-md-body" id="post_body">
-                <p>首先看看GRPC的定义：</p>
-<p><strong>gRPC 是一种与语言无关的高性能远程过程调用 (RPC) 框架。</strong></p>
-<p>gRPC 的主要优点是：</p>
-<ol>
-<li>现代高性能轻量级 RPC 框架。</li>
-<li>协定优先 API 开发，默认使用协议缓冲区，允许与语言无关的实现。</li>
-<li>可用于多种语言的工具，以生成强类型服务器和客户端。</li>
-<li>支持客户端、服务器和双向流式处理调用。</li>
-<li>使用 Protobuf 二进制序列化减少对网络的使用。</li>
-</ol>
-<p>这些优点使 gRPC 适用于：</p>
-<ol>
-<li>效率至关重要的轻量级微服务。</li>
-<li>需要多种语言用于开发的 Polyglot 系统。</li>
-<li>需要处理流式处理请求或响应的点对点实时服务。</li>
-</ol>
-<p>GRPC远程过程调用的最大优点就是高性能，通过protobuf可以将数据序列化为二进制编码，这会大幅减少需要传输的数据量，从而大幅提高性能。</p>
-<p>测试项目GitHub地址</p>
-<pre><code>https://github.com/luminqiang/RESTvsGRPC
-</code></pre>
-<p>先运行API项目：</p>
-<pre><code>dotnet run -p RestAPI.csproj -c Release
-</code></pre>
-<p>再运行GRPC项目：</p>
-<pre><code>dotnet run -p GrpcAPI.csproj -c Release
-</code></pre>
-<p>最后运行基准测试项目：</p>
-<pre><code>dotnet run -p RESTvsGRPC.csproj -c Release
-</code></pre>
-<p>等待测试结束后，测试结果如下：</p>
-<pre><code>BenchmarkDotNet=v0.12.1, OS=Windows 10.0.18362.720 (1903/May2019Update/19H1)
-Intel Core i5-9600K CPU 3.70GHz (Coffee Lake), 1 CPU, 6 logical and 6 physical cores
-.NET Core SDK=3.1.201
-  [Host]     : .NET Core 3.1.3 (CoreCLR 4.700.20.11803, CoreFX 4.700.20.12001), X64 RyuJIT  [AttachedDebugger]
-  DefaultJob : .NET Core 3.1.3 (CoreCLR 4.700.20.11803, CoreFX 4.700.20.12001), X64 RyuJIT
-</code></pre>
-<table>
-<thead>
-<tr>
-<th>Method</th>
-<th>IterationCount</th>
-<th style="text-align:right">Mean</th>
-<th style="text-align:right">Error</th>
-<th style="text-align:right">StdDev</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>RestGetSmallPayloadAsync</td>
-<td>100</td>
-<td style="text-align:right">9.244 ms</td>
-<td style="text-align:right">0.0597 ms</td>
-<td style="text-align:right">0.0558 ms</td>
-</tr>
-<tr>
-<td>RestGetLargePayloadAsync</td>
-<td>100</td>
-<td style="text-align:right">741.352 ms</td>
-<td style="text-align:right">3.9088 ms</td>
-<td style="text-align:right">3.6563 ms</td>
-</tr>
-<tr>
-<td>RestPostLargePayloadAsync</td>
-<td>100</td>
-<td style="text-align:right">835.936 ms</td>
-<td style="text-align:right">4.9780 ms</td>
-<td style="text-align:right">4.4129 ms</td>
-</tr>
-<tr>
-<td>GrpcGetSmallPayloadAsync</td>
-<td>100</td>
-<td style="text-align:right">12.143 ms</td>
-<td style="text-align:right">0.0586 ms</td>
-<td style="text-align:right">0.0548 ms</td>
-</tr>
-<tr>
-<td>GrpcStreamLargePayloadAsync</td>
-<td>100</td>
-<td style="text-align:right">800.875 ms</td>
-<td style="text-align:right">6.4187 ms</td>
-<td style="text-align:right">6.0041 ms</td>
-</tr>
-<tr>
-<td>GrpcGetLargePayloadAsListAsync</td>
-<td>100</td>
-<td style="text-align:right">130.948 ms</td>
-<td style="text-align:right">1.2500 ms</td>
-<td style="text-align:right">1.1692 ms</td>
-</tr>
-<tr>
-<td>GrpcPostLargePayloadAsync</td>
-<td>100</td>
-<td style="text-align:right">131.427 ms</td>
-<td style="text-align:right">2.6249 ms</td>
-<td style="text-align:right">4.4572 ms</td>
-</tr>
-<tr>
-<td>RestGetSmallPayloadAsync</td>
-<td>200</td>
-<td style="text-align:right">18.368 ms</td>
-<td style="text-align:right">0.1172 ms</td>
-<td style="text-align:right">0.1096 ms</td>
-</tr>
-<tr>
-<td>RestGetLargePayloadAsync</td>
-<td>200</td>
-<td style="text-align:right">1,509.909 ms</td>
-<td style="text-align:right">4.7070 ms</td>
-<td style="text-align:right">4.4029 ms</td>
-</tr>
-<tr>
-<td>RestPostLargePayloadAsync</td>
-<td>200</td>
-<td style="text-align:right">1,676.551 ms</td>
-<td style="text-align:right">6.6714 ms</td>
-<td style="text-align:right">5.5710 ms</td>
-</tr>
-<tr>
-<td>GrpcGetSmallPayloadAsync</td>
-<td>200</td>
-<td style="text-align:right">24.336 ms</td>
-<td style="text-align:right">0.1501 ms</td>
-<td style="text-align:right">0.1172 ms</td>
-</tr>
-<tr>
-<td>GrpcStreamLargePayloadAsync</td>
-<td>200</td>
-<td style="text-align:right">1,598.346 ms</td>
-<td style="text-align:right">6.5488 ms</td>
-<td style="text-align:right">5.4685 ms</td>
-</tr>
-<tr>
-<td>GrpcGetLargePayloadAsListAsync</td>
-<td>200</td>
-<td style="text-align:right">263.885 ms</td>
-<td style="text-align:right">2.1572 ms</td>
-<td style="text-align:right">2.0178 ms</td>
-</tr>
-<tr>
-<td>GrpcPostLargePayloadAsync</td>
-<td>200</td>
-<td style="text-align:right">259.290 ms</td>
-<td style="text-align:right">3.4813 ms</td>
-<td style="text-align:right">3.0861 ms</td>
-</tr>
-</tbody>
-</table>
-<ul>
-<li>当接口返回的数据量较小时，REST 的性能要比gRPC要好，当数据量变大之后gRPC的性能优势就比较明显了。</li>
-<li>.NET Core 3的 json 进行了大量的优化， 在处理消息有效负载中的小数据时会产生巨大的差异，但是实际上，对于大数据有效负载，差异就不复存在了。</li>
-<li>总体来说 gRPC在这一领域仍然是赢家，在业务案例中使用哪种协议的适当策略，通常在与外部世界的外部通信（例如外部服务集成，与前端的通信）中使用REST通信，内部服务之间通信采用gRPC。</li>
-</ul>
-<p><strong>因此在大数据量下，同时希望保持较高性能时，应考虑使用RPC进行通信，因为通过protobuf我们可以将数据压缩编码转化为二进制格式，通常传递的数据量要小得多，而且通过http2我们可以实现异步的请求，从而大大提高了通信效率。</strong></p>
-
+          
+            <a href="https://luminqiang.github.io/MD4meW1ep/">
+              <div class="motion-warpper">
+                <div class="tag-post-node">
+                  <h1>
+                    09-18
+                    <small>Mysql主从复制搭建</small>
+                  </h1>
+                </div>  
               </div>
-              <div class="post-footer">
-  <ul class="post-copyright">
-    <li class="post-copyright-author">
-      <strong>本文作者：</strong>
-      卢敏强的博客
-    </li>
-    <li class="post-copyright-link">
-      <strong>本文链接：</strong>
-      <a href="https://luminqiang.github.io/Ces3IZPF5/" title=".NET Core 3.1 下Rest API 与 GRPC 性能测试比较">.NET Core 3.1 下Rest API 与 GRPC 性能测试比较</a>
-    </li>
-    <li class="post-copyright-license">
-      <strong>版权声明： </strong>
-      本博客所有文章除特别声明外，转载请注明出处！
-    </li>
-  </ul>
-  <div class="tags">
-    
-  </div>
-  <div class="nav">
-    <div class="nav-prev">
+            </a>
+          
+        
       
-        <i class="fa fa-chevron-left"></i>
-        <a class="nav-pc-next" title="关于C#中实现单例模式" href="https://luminqiang.github.io/Uf8irdE0o/">关于C#中实现单例模式</a class="nav-pc-next">
-        <a class="nav-mobile-prev" title="关于C#中实现单例模式" href="https://luminqiang.github.io/Uf8irdE0o/">上一篇</a>
+        
+          
+        
       
-    </div>
-    <div class="nav-next">
+        
       
-        <a class="nav-pc-next" title=".NET Core 3.0 ReadyToRun编译" href="https://luminqiang.github.io/I1-q0wkHh/">.NET Core 3.0 ReadyToRun编译</a>
-        <a class="nav-mobile-next" title=".NET Core 3.0 ReadyToRun编译" href="https://luminqiang.github.io/I1-q0wkHh/">下一篇</a>
-        <i class="fa fa-chevron-right"></i>
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+          
+        
+      
+        
+          
+        
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+          
+        
       
     </div>
   </div>
 </div>
-              
-                
-<script src="https://cdn.jsdelivr.net/npm/valine@1.3.10/dist/Valine.min.js"></script>
-<div id="vcomments" style="padding: 10px 0px 0px 0px"></div>
-<script>
-new Valine({
-    el: '#vcomments' ,
-    appId: 'D2fu47jGlmuo6UBPiFQx8oWO-gzGzoHsz',
-    appKey: 'wYkNvqOSTIUtvTnvJaFtLLS8',
-    notify: 'true' === 'true', 
-    avatar:'monsterid', 
-    placeholder: '',
-    pageSize: '',
-    lang: 'zh-cn',
-    visitor: 'true' === 'true',
-    highlight: 'true' === 'true',
-    avatarForce: 'true' === 'false',
-});
-</script>
-              
-            </div>
+                  </section>
+                </div>
+              </div>
           </div>
         </div>
       </div>
