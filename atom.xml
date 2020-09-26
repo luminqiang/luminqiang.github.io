@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://luminqiang.github.io/</id>
     <title>卢敏强的博客</title>
-    <updated>2020-09-18T00:02:21.749Z</updated>
+    <updated>2020-09-26T06:35:29.287Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://luminqiang.github.io/"/>
     <link rel="self" href="https://luminqiang.github.io/atom.xml"/>
@@ -10,6 +10,76 @@
     <logo>https://luminqiang.github.io/images/avatar.png</logo>
     <icon>https://luminqiang.github.io/favicon.ico</icon>
     <rights>All rights reserved 2020, 卢敏强的博客</rights>
+    <entry>
+        <title type="html"><![CDATA[关于.Net Core3.0下因客户端主动取消请求导致的Request.Body异常]]></title>
+        <id>https://luminqiang.github.io/xeXII_Rdv/</id>
+        <link href="https://luminqiang.github.io/xeXII_Rdv/">
+        </link>
+        <updated>2020-09-26T06:34:37.000Z</updated>
+        <content type="html"><![CDATA[<p>最近上线的一个日志上报接口出现了这个异常信息</p>
+<p>异常内容如下：</p>
+<pre><code>   at Microsoft.AspNetCore.Server.Kestrel.Core.BadHttpRequestException.Throw(RequestRejectionReason reason)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.Internal.Http.Http1ContentLengthMessageBody.&lt;ReadAsyncInternal&gt;d__9.MoveNext()
+   at System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+   at System.Runtime.CompilerServices.TaskAwaiter.ThrowForNonSuccess(Task task)
+   at System.Runtime.CompilerServices.TaskAwaiter.HandleNonSuccessAndDebuggerNotification(Task task)
+   at System.Runtime.CompilerServices.TaskAwaiter.ValidateEnd(Task task)
+   at System.Threading.Tasks.ValueTask`1.get_Result()
+   at System.Runtime.CompilerServices.ValueTaskAwaiter`1.GetResult()
+   at Microsoft.AspNetCore.Server.Kestrel.Core.Internal.Http.HttpRequestStream.&lt;ReadAsyncInternal&gt;d__30.MoveNext()
+   at System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+   at System.Runtime.CompilerServices.TaskAwaiter.ThrowForNonSuccess(Task task)
+   at System.IO.StreamReader.&lt;ReadBufferAsync&gt;d__67.MoveNext()
+   at System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+   at System.Runtime.CompilerServices.TaskAwaiter.ThrowForNonSuccess(Task task)
+   at System.IO.StreamReader.&lt;ReadToEndAsyncInternal&gt;d__61.MoveNext()
+   at System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+   at System.Runtime.CompilerServices.TaskAwaiter.ThrowForNonSuccess(Task task)
+   at System.Runtime.CompilerServices.TaskAwaiter.HandleNonSuccessAndDebuggerNotification(Task task)
+   at System.Runtime.CompilerServices.TaskAwaiter`1.GetResult()
+   at CT.TcyLianYunBall.WebApi.Controllers.LogSdkController.Report() 
+</code></pre>
+<pre><code>{
+    &quot;StatusCode&quot;:400,
+    &quot;StackTrace&quot;:&quot;   at Microsoft.AspNetCore.Server.Kestrel.Core.BadHttpRequestException.Throw(RequestRejectionReason reason)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.Internal.Http.Http1ContentLengthMessageBody.ReadAsyncInternal(CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.Internal.Http.HttpRequestStream.ReadAsyncInternal(Memory`1 buffer, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.WebUtilities.FileBufferingReadStream.ReadAsync(Byte[] buffer, Int32 offset, Int32 count, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.WebUtilities.StreamHelperExtensions.DrainAsync(Stream stream, ArrayPool`1 bytePool, Nullable`1 limit, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Mvc.Formatters.NewtonsoftJsonInputFormatter.ReadRequestBodyAsync(InputFormatterContext context, Encoding encoding)
+   at Microsoft.AspNetCore.Mvc.ModelBinding.Binders.BodyModelBinder.BindModelAsync(ModelBindingContext bindingContext)
+   at Microsoft.AspNetCore.Mvc.ModelBinding.ParameterBinder.BindModelAsync(ActionContext actionContext, IModelBinder modelBinder, IValueProvider valueProvider, ParameterDescriptor parameter, ModelMetadata metadata, Object value)
+   at Microsoft.AspNetCore.Mvc.Controllers.ControllerBinderDelegateProvider.&lt;&gt;c__DisplayClass0_0.&lt;g__Bind|0&gt;d.MoveNext()
+--- End of stack trace from previous location where exception was thrown ---
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.g__Awaited|25_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)&quot;,
+    &quot;Message&quot;:&quot;Unexpected end of request content.&quot;,
+    &quot;Data&quot;:{
+
+    },
+    &quot;InnerException&quot;:null,
+    &quot;HelpLink&quot;:null,
+    &quot;Source&quot;:&quot;Microsoft.AspNetCore.Server.Kestrel.Core&quot;,
+    &quot;HResult&quot;:-2146232800
+}
+</code></pre>
+<p>出现该错误的原因是因为客户端主动取消了请求，比如客户端的某个请求还在处理，客户端的第二个请求过来，然后客户端刷新页面或其他方式的操作取消了这个请求，就会导致服务端开始处理第二个请求的时候会RequestBody为空，因为在模型绑定之前就已经取消了请求。</p>
+<p><strong>本地调试的复现步骤：</strong></p>
+<ul>
+<li>在请求处理过程的某处设置断点</li>
+<li>在PostMan或浏览器上先发送A请求，命中断点，不继续往下处理，让请求阻塞</li>
+<li>继续发放B请求，这时请求阻塞中，然后点击取消请求</li>
+<li>释放断点继续处理，结果是A请求正常处理结束，B请求处理时抛出异常</li>
+</ul>
+<p><strong>解决方法：</strong></p>
+<ul>
+<li>可选择在全局异常过滤器中不处理该异常，不打印错误日志</li>
+</ul>
+<p>参考博客</p>
+<pre><code>https://q.cnblogs.com/q/117223/
+</code></pre>
+]]></content>
+    </entry>
     <entry>
         <title type="html"><![CDATA[Docker中安装Mysql]]></title>
         <id>https://luminqiang.github.io/szrT1kASg/</id>
@@ -997,43 +1067,6 @@ server {
 }
 </code></pre>
 <p>docker run -d --name nginx -p 80:80 -p 443:443 -v /usr/local/nginx/sources/home:/usr/share/nginx/html -v /usr/local/nginx/cert:/etc/nginx/cert -v /usr/local/nginx/config/default.conf:/etc/nginx/conf.d/default.conf nginx</p>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[.NET Core 3.0 配置允许所有域名跨域]]></title>
-        <id>https://luminqiang.github.io/i_Va9uR2B/</id>
-        <link href="https://luminqiang.github.io/i_Va9uR2B/">
-        </link>
-        <updated>2020-04-09T14:03:57.000Z</updated>
-        <content type="html"><![CDATA[<p>测试配置可行</p>
-<pre><code>public void ConfigureServices(IServiceCollection services)
-{
-    services.AddCors();
-}
-</code></pre>
-<p>SetIsOriginAllowed方法用于判断某个域名是否在允许跨域的名单中，这里不判断直接返回True</p>
-<pre><code>public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
-{
-    app.UseCors(options =&gt; options.SetIsOriginAllowed(x =&gt; _ = true).AllowAnyMethod().AllowAnyHeader().AllowCredentials());
-}
-</code></pre>
-<p><strong>SetIsOriginAllowed方法注释</strong></p>
-<pre><code>//
-// 摘要:
-//     /// Sets the specified isOriginAllowed for the underlying policy. ///
-//
-// 参数:
-//   isOriginAllowed:
-//     The function used by the policy to evaluate if an origin is allowed.
-//
-// 返回结果:
-//     The current policy builder.
-public CorsPolicyBuilder SetIsOriginAllowed(Func&lt;string, bool&gt; isOriginAllowed)
-{
-    throw null;
-}
-</code></pre>
-<figure data-type="image" tabindex="1"><img src="https://luminqiang.github.io//post-images/1586441071443.jfif" alt="" loading="lazy"></figure>
 ]]></content>
     </entry>
 </feed>
