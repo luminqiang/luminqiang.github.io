@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://luminqiang.github.io/</id>
     <title>卢敏强的博客</title>
-    <updated>2020-09-26T06:42:54.217Z</updated>
+    <updated>2020-09-28T13:49:00.321Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://luminqiang.github.io/"/>
     <link rel="self" href="https://luminqiang.github.io/atom.xml"/>
@@ -10,6 +10,231 @@
     <logo>https://luminqiang.github.io/images/avatar.png</logo>
     <icon>https://luminqiang.github.io/favicon.ico</icon>
     <rights>All rights reserved 2020, 卢敏强的博客</rights>
+    <entry>
+        <title type="html"><![CDATA[总结一下模式匹配功能]]></title>
+        <id>https://luminqiang.github.io/X9VZrVU9p/</id>
+        <link href="https://luminqiang.github.io/X9VZrVU9p/">
+        </link>
+        <updated>2020-09-28T13:48:40.000Z</updated>
+        <content type="html"><![CDATA[<p>从C#7开始推出模式匹配以来，每次C#版本升级都会对模式匹配进行升级，到最新的C#9，又更新了好几个关于模式匹配的新特性（新玩法），可见模式匹配这一特性在C#语言生态中的重要地位。模式匹配到C#9为止，目前有这么多种用法，在这里总结归纳一下，以后才能玩的更溜。</p>
+<p><strong>C#7里的第一代模式匹配</strong></p>
+<p>一句话：C# 7.0 通过使用 is 表达式和 switch 语句引入了类型模式和常量模式的语法。</p>
+<ul>
+<li><strong>is表达式的用法</strong></li>
+<li>以下对引用类型和值类型进行测试，可以将成功结果分配给类型正确的<strong>新变量</strong></li>
+</ul>
+<pre><code>public async static Task Main()
+{
+    var o = new object();
+    var s = new Student()
+    {
+        Name = &quot;luminqiang&quot;,
+        Age = 25
+    };
+
+    if (o is Student student)
+    {
+        Console.WriteLine(student.Name + student.Age);
+    }
+
+    if (s is Student student1)
+    {
+        var dseds = s.Equals(student1);
+        Console.WriteLine(student1.Name + student1.Age);
+    }
+
+    int number_one = 10;
+    if (number_one is int number_two)
+    {
+        number_two += 10;
+    }
+}
+
+    public class Student
+    {
+        public string Name { get; set; }
+        public int Age { get; set; }
+    }
+</code></pre>
+<ul>
+<li><strong>switch 匹配表达式的用法</strong></li>
+<li>switch语句不再限制为常量值如数字类型和字符串，还可以使用其他自定义类型</li>
+</ul>
+<pre><code>case 0: 是常见的常量模式。
+case IEnumerable&lt;int&gt; childSequence: 是一种类型模式。
+case int n when n &gt; 0: 是具有附加 when 条件的类型模式。
+case null: 是 null 模式。
+default: 是常见的默认事例。
+</code></pre>
+<pre><code>var student = new Student
+{
+    Age = 25,
+    Name = &quot;luminqiang&quot;
+};
+
+switch (student)
+{         
+    case Student s when s.Name == &quot;lumiqiang&quot;:
+        Console.WriteLine(&quot;这个是学霸&quot;);
+        break;
+    case object o when o == null:
+        Console.WriteLine(&quot;这个是谁不知道&quot;);
+        break;
+    default:
+        throw new ArgumentException(&quot;不合法的类型&quot;);
+}
+</code></pre>
+<p><strong>C#8里的第二代模式匹配</strong></p>
+<pre><code>public enum Rainbow
+{
+    Red,
+    Orange,
+    Yellow,
+    Green,
+    Blue,
+    Indigo,
+    Violet
+}
+</code></pre>
+<p>这里有几个语法改进：</p>
+<ul>
+<li>变量位于 switch 关键字之前。 不同的顺序使得在视觉上可以很轻松地区分 switch 表达式和 switch 语句。</li>
+<li>将 case 和 : 元素替换为 =&gt;。 它更简洁，更直观。</li>
+<li>将 default 事例替换为 _ 弃元。</li>
+<li>正文是表达式，不是语句。</li>
+</ul>
+<pre><code>public static RGBColor FromRainbow(Rainbow colorBand) =&gt;
+colorBand switch
+{
+    Rainbow.Red    =&gt; new RGBColor(0xFF, 0x00, 0x00),
+    Rainbow.Orange =&gt; new RGBColor(0xFF, 0x7F, 0x00),
+    Rainbow.Yellow =&gt; new RGBColor(0xFF, 0xFF, 0x00),
+    Rainbow.Green  =&gt; new RGBColor(0x00, 0xFF, 0x00),
+    Rainbow.Blue   =&gt; new RGBColor(0x00, 0x00, 0xFF),
+    Rainbow.Indigo =&gt; new RGBColor(0x4B, 0x00, 0x82),
+    Rainbow.Violet =&gt; new RGBColor(0x94, 0x00, 0xD3),
+    _              =&gt; throw new ArgumentException(message: &quot;invalid enum value&quot;, paramName: nameof(colorBand)),
+};
+</code></pre>
+<p>下面是经典的常规写法，我目前还是更喜欢这种经典的写法，反而我解决的这种经典写法更直观，哈哈，虽然代码多了几行，新写法可能需要时间来适应一下</p>
+<pre><code>public static RGBColor FromRainbowClassic(Rainbow colorBand)
+{
+    switch (colorBand)
+    {
+        case Rainbow.Red:
+            return new RGBColor(0xFF, 0x00, 0x00);
+        case Rainbow.Orange:
+            return new RGBColor(0xFF, 0x7F, 0x00);
+        case Rainbow.Yellow:
+            return new RGBColor(0xFF, 0xFF, 0x00);
+        case Rainbow.Green:
+            return new RGBColor(0x00, 0xFF, 0x00);
+        case Rainbow.Blue:
+            return new RGBColor(0x00, 0x00, 0xFF);
+        case Rainbow.Indigo:
+            return new RGBColor(0x4B, 0x00, 0x82);
+        case Rainbow.Violet:
+            return new RGBColor(0x94, 0x00, 0xD3);
+        default:
+            throw new ArgumentException(message: &quot;invalid enum value&quot;, paramName: nameof(colorBand));
+    };
+}
+</code></pre>
+<ul>
+<li><strong>属性模式：可以匹配所检查的对象的属性</strong></li>
+</ul>
+<pre><code>public static decimal ComputeSalesTax(Address location, decimal salePrice) =&gt;
+    location switch
+    {
+        { State: &quot;WA&quot; } =&gt; salePrice * 0.06M,
+        { State: &quot;MN&quot; } =&gt; salePrice * 0.075M,
+        { State: &quot;MI&quot; } =&gt; salePrice * 0.05M,
+        // other cases removed for brevity...
+        _ =&gt; 0M
+    };
+</code></pre>
+<ul>
+<li><strong>元组模式：使用元组模式，可根据表示为元组的多个值进行切换</strong></li>
+</ul>
+<pre><code>public static string RockPaperScissors(string first, string second)
+    =&gt; (first, second) switch
+    {
+        (&quot;rock&quot;, &quot;paper&quot;) =&gt; &quot;rock is covered by paper. Paper wins.&quot;,
+        (&quot;rock&quot;, &quot;scissors&quot;) =&gt; &quot;rock breaks scissors. Rock wins.&quot;,
+        (&quot;paper&quot;, &quot;rock&quot;) =&gt; &quot;paper covers rock. Paper wins.&quot;,
+        (&quot;paper&quot;, &quot;scissors&quot;) =&gt; &quot;paper is cut by scissors. Scissors wins.&quot;,
+        (&quot;scissors&quot;, &quot;rock&quot;) =&gt; &quot;scissors is broken by rock. Rock wins.&quot;,
+        (&quot;scissors&quot;, &quot;paper&quot;) =&gt; &quot;scissors cuts paper. Scissors wins.&quot;,
+        (_, _) =&gt; &quot;tie&quot;
+    };
+</code></pre>
+<ul>
+<li>
+<p><strong>位置模式：某些类型包含 Deconstruct 方法，该方法将其属性解构为离散变量</strong></p>
+</li>
+<li>
+<p>这个用法我是有点懵的...</p>
+</li>
+</ul>
+<pre><code>public class Point
+{
+    public int X { get; }
+    public int Y { get; }
+
+    public Point(int x, int y) =&gt; (X, Y) = (x, y);
+
+    public void Deconstruct(out int x, out int y) =&gt;
+        (x, y) = (X, Y);
+}
+</code></pre>
+<pre><code>public enum Quadrant
+{
+    Unknown,
+    Origin,
+    One,
+    Two,
+    Three,
+    Four,
+    OnBorder
+}
+</code></pre>
+<pre><code>static Quadrant GetQuadrant(Point point) =&gt; point switch
+{
+    (0, 0) =&gt; Quadrant.Origin,
+    var (x, y) when x &gt; 0 &amp;&amp; y &gt; 0 =&gt; Quadrant.One,
+    var (x, y) when x &lt; 0 &amp;&amp; y &gt; 0 =&gt; Quadrant.Two,
+    var (x, y) when x &lt; 0 &amp;&amp; y &lt; 0 =&gt; Quadrant.Three,
+    var (x, y) when x &gt; 0 &amp;&amp; y &lt; 0 =&gt; Quadrant.Four,
+    var (_, _) =&gt; Quadrant.OnBorder,
+    _ =&gt; Quadrant.Unknown
+};
+</code></pre>
+<p><strong>C#9里的第三代模式匹配</strong></p>
+<p>主要是进行了一些改进</p>
+<ul>
+<li>类型模式要求在变量是一种类型时匹配</li>
+<li>带圆括号的模式强制或强调模式组合的优先级</li>
+<li>联合 and 模式要求两个模式都匹配</li>
+<li>析取 or 模式要求任一模式匹配</li>
+<li>求反 not 模式要求模式不匹配</li>
+<li>关系模式要求输入小于、大于、小于等于或大于等于给定常数。</li>
+</ul>
+<pre><code>public static bool IsLetter(this char c) =&gt;
+    c is &gt;= 'a' and &lt;= 'z' or &gt;= 'A' and &lt;= 'Z';
+</code></pre>
+<p>使用可选的括号来明确 and 的优先级高于 or：</p>
+<pre><code>public static bool IsLetterOrSeparator(this char c) =&gt;
+    c is (&gt;= 'a' and &lt;= 'z') or (&gt;= 'A' and &lt;= 'Z') or '.' or ',';
+</code></pre>
+<p>最常见的用途之一是用于 NULL 检查的新语法：</p>
+<pre><code>if (e is not null)
+{
+    // ...
+}
+</code></pre>
+<p>总结：目前来说，并不是所有的模式匹配语法都用的上，但是以后可以使用模式匹配改进的地方还是值得一试的</p>
+]]></content>
+    </entry>
     <entry>
         <title type="html"><![CDATA[关于.Net Core3.0下因客户端主动取消请求导致的Request.Body异常]]></title>
         <id>https://luminqiang.github.io/xeXII_Rdv/</id>
@@ -1030,43 +1255,6 @@ public static int IsAdult(string input)
 
 
 </code></pre>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[Nginx配置Https证书]]></title>
-        <id>https://luminqiang.github.io/G2HIIUMHo/</id>
-        <link href="https://luminqiang.github.io/G2HIIUMHo/">
-        </link>
-        <updated>2020-04-11T02:33:33.000Z</updated>
-        <content type="html"><![CDATA[<pre><code>server {
-    listen       80;
-	server_name  luminqiang.com;
-	location / {
-		root   /usr/share/nginx/html;
-		index  index.html index.htm;
-	}
-}
-server {
-	
-    listen                    443 ssl;			#SSL协议访问端口号为443。此处如未添加ssl，可能会造成Nginx无法启动。
-    server_name               luminqiang.com;    #将localhost修改为您证书绑定的域名，例如：www.example.com。
-    ssl_certificate           /etc/nginx/cert/www.luminqiang.com.pem;
-    ssl_certificate_key       /etc/nginx/cert/www.luminqiang.com.key;
-    ssl_ciphers               ECDHE-RSA-AES128-GCM-SHA256:ECDHE:ECDH:AES:HIGH:!NULL:!aNULL:!MD5:!ADH:!RC4;  #使用此加密套件
-    ssl_protocols             TLSv1 TLSv1.1 TLSv1.2;    #使用该协议进行配置
-    ssl_prefer_server_ciphers on;
-    ssl_session_timeout       5m;
-
-    location ^~/api/{
-        proxy_pass http://47.99.87.3:5000;
-    }
-    location / {
-        root   /usr/share/nginx/html;
-		index  index.html index.htm;
-    }
-}
-</code></pre>
-<p>docker run -d --name nginx -p 80:80 -p 443:443 -v /usr/local/nginx/sources/home:/usr/share/nginx/html -v /usr/local/nginx/cert:/etc/nginx/cert -v /usr/local/nginx/config/default.conf:/etc/nginx/conf.d/default.conf nginx</p>
 ]]></content>
     </entry>
 </feed>

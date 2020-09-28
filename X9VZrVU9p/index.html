@@ -7,7 +7,7 @@
 <meta name="keywords" content="Gridea静态个人博客">
 <meta name="description" content="Start With Why">
 <meta name="theme-color" content="#000">
-<title>.NET Core 3.0 ReadyToRun编译 | 卢敏强的博客</title>
+<title>总结一下模式匹配功能 | 卢敏强的博客</title>
 <link rel="shortcut icon" href="/favicon.ico?v=1601300932419">
 <link rel="stylesheet" href="/styles/main.css">
 <link rel="stylesheet" href="/media/css/gemini.css">
@@ -25,7 +25,7 @@
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/auto-render.min.js" integrity="sha384-kWPLUVMOks5AQFrykwIup5lo0m3iMkkHrD0uJ4H5cjeGihAutqP0yW0J6dpFiVkI" crossorigin="anonymous"
     onload="renderMathInElement(document.body);"></script>
 
-    <meta name="description" content=".NET Core 3.0 ReadyToRun编译" />
+    <meta name="description" content="总结一下模式匹配功能" />
     <meta name="keywords" content="" />
   </head>
   <body>
@@ -146,8 +146,7 @@
       <div class="sidebar-body gemini" id="sidebar_body">
         
           
-            <div class="post-side-meta" id="post_side_meta">
-              
+            
 <div class="sidebar-wrapper box-shadow-wrapper bg-color">
   <div class="sidebar-item">
     <img class="site-author-image right-motion" src="https://luminqiang.github.io//images/avatar.png"/>
@@ -189,186 +188,6 @@
 
 
 </div>
-            </div>
-            <div class="post-toc sidebar-body-active" id="post_toc" style="opacity: 1;">
-              <div class="toc-box right-motion">
-  <div class="toc-wrapper auto-number auto" id="toc_wrapper">
-    <ul class="markdownIt-TOC">
-<li>
-<ul>
-<li>
-<ul>
-<li><a href="#%E4%B8%BA%E4%BB%80%E4%B9%88r2r-%E6%A0%BC%E5%BC%8F%E6%9B%B4%E5%BF%AB">为什么R2R 格式更快？</a></li>
-<li><a href="#%E5%85%B3%E4%BA%8E%E4%BD%BF%E7%94%A8%E9%99%90%E5%88%B6">关于使用限制：</a></li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-
-  </div>
-</div>
-
-<script>
-
-let lastTop = 0, lList = [], hList = [], postBody, lastIndex = -1; 
-let active = 'active-show', activeClass = 'active-current';
-let tocWrapper = document.querySelector('#toc_wrapper');
-let tocContent = tocWrapper.children[0];
-let autoNumber = tocWrapper&&tocWrapper.classList.contains('auto-number');
-
-function addTocNumber(elem, deep) {
-  if (!elem) {
-    return;
-  }
-  let prop = elem.__proto__;
-
-  if (prop === HTMLUListElement.prototype) {
-    for (let i = 0; i < elem.children.length; i++) {
-      addTocNumber(elem.children[i], deep + (i + 1) + '.');
-    }
-  } else if (prop === HTMLLIElement.prototype) {
-    // 保存li元素
-    lList.push(elem);
-    for (let i = 0; i < elem.children.length; i++) {
-      let cur = elem.children[i];
-      if (cur.__proto__ === HTMLAnchorElement.prototype) {
-        if (autoNumber) {
-          cur.text =  deep + ' ' + cur.text;
-        }
-      } else if (cur.__proto__ === HTMLUListElement.prototype) {
-        addTocNumber(cur, deep);
-      }
-    }
-  }
-}
-
-
-document.addEventListener('scroll', function(e) {
-  if (lList.length <= 0) {
-    return;
-  }
-  let scrollTop = document.scrollingElement.scrollTop + 10;
-  let dir;
-
-  if (lastTop - scrollTop > 0) {
-    dir = 'up';
-  } else {
-    dir = 'down';
-  }
-
-  lastTop = scrollTop;
-  if (scrollTop <= 0) {
-    if (lastIndex >= 0 && lastIndex < hList.length) {
-      lList[lastIndex].classList.remove(activeClass);
-    }
-    return;
-  }
-
-  let current = 0, hasFind = false;
-  for (let i = 0; i < hList.length; i++) {
-    if (hList[i].offsetTop > scrollTop) {
-      current = i;
-      hasFind = true;
-      break;
-    }
-  }
-  if (!hasFind && scrollTop > lList[lList.length - 1].offsetTop) {
-    current = hList.length - 1;
-  } else {
-    current--;
-  }
-  if (dir === 'down') {
-    if (current > lastIndex) {
-      addActiveClass(current);
-      removeActiveClass(lastIndex) 
-      lastIndex = current;
-      removeParentActiveClass();
-      lList[current] && addActiveLiElemment(lList[current].parentElement,tocContent);
-    }
-  } else {
-    if (current < lastIndex) {
-      addActiveClass(current);
-      removeActiveClass(lastIndex);
-      lastIndex = current;
-      removeParentActiveClass();
-      lList[current] && addActiveLiElemment(lList[current].parentElement,tocContent);
-    }
-  }
-});
-
-function removeParentActiveClass() {
-  let parents = tocContent.querySelectorAll('.'+active)
-  parents.forEach(function(elem) {
-    elem.classList.remove(active);
-  });
-}
-
-function addActiveClass(index) {
-  if (index >= 0 && index < hList.length) {
-    lList[index].classList.add(activeClass);
-  }
-}
-
-function removeActiveClass(index) {
-  if (index >= 0 && index < hList.length) {
-    lList[index].classList.remove(activeClass);
-  }
-}
-
-function addActiveLiElemment(elem, parent) {
-  if (!elem || elem === parent) {
-    return;
-  } else {
-    if (elem.__proto__ === HTMLLIElement.prototype) {
-      elem.classList.add(active);
-    }
-    addActiveLiElemment(elem.parentElement, parent);
-  }
-}
-
-function showToc() {
-  if (tocWrapper) {
-    postBody = document.querySelector('#post_body');
-    for (let i = 0; i < postBody.children.length; i++) {
-      if (postBody.children[i].__proto__ === HTMLHeadingElement.prototype) {
-        hList.push(postBody.children[i]);
-      }
-    }
-    if (tocWrapper.classList.contains('compress')) {
-        tocContent.classList.add('closed');
-    } else if (tocWrapper.classList.contains('no_compress')){
-      tocContent.classList.add('expanded');
-    } else {
-      if (hList.length > 10) {
-        active = 'active-hidden'
-        tocContent.classList.add('closed');
-      } else {
-        tocContent.classList.add('expanded');
-      }
-    }
-  }
-}
-addTocNumber(tocContent, '');
-
-window.addEventListener('load', function() {
-  showToc();
-  document.querySelector('#sidebar').style='display: block;';
-  tocWrapper.classList.add('toc-active');
-  setTimeout(function() {
-    if ("createEvent" in document) {
-      let evt = document.createEvent("HTMLEvents");
-      evt.initEvent("scroll", false, true);
-      document.dispatchEvent(evt);
-    }
-    else {
-      document.fireEvent("scroll");
-    }
-  }, 500)
-})
-
-</script>
-            </div>
           
         
       </div>
@@ -456,8 +275,8 @@ window.addEventListener('load', function() {
             <div class="section bg-color post post-page">
               <header class="post-header">
   <h1 class="post-title">
-    <a class="post-title-link" href="https://luminqiang.github.io/I1-q0wkHh/">
-      .NET Core 3.0 ReadyToRun编译
+    <a class="post-title-link" href="https://luminqiang.github.io/X9VZrVU9p/">
+      总结一下模式匹配功能
     </a>
   </h1>
   <div class="post-meta">
@@ -465,18 +284,18 @@ window.addEventListener('load', function() {
     <span class="meta-item pc-show">
       <i class="fa fa-calendar-o"></i>
       <span>发布于</span>
-      <span>2020-04-14</span>
+      <span>2020-09-28</span>
       <span class="post-meta-divider pc-show">|</span>
     </span>
     
     <span class="meta-item">
       <i class="fa fa-clock-o"></i>
-      <span>4分钟</span>
+      <span>7分钟</span>
     </span>
     <span class="meta-item">
       <span class="post-meta-divider">|</span>
       <i class="fa fa-file-word-o"></i>
-      <span>917<span class="pc-show">字数</span></span>
+      <span>1370<span class="pc-show">字数</span></span>
     </span>
     
       <span id="/postundefined" class="meta-item pc-show leancloud_visitors">
@@ -488,24 +307,223 @@ window.addEventListener('load', function() {
   </div>
 </header>
               <div class="post-body next-md-body" id="post_body">
-                <p><strong>先来总结：ReadyToRun是一种通过适当增加程序包大小，来达到更快启动速度和运行内存占用的编译方式，在 .NET Core3.0后可用。</strong></p>
-<p>.NET Core 3.0 Preview6，更新了能够加速程序加载速度的ReadyToRun（R2R）格式，以及可以缩减应用程序大小的组译连结（Assembly Linking）工具IL linker。</p>
-<p>.NET Core 3.0让开发者可以把 .NET Core用程序编译成为R2R格式，以缩短启动的时间，微软提到，R2R是一种AOT（Ahead-Of-Time）编译的形式，其二进制文件能够减少JIT在加载应用程序需要的工作量，藉以提高加载的效能。</p>
-<h3 id="为什么r2r-格式更快">为什么R2R 格式更快？</h3>
-<p>由于R2R二进制文件包含了类似JIT所产生的原生码，因此能够减少JIT的工作给予执行缓冲空间，不过也因为R2R包含了一些中介语言程序代码，虽然因此产生的程序包相对来说也比较大，是一个启动效能与包大小的取舍。</p>
-<p><strong>微软给出了实验数据：</strong></p>
+                <p>从C#7开始推出模式匹配以来，每次C#版本升级都会对模式匹配进行升级，到最新的C#9，又更新了好几个关于模式匹配的新特性（新玩法），可见模式匹配这一特性在C#语言生态中的重要地位。模式匹配到C#9为止，目前有这么多种用法，在这里总结归纳一下，以后才能玩的更溜。</p>
+<p><strong>C#7里的第一代模式匹配</strong></p>
+<p>一句话：C# 7.0 通过使用 is 表达式和 switch 语句引入了类型模式和常量模式的语法。</p>
 <ul>
-<li>只包含中介语言的应用程序，档案大小为150MB，内存使用量为69.1MB，而启动时间为1.9秒</li>
-<li></li>
-<li>使用ReadyToRun格式的相同应用程序，虽然档案略大为156MB，但是内存使用量只有55.7MB，而且启动速度只要1.3秒。</li>
+<li><strong>is表达式的用法</strong></li>
+<li>以下对引用类型和值类型进行测试，可以将成功结果分配给类型正确的<strong>新变量</strong></li>
 </ul>
-<h3 id="关于使用限制">关于使用限制：</h3>
-<p>不过目前R2R仍有许多限制，R2R现在仅支持自包含（Self-contained）应用程序，在之后的预览版才会开始支持与框架相依的应用程序。.NET Core 3.0 SDK可以设定排除特定应用程序，以免被编译成为R2R，微软提到，部分应用程序不需要优化效能，不编译成R2R反而比较省空间。</p>
-<p>.NET Core 3.0开始支持R2R，但R2R并不向后支持，因此较旧的.NET Core版本无法使用，另外，开发者只能编译函式库成R2R，以作为应用程序的一部分，目前还不能作为NuGet套件交付，微软表示，这项功能要依用户回馈决定是否要支持。</p>
+<pre><code>public async static Task Main()
+{
+    var o = new object();
+    var s = new Student()
+    {
+        Name = &quot;luminqiang&quot;,
+        Age = 25
+    };
+
+    if (o is Student student)
+    {
+        Console.WriteLine(student.Name + student.Age);
+    }
+
+    if (s is Student student1)
+    {
+        var dseds = s.Equals(student1);
+        Console.WriteLine(student1.Name + student1.Age);
+    }
+
+    int number_one = 10;
+    if (number_one is int number_two)
+    {
+        number_two += 10;
+    }
+}
+
+    public class Student
+    {
+        public string Name { get; set; }
+        public int Age { get; set; }
+    }
+</code></pre>
 <ul>
-<li>R2R现在也不支持跨平台编译，在Windows x64环境只能编译Windows ARM32、ARM64以及x86映象檔，而在Linux x64只能编译Linux ARM32和ARM64映像档。除了R2R的更新，微软提到，.NET Core 3.0还提供了一个特别组译连结工具IL linker，可以透过分析中介语言并删减用不到的组译语言，确保自包含应用程序仅包含实际需要的程序代码，而这能够显著的降低某些应用程序的大小，微软提到，通常小型控制台应用程序可以减少最多，因为这些工具使用较小的框架子集，可以修剪的幅度比较大。微软的实验数据显示，对于最基本helloworld应用程序，可以从原本的68MB减少到大约28MB。</li>
-<li>而使用映像或是相关动态功能的应用程序或框架，组译连结工具的修剪工作通常会失败，因为IL linker不认识这类动态行为，并且无法决定在Runtime的时候需要使用的帧类型。IL linker与ReadToRun编译程序可以用在同一个应用程序，微软表示，正常情况是IL linker会让应用程序变小，但是ReadyToRun编译程序又为让应用程序变大，但是效能会大幅提升，开发者可以在各种配置中进行测试，了解这些工具选项产生的影响。</li>
+<li><strong>switch 匹配表达式的用法</strong></li>
+<li>switch语句不再限制为常量值如数字类型和字符串，还可以使用其他自定义类型</li>
 </ul>
+<pre><code>case 0: 是常见的常量模式。
+case IEnumerable&lt;int&gt; childSequence: 是一种类型模式。
+case int n when n &gt; 0: 是具有附加 when 条件的类型模式。
+case null: 是 null 模式。
+default: 是常见的默认事例。
+</code></pre>
+<pre><code>var student = new Student
+{
+    Age = 25,
+    Name = &quot;luminqiang&quot;
+};
+
+switch (student)
+{         
+    case Student s when s.Name == &quot;lumiqiang&quot;:
+        Console.WriteLine(&quot;这个是学霸&quot;);
+        break;
+    case object o when o == null:
+        Console.WriteLine(&quot;这个是谁不知道&quot;);
+        break;
+    default:
+        throw new ArgumentException(&quot;不合法的类型&quot;);
+}
+</code></pre>
+<p><strong>C#8里的第二代模式匹配</strong></p>
+<pre><code>public enum Rainbow
+{
+    Red,
+    Orange,
+    Yellow,
+    Green,
+    Blue,
+    Indigo,
+    Violet
+}
+</code></pre>
+<p>这里有几个语法改进：</p>
+<ul>
+<li>变量位于 switch 关键字之前。 不同的顺序使得在视觉上可以很轻松地区分 switch 表达式和 switch 语句。</li>
+<li>将 case 和 : 元素替换为 =&gt;。 它更简洁，更直观。</li>
+<li>将 default 事例替换为 _ 弃元。</li>
+<li>正文是表达式，不是语句。</li>
+</ul>
+<pre><code>public static RGBColor FromRainbow(Rainbow colorBand) =&gt;
+colorBand switch
+{
+    Rainbow.Red    =&gt; new RGBColor(0xFF, 0x00, 0x00),
+    Rainbow.Orange =&gt; new RGBColor(0xFF, 0x7F, 0x00),
+    Rainbow.Yellow =&gt; new RGBColor(0xFF, 0xFF, 0x00),
+    Rainbow.Green  =&gt; new RGBColor(0x00, 0xFF, 0x00),
+    Rainbow.Blue   =&gt; new RGBColor(0x00, 0x00, 0xFF),
+    Rainbow.Indigo =&gt; new RGBColor(0x4B, 0x00, 0x82),
+    Rainbow.Violet =&gt; new RGBColor(0x94, 0x00, 0xD3),
+    _              =&gt; throw new ArgumentException(message: &quot;invalid enum value&quot;, paramName: nameof(colorBand)),
+};
+</code></pre>
+<p>下面是经典的常规写法，我目前还是更喜欢这种经典的写法，反而我解决的这种经典写法更直观，哈哈，虽然代码多了几行，新写法可能需要时间来适应一下</p>
+<pre><code>public static RGBColor FromRainbowClassic(Rainbow colorBand)
+{
+    switch (colorBand)
+    {
+        case Rainbow.Red:
+            return new RGBColor(0xFF, 0x00, 0x00);
+        case Rainbow.Orange:
+            return new RGBColor(0xFF, 0x7F, 0x00);
+        case Rainbow.Yellow:
+            return new RGBColor(0xFF, 0xFF, 0x00);
+        case Rainbow.Green:
+            return new RGBColor(0x00, 0xFF, 0x00);
+        case Rainbow.Blue:
+            return new RGBColor(0x00, 0x00, 0xFF);
+        case Rainbow.Indigo:
+            return new RGBColor(0x4B, 0x00, 0x82);
+        case Rainbow.Violet:
+            return new RGBColor(0x94, 0x00, 0xD3);
+        default:
+            throw new ArgumentException(message: &quot;invalid enum value&quot;, paramName: nameof(colorBand));
+    };
+}
+</code></pre>
+<ul>
+<li><strong>属性模式：可以匹配所检查的对象的属性</strong></li>
+</ul>
+<pre><code>public static decimal ComputeSalesTax(Address location, decimal salePrice) =&gt;
+    location switch
+    {
+        { State: &quot;WA&quot; } =&gt; salePrice * 0.06M,
+        { State: &quot;MN&quot; } =&gt; salePrice * 0.075M,
+        { State: &quot;MI&quot; } =&gt; salePrice * 0.05M,
+        // other cases removed for brevity...
+        _ =&gt; 0M
+    };
+</code></pre>
+<ul>
+<li><strong>元组模式：使用元组模式，可根据表示为元组的多个值进行切换</strong></li>
+</ul>
+<pre><code>public static string RockPaperScissors(string first, string second)
+    =&gt; (first, second) switch
+    {
+        (&quot;rock&quot;, &quot;paper&quot;) =&gt; &quot;rock is covered by paper. Paper wins.&quot;,
+        (&quot;rock&quot;, &quot;scissors&quot;) =&gt; &quot;rock breaks scissors. Rock wins.&quot;,
+        (&quot;paper&quot;, &quot;rock&quot;) =&gt; &quot;paper covers rock. Paper wins.&quot;,
+        (&quot;paper&quot;, &quot;scissors&quot;) =&gt; &quot;paper is cut by scissors. Scissors wins.&quot;,
+        (&quot;scissors&quot;, &quot;rock&quot;) =&gt; &quot;scissors is broken by rock. Rock wins.&quot;,
+        (&quot;scissors&quot;, &quot;paper&quot;) =&gt; &quot;scissors cuts paper. Scissors wins.&quot;,
+        (_, _) =&gt; &quot;tie&quot;
+    };
+</code></pre>
+<ul>
+<li>
+<p><strong>位置模式：某些类型包含 Deconstruct 方法，该方法将其属性解构为离散变量</strong></p>
+</li>
+<li>
+<p>这个用法我是有点懵的...</p>
+</li>
+</ul>
+<pre><code>public class Point
+{
+    public int X { get; }
+    public int Y { get; }
+
+    public Point(int x, int y) =&gt; (X, Y) = (x, y);
+
+    public void Deconstruct(out int x, out int y) =&gt;
+        (x, y) = (X, Y);
+}
+</code></pre>
+<pre><code>public enum Quadrant
+{
+    Unknown,
+    Origin,
+    One,
+    Two,
+    Three,
+    Four,
+    OnBorder
+}
+</code></pre>
+<pre><code>static Quadrant GetQuadrant(Point point) =&gt; point switch
+{
+    (0, 0) =&gt; Quadrant.Origin,
+    var (x, y) when x &gt; 0 &amp;&amp; y &gt; 0 =&gt; Quadrant.One,
+    var (x, y) when x &lt; 0 &amp;&amp; y &gt; 0 =&gt; Quadrant.Two,
+    var (x, y) when x &lt; 0 &amp;&amp; y &lt; 0 =&gt; Quadrant.Three,
+    var (x, y) when x &gt; 0 &amp;&amp; y &lt; 0 =&gt; Quadrant.Four,
+    var (_, _) =&gt; Quadrant.OnBorder,
+    _ =&gt; Quadrant.Unknown
+};
+</code></pre>
+<p><strong>C#9里的第三代模式匹配</strong></p>
+<p>主要是进行了一些改进</p>
+<ul>
+<li>类型模式要求在变量是一种类型时匹配</li>
+<li>带圆括号的模式强制或强调模式组合的优先级</li>
+<li>联合 and 模式要求两个模式都匹配</li>
+<li>析取 or 模式要求任一模式匹配</li>
+<li>求反 not 模式要求模式不匹配</li>
+<li>关系模式要求输入小于、大于、小于等于或大于等于给定常数。</li>
+</ul>
+<pre><code>public static bool IsLetter(this char c) =&gt;
+    c is &gt;= 'a' and &lt;= 'z' or &gt;= 'A' and &lt;= 'Z';
+</code></pre>
+<p>使用可选的括号来明确 and 的优先级高于 or：</p>
+<pre><code>public static bool IsLetterOrSeparator(this char c) =&gt;
+    c is (&gt;= 'a' and &lt;= 'z') or (&gt;= 'A' and &lt;= 'Z') or '.' or ',';
+</code></pre>
+<p>最常见的用途之一是用于 NULL 检查的新语法：</p>
+<pre><code>if (e is not null)
+{
+    // ...
+}
+</code></pre>
+<p>总结：目前来说，并不是所有的模式匹配语法都用的上，但是以后可以使用模式匹配改进的地方还是值得一试的</p>
 
               </div>
               <div class="post-footer">
@@ -516,7 +534,7 @@ window.addEventListener('load', function() {
     </li>
     <li class="post-copyright-link">
       <strong>本文链接：</strong>
-      <a href="https://luminqiang.github.io/I1-q0wkHh/" title=".NET Core 3.0 ReadyToRun编译">.NET Core 3.0 ReadyToRun编译</a>
+      <a href="https://luminqiang.github.io/X9VZrVU9p/" title="总结一下模式匹配功能">总结一下模式匹配功能</a>
     </li>
     <li class="post-copyright-license">
       <strong>版权声明： </strong>
@@ -529,15 +547,11 @@ window.addEventListener('load', function() {
   <div class="nav">
     <div class="nav-prev">
       
-        <i class="fa fa-chevron-left"></i>
-        <a class="nav-pc-next" title=".NET Core 3.1 下Rest API 与 GRPC 性能测试比较" href="https://luminqiang.github.io/Ces3IZPF5/">.NET Core 3.1 下Rest API 与 GRPC 性能测试比较</a class="nav-pc-next">
-        <a class="nav-mobile-prev" title=".NET Core 3.1 下Rest API 与 GRPC 性能测试比较" href="https://luminqiang.github.io/Ces3IZPF5/">上一篇</a>
-      
     </div>
     <div class="nav-next">
       
-        <a class="nav-pc-next" title="C# 根据身份证号计算是否成年" href="https://luminqiang.github.io/nym_-OBjN/">C# 根据身份证号计算是否成年</a>
-        <a class="nav-mobile-next" title="C# 根据身份证号计算是否成年" href="https://luminqiang.github.io/nym_-OBjN/">下一篇</a>
+        <a class="nav-pc-next" title="关于.Net Core3.0下因客户端主动取消请求导致的Request.Body异常" href="https://luminqiang.github.io/xeXII_Rdv/">关于.Net Core3.0下因客户端主动取消请求导致的Request.Body异常</a>
+        <a class="nav-mobile-next" title="关于.Net Core3.0下因客户端主动取消请求导致的Request.Body异常" href="https://luminqiang.github.io/xeXII_Rdv/">下一篇</a>
         <i class="fa fa-chevron-right"></i>
       
     </div>
