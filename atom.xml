@@ -2,14 +2,63 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://luminqiang.github.io/</id>
     <title>卢敏强的博客</title>
-    <updated>2020-09-28T13:49:00.321Z</updated>
+    <updated>2021-01-05T14:48:57.992Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://luminqiang.github.io/"/>
     <link rel="self" href="https://luminqiang.github.io/atom.xml"/>
     <subtitle>Start With Why</subtitle>
     <logo>https://luminqiang.github.io/images/avatar.png</logo>
     <icon>https://luminqiang.github.io/favicon.ico</icon>
-    <rights>All rights reserved 2020, 卢敏强的博客</rights>
+    <rights>All rights reserved 2021, 卢敏强的博客</rights>
+    <entry>
+        <title type="html"><![CDATA[Please make sure you have the correct access rights问题解决]]></title>
+        <id>https://luminqiang.github.io/I4cK0A0ZB/</id>
+        <link href="https://luminqiang.github.io/I4cK0A0ZB/">
+        </link>
+        <updated>2021-01-05T14:48:40.000Z</updated>
+        <content type="html"><![CDATA[<p>就是秘钥过期了，重新生成添加到github服务器就好了，步骤如下：</p>
+<ul>
+<li>删除.ssh文件夹）下的known_hosts文件，在C盘的用户目录下，我的路径</li>
+</ul>
+<pre><code>C:\Users\LUMIN\.ssh
+</code></pre>
+<ul>
+<li>打开gitbash工具输入命令</li>
+</ul>
+<pre><code>ssh-keygen -t rsa -C &quot;username&quot;
+</code></pre>
+<p>成功后返回以下确认信息：</p>
+<pre><code>Generating public/private rsa key pair.
+Enter file in which to save the key (/c/Users/LUMIN/.ssh/id_rsa):
+
+</code></pre>
+<p>回车键继续，因为以前有这个文件保存了秘钥信息，所以会返回覆盖的确认信息如下：</p>
+<pre><code>/c/Users/LUMIN/.ssh/id_rsa already exists.
+Overwrite (y/n)? 
+</code></pre>
+<p>输入y，回车继续，因为以前没有存储地址，返回以下信息：</p>
+<pre><code>Enter passphrase (empty for no passphrase):
+</code></pre>
+<p>再次回车，返回再次确认信息：</p>
+<pre><code>Enter same passphrase again:
+</code></pre>
+<p>回车确认，返回以下信息，表示已生成SSH Key</p>
+<pre><code>Your identification has been saved in /c/Users/LUMIN/.ssh/id_rsa.
+Your public key has been saved in /c/Users/LUMIN/.ssh/id_rsa.pub.
+</code></pre>
+<p>找到自动在.ssh文件夹下的id_rsa.pub，把内容复制到github的SSH Key中</p>
+<p>最后输入ssh -T git@github.co，测试是否成功，输入yes，继续连接：</p>
+<pre><code>The authenticity of host 'github.com (52.74.223.119)' can't be established.
+RSA key fingerprint is SHA256:nThbg6kXUpJWGl7E1IGOCspRomTxdCARLviKw6E5SY8.
+Are you sure you want to continue connecting (yes/no/[fingerprint])? yes
+
+</code></pre>
+<p>以下信息成功</p>
+<pre><code>Warning: Permanently added 'github.com,52.74.223.119' (RSA) to the list of known hosts.
+Hi luminqiang! You've successfully authenticated, but GitHub does not provide shell access.
+</code></pre>
+]]></content>
+    </entry>
     <entry>
         <title type="html"><![CDATA[总结一下模式匹配功能]]></title>
         <id>https://luminqiang.github.io/X9VZrVU9p/</id>
@@ -1209,52 +1258,6 @@ Intel Core i5-9600K CPU 3.70GHz (Coffee Lake), 1 CPU, 6 logical and 6 physical c
 <li>R2R现在也不支持跨平台编译，在Windows x64环境只能编译Windows ARM32、ARM64以及x86映象檔，而在Linux x64只能编译Linux ARM32和ARM64映像档。除了R2R的更新，微软提到，.NET Core 3.0还提供了一个特别组译连结工具IL linker，可以透过分析中介语言并删减用不到的组译语言，确保自包含应用程序仅包含实际需要的程序代码，而这能够显著的降低某些应用程序的大小，微软提到，通常小型控制台应用程序可以减少最多，因为这些工具使用较小的框架子集，可以修剪的幅度比较大。微软的实验数据显示，对于最基本helloworld应用程序，可以从原本的68MB减少到大约28MB。</li>
 <li>而使用映像或是相关动态功能的应用程序或框架，组译连结工具的修剪工作通常会失败，因为IL linker不认识这类动态行为，并且无法决定在Runtime的时候需要使用的帧类型。IL linker与ReadToRun编译程序可以用在同一个应用程序，微软表示，正常情况是IL linker会让应用程序变小，但是ReadyToRun编译程序又为让应用程序变大，但是效能会大幅提升，开发者可以在各种配置中进行测试，了解这些工具选项产生的影响。</li>
 </ul>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[C# 根据身份证号计算是否成年]]></title>
-        <id>https://luminqiang.github.io/nym_-OBjN/</id>
-        <link href="https://luminqiang.github.io/nym_-OBjN/">
-        </link>
-        <updated>2020-04-11T04:10:40.000Z</updated>
-        <content type="html"><![CDATA[<pre><code>
-public static int IsAdult(string input)
-{
-    if (!string.IsNullOrEmpty(input) &amp;&amp; !string.IsNullOrWhiteSpace(input))
-    {
-        if (input.Length != 15 &amp;&amp; input.Length != 18)
-        {
-            return 0;
-        }
-
-        string birthday;
-        if (input.Length == 18)
-        {
-            birthday = input.Substring(6, 4) + &quot;-&quot; + input.Substring(10, 2) + &quot;-&quot; + input.Substring(12, 2);
-        }
-        else
-        {
-            birthday = &quot;19&quot; + input.Substring(6, 2) + &quot;-&quot; + input.Substring(8, 2) + &quot;-&quot; + input.Substring(10, 2);
-        }
-
-        DateTime birthDate = DateTime.Parse(birthday);
-        DateTime nowDateTime = DateTime.Now;
-        int age = nowDateTime.Year - birthDate.Year;
-        if (nowDateTime.Month &lt; birthDate.Month || (nowDateTime.Month == birthDate.Month &amp;&amp; nowDateTime.Day &lt; birthDate.Day))
-        {
-            age--;
-        }
-
-        return 18 &lt;= age ? 1 : 2;
-    }
-    else
-    {
-        return 0;
-    }
-}
-
-
-</code></pre>
 ]]></content>
     </entry>
 </feed>

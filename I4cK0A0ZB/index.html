@@ -7,7 +7,7 @@
 <meta name="keywords" content="Gridea静态个人博客">
 <meta name="description" content="Start With Why">
 <meta name="theme-color" content="#000">
-<title>关于C#中实现单例模式 | 卢敏强的博客</title>
+<title>Please make sure you have the correct access rights问题解决 | 卢敏强的博客</title>
 <link rel="shortcut icon" href="/favicon.ico?v=1609858129620">
 <link rel="stylesheet" href="/styles/main.css">
 <link rel="stylesheet" href="/media/css/gemini.css">
@@ -25,7 +25,7 @@
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/auto-render.min.js" integrity="sha384-kWPLUVMOks5AQFrykwIup5lo0m3iMkkHrD0uJ4H5cjeGihAutqP0yW0J6dpFiVkI" crossorigin="anonymous"
     onload="renderMathInElement(document.body);"></script>
 
-    <meta name="description" content="关于C#中实现单例模式" />
+    <meta name="description" content="Please make sure you have the correct access rights问题解决" />
     <meta name="keywords" content="" />
   </head>
   <body>
@@ -146,8 +146,7 @@
       <div class="sidebar-body gemini" id="sidebar_body">
         
           
-            <div class="post-side-meta" id="post_side_meta">
-              
+            
 <div class="sidebar-wrapper box-shadow-wrapper bg-color">
   <div class="sidebar-item">
     <img class="site-author-image right-motion" src="https://luminqiang.github.io//images/avatar.png"/>
@@ -189,182 +188,6 @@
 
 
 </div>
-            </div>
-            <div class="post-toc sidebar-body-active" id="post_toc" style="opacity: 1;">
-              <div class="toc-box right-motion">
-  <div class="toc-wrapper auto-number auto" id="toc_wrapper">
-    <ul class="markdownIt-TOC">
-<li>
-<ul>
-<li><a href="#ihostedservice">IHostedService</a></li>
-<li><a href="#ihostapplicationlifetime">IHostApplicationLifetime</a></li>
-</ul>
-</li>
-</ul>
-
-  </div>
-</div>
-
-<script>
-
-let lastTop = 0, lList = [], hList = [], postBody, lastIndex = -1; 
-let active = 'active-show', activeClass = 'active-current';
-let tocWrapper = document.querySelector('#toc_wrapper');
-let tocContent = tocWrapper.children[0];
-let autoNumber = tocWrapper&&tocWrapper.classList.contains('auto-number');
-
-function addTocNumber(elem, deep) {
-  if (!elem) {
-    return;
-  }
-  let prop = elem.__proto__;
-
-  if (prop === HTMLUListElement.prototype) {
-    for (let i = 0; i < elem.children.length; i++) {
-      addTocNumber(elem.children[i], deep + (i + 1) + '.');
-    }
-  } else if (prop === HTMLLIElement.prototype) {
-    // 保存li元素
-    lList.push(elem);
-    for (let i = 0; i < elem.children.length; i++) {
-      let cur = elem.children[i];
-      if (cur.__proto__ === HTMLAnchorElement.prototype) {
-        if (autoNumber) {
-          cur.text =  deep + ' ' + cur.text;
-        }
-      } else if (cur.__proto__ === HTMLUListElement.prototype) {
-        addTocNumber(cur, deep);
-      }
-    }
-  }
-}
-
-
-document.addEventListener('scroll', function(e) {
-  if (lList.length <= 0) {
-    return;
-  }
-  let scrollTop = document.scrollingElement.scrollTop + 10;
-  let dir;
-
-  if (lastTop - scrollTop > 0) {
-    dir = 'up';
-  } else {
-    dir = 'down';
-  }
-
-  lastTop = scrollTop;
-  if (scrollTop <= 0) {
-    if (lastIndex >= 0 && lastIndex < hList.length) {
-      lList[lastIndex].classList.remove(activeClass);
-    }
-    return;
-  }
-
-  let current = 0, hasFind = false;
-  for (let i = 0; i < hList.length; i++) {
-    if (hList[i].offsetTop > scrollTop) {
-      current = i;
-      hasFind = true;
-      break;
-    }
-  }
-  if (!hasFind && scrollTop > lList[lList.length - 1].offsetTop) {
-    current = hList.length - 1;
-  } else {
-    current--;
-  }
-  if (dir === 'down') {
-    if (current > lastIndex) {
-      addActiveClass(current);
-      removeActiveClass(lastIndex) 
-      lastIndex = current;
-      removeParentActiveClass();
-      lList[current] && addActiveLiElemment(lList[current].parentElement,tocContent);
-    }
-  } else {
-    if (current < lastIndex) {
-      addActiveClass(current);
-      removeActiveClass(lastIndex);
-      lastIndex = current;
-      removeParentActiveClass();
-      lList[current] && addActiveLiElemment(lList[current].parentElement,tocContent);
-    }
-  }
-});
-
-function removeParentActiveClass() {
-  let parents = tocContent.querySelectorAll('.'+active)
-  parents.forEach(function(elem) {
-    elem.classList.remove(active);
-  });
-}
-
-function addActiveClass(index) {
-  if (index >= 0 && index < hList.length) {
-    lList[index].classList.add(activeClass);
-  }
-}
-
-function removeActiveClass(index) {
-  if (index >= 0 && index < hList.length) {
-    lList[index].classList.remove(activeClass);
-  }
-}
-
-function addActiveLiElemment(elem, parent) {
-  if (!elem || elem === parent) {
-    return;
-  } else {
-    if (elem.__proto__ === HTMLLIElement.prototype) {
-      elem.classList.add(active);
-    }
-    addActiveLiElemment(elem.parentElement, parent);
-  }
-}
-
-function showToc() {
-  if (tocWrapper) {
-    postBody = document.querySelector('#post_body');
-    for (let i = 0; i < postBody.children.length; i++) {
-      if (postBody.children[i].__proto__ === HTMLHeadingElement.prototype) {
-        hList.push(postBody.children[i]);
-      }
-    }
-    if (tocWrapper.classList.contains('compress')) {
-        tocContent.classList.add('closed');
-    } else if (tocWrapper.classList.contains('no_compress')){
-      tocContent.classList.add('expanded');
-    } else {
-      if (hList.length > 10) {
-        active = 'active-hidden'
-        tocContent.classList.add('closed');
-      } else {
-        tocContent.classList.add('expanded');
-      }
-    }
-  }
-}
-addTocNumber(tocContent, '');
-
-window.addEventListener('load', function() {
-  showToc();
-  document.querySelector('#sidebar').style='display: block;';
-  tocWrapper.classList.add('toc-active');
-  setTimeout(function() {
-    if ("createEvent" in document) {
-      let evt = document.createEvent("HTMLEvents");
-      evt.initEvent("scroll", false, true);
-      document.dispatchEvent(evt);
-    }
-    else {
-      document.fireEvent("scroll");
-    }
-  }, 500)
-})
-
-</script>
-            </div>
           
         
       </div>
@@ -452,8 +275,8 @@ window.addEventListener('load', function() {
             <div class="section bg-color post post-page">
               <header class="post-header">
   <h1 class="post-title">
-    <a class="post-title-link" href="https://luminqiang.github.io/Uf8irdE0o/">
-      关于C#中实现单例模式
+    <a class="post-title-link" href="https://luminqiang.github.io/I4cK0A0ZB/">
+      Please make sure you have the correct access rights问题解决
     </a>
   </h1>
   <div class="post-meta">
@@ -461,18 +284,18 @@ window.addEventListener('load', function() {
     <span class="meta-item pc-show">
       <i class="fa fa-calendar-o"></i>
       <span>发布于</span>
-      <span>2020-04-26</span>
+      <span>2021-01-05</span>
       <span class="post-meta-divider pc-show">|</span>
     </span>
     
     <span class="meta-item">
       <i class="fa fa-clock-o"></i>
-      <span>5分钟</span>
+      <span>2分钟</span>
     </span>
     <span class="meta-item">
       <span class="post-meta-divider">|</span>
       <i class="fa fa-file-word-o"></i>
-      <span>796<span class="pc-show">字数</span></span>
+      <span>342<span class="pc-show">字数</span></span>
     </span>
     
       <span id="/postundefined" class="meta-item pc-show leancloud_visitors">
@@ -484,189 +307,46 @@ window.addEventListener('load', function() {
   </div>
 </header>
               <div class="post-body next-md-body" id="post_body">
-                <h2 id="ihostedservice">IHostedService</h2>
-<p>该接口中有两个方法：</p>
-<p>StartAsync：当应用程序主机准备启动服务时触发</p>
-<p>StopAsync：当应用程序主机准备停止服务时触发</p>
-<pre><code>//
-// 摘要:
-//     /// Defines methods for objects that are managed by the host. ///
-public interface IHostedService
-{
-    //
-    // 摘要:
-    //     /// Triggered when the application host is ready to start the service. ///
-    //
-    // 参数:
-    //   cancellationToken:
-    //     Indicates that the start process has been aborted.
-    Task StartAsync(CancellationToken cancellationToken);
-
-    //
-    // 摘要:
-    //     /// Triggered when the application host is performing a graceful shutdown. ///
-    //
-    // 参数:
-    //   cancellationToken:
-    //     Indicates that the shutdown process should no longer be graceful.
-    Task StopAsync(CancellationToken cancellationToken);
-}
+                <p>就是秘钥过期了，重新生成添加到github服务器就好了，步骤如下：</p>
+<ul>
+<li>删除.ssh文件夹）下的known_hosts文件，在C盘的用户目录下，我的路径</li>
+</ul>
+<pre><code>C:\Users\LUMIN\.ssh
 </code></pre>
-<h2 id="ihostapplicationlifetime">IHostApplicationLifetime</h2>
-<p>该接口中包含三个属性：Host程序的启动、正在停止、已停止，一个方法StopApplication，该方法用于主动停止程序。</p>
-<pre><code>//
-// 摘要:
-//     /// Allows consumers to be notified of application lifetime events. ///
-public interface IHostApplicationLifetime
-{
-    //
-    // 摘要:
-    //     /// Triggered when the application host has fully started. ///
-    CancellationToken ApplicationStarted
-    {
-        get;
-    }
-
-    //
-    // 摘要:
-    //     /// Triggered when the application host is performing a graceful shutdown. ///
-    //     Shutdown will block until this event completes. ///
-    CancellationToken ApplicationStopped
-    {
-        get;
-    }
-
-    //
-    // 摘要:
-    //     /// Triggered when the application host is performing a graceful shutdown. ///
-    //     Shutdown will block until this event completes. ///
-    CancellationToken ApplicationStopping
-    {
-        get;
-    }
-
-    //
-    // 摘要:
-    //     /// Requests termination of the current application. ///
-    void StopApplication();
-}
+<ul>
+<li>打开gitbash工具输入命令</li>
+</ul>
+<pre><code>ssh-keygen -t rsa -C &quot;username&quot;
 </code></pre>
-<p>这里实现<strong>IHostedService</strong>接口，然后使用<strong>IHostApplicationLifetime</strong>（该接口由框架自动实现注入），在<strong>IHostedService</strong>的<strong>StartAsync</strong>方法中注册<strong>IHostApplicationLifetime</strong>中的三个程序运行事件，可以做一些自定义的操作，我这里只是记录了日志。</p>
-<pre><code>internal class LifetimeEventsHostedService : IHostedService
-{
-    private readonly string appCode = ConfigurationManager.GetAppSetting(&quot;AppCode&quot;);
-    private readonly string appName = ConfigurationManager.GetAppSetting(&quot;AppName&quot;);
-    private readonly IHostApplicationLifetime _appLifetime;
+<p>成功后返回以下确认信息：</p>
+<pre><code>Generating public/private rsa key pair.
+Enter file in which to save the key (/c/Users/LUMIN/.ssh/id_rsa):
 
-    public LifetimeEventsHostedService(IHostApplicationLifetime appLifetime)
-    {
-        _appLifetime = appLifetime;
-    }
-
-    public Task StartAsync(CancellationToken cancellationToken)
-    {
-        _appLifetime.ApplicationStarted.Register(OnStarted);
-        _appLifetime.ApplicationStopping.Register(OnStopping);
-        _appLifetime.ApplicationStopped.Register(OnStopped);
-
-        return Task.CompletedTask;
-    }
-
-    public Task StopAsync(CancellationToken cancellationToken)
-    {
-        return Task.CompletedTask;
-    }
-
-    private void OnStarted()
-    {
-        var interNetworkV6 = System.Net.Sockets.AddressFamily.InterNetworkV6;
-        var interNetwork = System.Net.Sockets.AddressFamily.InterNetwork;
-        var ipList = System.Net.NetworkInformation.NetworkInterface.GetAllNetworkInterfaces()
-          .Select(p =&gt; p.GetIPProperties())
-          .SelectMany(p =&gt; p.UnicastAddresses)
-          .Where(p =&gt; (p.Address.AddressFamily == interNetwork || p.Address.AddressFamily == interNetworkV6) &amp;&amp; !System.Net.IPAddress.IsLoopback(p.Address)).ToList();
-
-        Console.WriteLine($&quot;OnStarted has been called：【{appCode}】【{appName}】【{DateTime.Now}】 【{ipList[1].Address}】 【{ipList[0].Address}】&quot;);
-        Logger.Info($&quot;OnStarted has been called：【{appCode}】【{appName}】【{DateTime.Now}】 【{ipList[1].Address}】 【{ipList[0].Address}】&quot;);
-    }
-
-    private void OnStopping()
-    {
-        Console.WriteLine($&quot;OnStopping has been called：【{appCode}】【{appName}】【{DateTime.Now}】&quot;);
-        Logger.Info($&quot;OnStopping has been called：【{appCode}】【{appName}】【{DateTime.Now}】&quot;);
-    }
-
-    private void OnStopped()
-    {
-        Console.WriteLine($&quot;OnStopped has been called：【{appCode}】【{appName}】【{DateTime.Now}】&quot;);
-        Logger.Info($&quot;OnStopped has been called：【{appCode}】【{appName}】【{DateTime.Now}】&quot;);
-    }
-}
 </code></pre>
-<p><strong>最后在服务中注入</strong></p>
-<pre><code>.ConfigureServices(a =&gt;
-{
-    a.AddSingleton&lt;IHostedService, LifetimeEventsHostedService&gt;();
-});
+<p>回车键继续，因为以前有这个文件保存了秘钥信息，所以会返回覆盖的确认信息如下：</p>
+<pre><code>/c/Users/LUMIN/.ssh/id_rsa already exists.
+Overwrite (y/n)? 
 </code></pre>
-<p><strong>也可以不使用IHostedService进行承载，直接使用IHostApplicationLifetime进行注册</strong></p>
-<pre><code>internal static class RegisterLifetimeEvents
-    {
-        private static readonly string appCode = ConfigurationManager.GetAppSetting(&quot;AppCode&quot;);
-        private static readonly string appName = ConfigurationManager.GetAppSetting(&quot;AppName&quot;);
-        private static readonly string iPV4Address;
-        private static readonly string iPV6Address;
-
-        static RegisterLifetimeEvents()
-        {
-            var interNetworkV6 = AddressFamily.InterNetworkV6;
-            var interNetwork = AddressFamily.InterNetwork;
-            var ipList = NetworkInterface.GetAllNetworkInterfaces()
-                .Select(p =&gt; p.GetIPProperties())
-                .SelectMany(p =&gt; p.UnicastAddresses)
-                .Where(p =&gt; (p.Address.AddressFamily == interNetwork || p.Address.AddressFamily == interNetworkV6) &amp;&amp; !System.Net.IPAddress.IsLoopback(p.Address)).ToList();
-
-            iPV4Address = ipList[1]?.Address.ToString();
-            iPV6Address = ipList[0]?.Address.ToString();
-        }
-
-        /// &lt;summary&gt;
-        /// 注册应用程序生命周期事件
-        /// &lt;/summary&gt;
-        public static void RegisterApplicationLifetimeEvents(this IHost host)
-        {
-            var hostApplicationLifetime = host.Services.GetService&lt;IHostApplicationLifetime&gt;();
-            hostApplicationLifetime.ApplicationStarted.Register(OnStarted);
-            hostApplicationLifetime.ApplicationStopping.Register(OnStopping);
-            hostApplicationLifetime.ApplicationStopped.Register(OnStopped);
-        }
-
-        private static void OnStarted()
-        {
-            Console.WriteLine($&quot;OnStarted has been called：{appCode} {appName} {DateTime.Now} {iPV4Address} {iPV6Address}&quot;);
-            Logger.Info($&quot;OnStarted has been called：{appCode} {appName} {DateTime.Now} {iPV4Address} {iPV6Address}&quot;);
-        }
-
-        private static void OnStopping()
-        {
-            Console.WriteLine($&quot;OnStopping has been called：{appCode} {appName} {DateTime.Now} {iPV4Address} {iPV6Address}&quot;);
-            Logger.Info($&quot;OnStopping has been called：{appCode} {appName} {DateTime.Now} {iPV4Address} {iPV6Address}&quot;);
-        }
-
-        private static void OnStopped()
-        {
-            Console.WriteLine($&quot;OnStopped has been called：{appCode} {appName} {DateTime.Now} {iPV4Address} {iPV6Address}&quot;);
-            Logger.Info($&quot;OnStopped has been called：{appCode} {appName} {DateTime.Now} {iPV4Address} {iPV6Address}&quot;);
-        }
-    }
+<p>输入y，回车继续，因为以前没有存储地址，返回以下信息：</p>
+<pre><code>Enter passphrase (empty for no passphrase):
 </code></pre>
-<p>在Main函数中注册一下即可</p>
-<pre><code>public static void Main(string[] args)
-{
-    var host = CreateHostBuilder(args).Build();
-    host.RegisterApplicationLifetimeEvents();
-    host.Run();
-}
+<p>再次回车，返回再次确认信息：</p>
+<pre><code>Enter same passphrase again:
+</code></pre>
+<p>回车确认，返回以下信息，表示已生成SSH Key</p>
+<pre><code>Your identification has been saved in /c/Users/LUMIN/.ssh/id_rsa.
+Your public key has been saved in /c/Users/LUMIN/.ssh/id_rsa.pub.
+</code></pre>
+<p>找到自动在.ssh文件夹下的id_rsa.pub，把内容复制到github的SSH Key中</p>
+<p>最后输入ssh -T git@github.co，测试是否成功，输入yes，继续连接：</p>
+<pre><code>The authenticity of host 'github.com (52.74.223.119)' can't be established.
+RSA key fingerprint is SHA256:nThbg6kXUpJWGl7E1IGOCspRomTxdCARLviKw6E5SY8.
+Are you sure you want to continue connecting (yes/no/[fingerprint])? yes
+
+</code></pre>
+<p>以下信息成功</p>
+<pre><code>Warning: Permanently added 'github.com,52.74.223.119' (RSA) to the list of known hosts.
+Hi luminqiang! You've successfully authenticated, but GitHub does not provide shell access.
 </code></pre>
 
               </div>
@@ -678,7 +358,7 @@ public interface IHostApplicationLifetime
     </li>
     <li class="post-copyright-link">
       <strong>本文链接：</strong>
-      <a href="https://luminqiang.github.io/Uf8irdE0o/" title="关于C#中实现单例模式">关于C#中实现单例模式</a>
+      <a href="https://luminqiang.github.io/I4cK0A0ZB/" title="Please make sure you have the correct access rights问题解决">Please make sure you have the correct access rights问题解决</a>
     </li>
     <li class="post-copyright-license">
       <strong>版权声明： </strong>
@@ -691,15 +371,11 @@ public interface IHostApplicationLifetime
   <div class="nav">
     <div class="nav-prev">
       
-        <i class="fa fa-chevron-left"></i>
-        <a class="nav-pc-next" title="分布式服务 Trace - 慢请求的排查思路" href="https://luminqiang.github.io/8Gt-IZY36/">分布式服务 Trace - 慢请求的排查思路</a class="nav-pc-next">
-        <a class="nav-mobile-prev" title="分布式服务 Trace - 慢请求的排查思路" href="https://luminqiang.github.io/8Gt-IZY36/">上一篇</a>
-      
     </div>
     <div class="nav-next">
       
-        <a class="nav-pc-next" title=".NET Core 3.1 下Rest API 与 GRPC 性能测试比较" href="https://luminqiang.github.io/Ces3IZPF5/">.NET Core 3.1 下Rest API 与 GRPC 性能测试比较</a>
-        <a class="nav-mobile-next" title=".NET Core 3.1 下Rest API 与 GRPC 性能测试比较" href="https://luminqiang.github.io/Ces3IZPF5/">下一篇</a>
+        <a class="nav-pc-next" title="总结一下模式匹配功能" href="https://luminqiang.github.io/X9VZrVU9p/">总结一下模式匹配功能</a>
+        <a class="nav-mobile-next" title="总结一下模式匹配功能" href="https://luminqiang.github.io/X9VZrVU9p/">下一篇</a>
         <i class="fa fa-chevron-right"></i>
       
     </div>
